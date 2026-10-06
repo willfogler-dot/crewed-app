@@ -2321,7 +2321,7 @@
     el.innerHTML =
       pick(ME_RUNNER,RUNNER,'Running it','<svg viewBox="0 0 24 24"><path d="M3 17l5-7 4 4 4-8 5 11"/></svg>') +
       (team || '<p class="cap" style="margin:10px 2px">The team list has not reached this phone yet. '+
-               'It arrives with the first sync — give it a moment, or ask '+RUNNER+' to re-share the link.</p>');
+               (SUPA&&SUPA.url?'It arrives with the first sync — give it a moment, or ask '+RUNNER+' to re-share the link.':'Add your crew and pacers in Profile.')+'</p>');
     el.querySelectorAll('[data-me]').forEach(function(b){
       b.onclick=function(){ setMe(b.dataset.me); };
     });
@@ -4816,7 +4816,8 @@
   }
 
   /* ── boot ── */
-  S.checks=jget(KEY+'checks',{}); S.custom=jget(KEY+'custom',[]); S.people=jget(KEY+'people',[]);
+  S.checks=jget(KEY+'checks',{}); S.custom=jget(KEY+'custom',[]); S.people=jget(KEY+'people',null);
+  if(!Array.isArray(S.people)) S.people=(!(SUPA&&SUPA.url)&&RACE.demoPeople)?JSON.parse(JSON.stringify(RACE.demoPeople)):[];
   S.gearAdd=jget(KEY+'gearadd',{}); S.gearRemoved=jget(KEY+'gearrm',{}); S.gearOverride=jget(KEY+'gearov',{});
   S.paceOv=jget(KEY+'paceov',{}); S.fuelOv=jget(KEY+'fuelov',{});
   S.notes=jget(KEY+'notes',{}); S.splits=jget(KEY+'splits',{}); S.aidOv=jget(KEY+'aidov',{});

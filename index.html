@@ -1644,7 +1644,7 @@ table.an tr:last-child td{border-bottom:0}
 <section id="c-info" class="view">
   <div class="phead"><h1>Good to know</h1><p class="sec">The rules that matter, and who's who.</p></div>
   <div class="card alert">
-    <h3>Three ways to get Will disqualified</h3>
+    <h3>Three ways to get Alex disqualified</h3>
     <p style="margin-top:8px"><b>1. Never drive to Fish Creek Falls Trailhead.</b> You may walk or bike there — four miles from Olympian Hall — but a car in that lot can end his race.</p>
     <p><b>2. Never drive up Buffalo Pass Road past Dry Lake.</b> Not once, not for a second. Summit Lake is the long way round, about two hours.</p>
     <p><b>3. Never park at Dry Lake.</b> Pull in, let people out, turn round and leave. The sheriff tickets and tows.</p>
@@ -1674,7 +1674,7 @@ table.an tr:last-child td{border-bottom:0}
   <div id="pacerSections"></div>
 </section>
 <section id="p-info" class="view">
-  <div class="phead"><h1>Pacer rules</h1><p class="sec">Get these wrong and it is Will's race that ends, not yours.</p></div>
+  <div class="phead"><h1>Pacer rules</h1><p class="sec">Get these wrong and it is Alex's race that ends, not yours.</p></div>
   <div class="card alert"><h3>The hard rules</h3>
     <ul style="margin:10px 0 0;padding-left:19px;line-height:1.5">
       <li style="margin-bottom:7px"><b>One pacer at a time.</b> The only exception is the last four miles from the top of the gondola.</li>
@@ -1785,8 +1785,8 @@ table.an tr:last-child td{border-bottom:0}
    If any of this is unreachable the app falls back to local storage
    and carries on — the network is never load-bearing. */
 var SUPA = {
-  url: 'https://ubgccifcatqsjmveswhz.supabase.co',
-  key: 'sb_publishable_ggyF5Zp7bZ1JgDV2MhnG9Q_kioZQKb4',
+  url: '',   /* demo build runs local-only. Set to the project URL to enable the shared plan. */
+  key: '',
   db:  '2026_09_18_rrr'   // Kandu database name; 2025 was 2025_09_12_rrr
 };
 
@@ -1801,12 +1801,19 @@ var RACE = {
   name: 'Run Rabbit Run 100', short: 'RRR100', place: 'Steamboat Springs',
   dates: '18\u201319 September 2026', monthYear: 'September 2026',
   year: 2026,
+  /* shown on a fresh, unsynced phone so the demo has a team. Real buyers start empty. */
+  demoPeople: [
+    { id:'d1', name:'Crew 1',  role:'crew',  stops:[1,2,4,5,6,8,9] },
+    { id:'d2', name:'Crew 2',  role:'crew',  stops:[4,5,6,7,8,9] },
+    { id:'d3', name:'Pacer 1', role:'pacer' },
+    { id:'d4', name:'Pacer 2', role:'pacer' }
+  ],
   sun: { rise:'6:51 am', set:'7:14 pm', dark:'7:40 pm' },
   key: 'rrr',                       /* prefix for every stored setting on a phone */
   manualFile: '2026-RRR-Manual.pdf',
   manualPages: 20,
   /* the default runner on this build; each team can set its own */
-  runner: { name: 'Will', division: 'Tortoise', bibRange: '400\u2013800' },
+  runner: { name: 'Alex', division: 'Tortoise', bibRange: '400\u2013800' },
   startSpot: 'Gondola Square', finishBy: '9:00 pm Sat',
   startShort: '9:00 am Friday', startLabel: '9:00 am Friday 18 September 2026', limitLabel: '36-hour limit',
   /* timing */
@@ -3112,7 +3119,7 @@ var EVENTS = [
   { iso:'2026-09-17T18:00', t:'Pre-race briefing — Olympian Hall', d:'Held outdoors. Bring a chair or a blanket.' },
   { iso:'2026-09-17T19:00', t:'CHECK-IN CLOSES', d:'There is no race-day check-in. Miss this and you do not start.', key:1 },
   { iso:'2026-09-18T07:00', t:'Early Bird start', d:'Men over 60 and women over 50 only.' },
-  { iso:'2026-09-18T09:00', t:'TORTOISE START', d:'Will starts here. Thirty-six hours on the clock.', key:1 },
+  { iso:'2026-09-18T09:00', t:'TORTOISE START', d:RACE.runner.name+' starts here. Thirty-six hours on the clock.', key:1 },
   { iso:'2026-09-18T13:00', t:'Hare start', d:'They will begin catching the Tortoises around mile 25 to 35, late afternoon.' },
   { iso:'2026-09-19T10:00', t:'Finish party opens', d:'Free to runners, twenty dollars for everyone else. Beer from noon.' },
   { iso:'2026-09-19T19:00', t:'Hare cutoff', d:'Thirty hours.' },
@@ -5485,7 +5492,7 @@ var AIDX = [
     el.innerHTML =
       pick(ME_RUNNER,RUNNER,'Running it','<svg viewBox="0 0 24 24"><path d="M3 17l5-7 4 4 4-8 5 11"/></svg>') +
       (team || '<p class="cap" style="margin:10px 2px">The team list has not reached this phone yet. '+
-               'It arrives with the first sync — give it a moment, or ask '+RUNNER+' to re-share the link.</p>');
+               (SUPA&&SUPA.url?'It arrives with the first sync — give it a moment, or ask '+RUNNER+' to re-share the link.':'Add your crew and pacers in Profile.')+'</p>');
     el.querySelectorAll('[data-me]').forEach(function(b){
       b.onclick=function(){ setMe(b.dataset.me); };
     });
@@ -7980,7 +7987,8 @@ var AIDX = [
   }
 
   /* ── boot ── */
-  S.checks=jget(KEY+'checks',{}); S.custom=jget(KEY+'custom',[]); S.people=jget(KEY+'people',[]);
+  S.checks=jget(KEY+'checks',{}); S.custom=jget(KEY+'custom',[]); S.people=jget(KEY+'people',null);
+  if(!Array.isArray(S.people)) S.people=(!(SUPA&&SUPA.url)&&RACE.demoPeople)?JSON.parse(JSON.stringify(RACE.demoPeople)):[];
   S.gearAdd=jget(KEY+'gearadd',{}); S.gearRemoved=jget(KEY+'gearrm',{}); S.gearOverride=jget(KEY+'gearov',{});
   S.paceOv=jget(KEY+'paceov',{}); S.fuelOv=jget(KEY+'fuelov',{});
   S.notes=jget(KEY+'notes',{}); S.splits=jget(KEY+'splits',{}); S.aidOv=jget(KEY+'aidov',{});

@@ -5,8 +5,8 @@
    If any of this is unreachable the app falls back to local storage
    and carries on — the network is never load-bearing. */
 var SUPA = {
-  url: 'https://ubgccifcatqsjmveswhz.supabase.co',
-  key: 'sb_publishable_ggyF5Zp7bZ1JgDV2MhnG9Q_kioZQKb4',
+  url: '',   /* demo build runs local-only. Set to the project URL to enable the shared plan. */
+  key: '',
   db:  '2026_09_18_rrr'   // Kandu database name; 2025 was 2025_09_12_rrr
 };
 
@@ -21,12 +21,19 @@ var RACE = {
   name: 'Run Rabbit Run 100', short: 'RRR100', place: 'Steamboat Springs',
   dates: '18\u201319 September 2026', monthYear: 'September 2026',
   year: 2026,
+  /* shown on a fresh, unsynced phone so the demo has a team. Real buyers start empty. */
+  demoPeople: [
+    { id:'d1', name:'Crew 1',  role:'crew',  stops:[1,2,4,5,6,8,9] },
+    { id:'d2', name:'Crew 2',  role:'crew',  stops:[4,5,6,7,8,9] },
+    { id:'d3', name:'Pacer 1', role:'pacer' },
+    { id:'d4', name:'Pacer 2', role:'pacer' }
+  ],
   sun: { rise:'6:51 am', set:'7:14 pm', dark:'7:40 pm' },
   key: 'rrr',                       /* prefix for every stored setting on a phone */
   manualFile: '2026-RRR-Manual.pdf',
   manualPages: 20,
   /* the default runner on this build; each team can set its own */
-  runner: { name: 'Will', division: 'Tortoise', bibRange: '400\u2013800' },
+  runner: { name: 'Alex', division: 'Tortoise', bibRange: '400\u2013800' },
   startSpot: 'Gondola Square', finishBy: '9:00 pm Sat',
   startShort: '9:00 am Friday', startLabel: '9:00 am Friday 18 September 2026', limitLabel: '36-hour limit',
   /* timing */
@@ -1332,7 +1339,7 @@ var EVENTS = [
   { iso:'2026-09-17T18:00', t:'Pre-race briefing — Olympian Hall', d:'Held outdoors. Bring a chair or a blanket.' },
   { iso:'2026-09-17T19:00', t:'CHECK-IN CLOSES', d:'There is no race-day check-in. Miss this and you do not start.', key:1 },
   { iso:'2026-09-18T07:00', t:'Early Bird start', d:'Men over 60 and women over 50 only.' },
-  { iso:'2026-09-18T09:00', t:'TORTOISE START', d:'Will starts here. Thirty-six hours on the clock.', key:1 },
+  { iso:'2026-09-18T09:00', t:'TORTOISE START', d:RACE.runner.name+' starts here. Thirty-six hours on the clock.', key:1 },
   { iso:'2026-09-18T13:00', t:'Hare start', d:'They will begin catching the Tortoises around mile 25 to 35, late afternoon.' },
   { iso:'2026-09-19T10:00', t:'Finish party opens', d:'Free to runners, twenty dollars for everyone else. Beer from noon.' },
   { iso:'2026-09-19T19:00', t:'Hare cutoff', d:'Thirty hours.' },
