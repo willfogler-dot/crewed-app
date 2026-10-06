@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>Run Rabbit Run 100</title>
+<meta name="description" content="Run Rabbit Run 100, September 2026. Where the crew and pacers need to be, and when.">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#F1F1EE">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="RRR100">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<style><!--CSS--></style>
+</head>
+<body>
+
+<div class="gate" id="gate"><div class="gate-in">
+  <div class="mark"><svg viewBox="0 0 24 24"><path d="M2 19l6-13 4.5 8.5L15.5 9 22 19z"/></svg></div>
+  <h1>Run Rabbit Run 100</h1>
+  <p class="sec">Steamboat Springs · 18–19 September 2026</p>
+  <h2 style="margin:22px 0 12px">Who are you?</h2>
+  <div id="gatePicks"></div>
+</div></div>
+
+<header class="nav" id="nav"><div class="nav-in">
+  <div class="who"><span class="dot"></span><span class="t" id="navT">Run Rabbit Run 100</span></div>
+  <span class="rclock" id="navClock" style="display:none"></span>
+  <button class="sw" id="switchBtn">Switch</button>
+</div></header>
+
+<main class="wrap">
+
+<!-- CREW -->
+<section id="c-next" class="view"></section>
+<section id="c-stops" class="view">
+  <div class="phead"><h1>Every stop</h1><p class="sec">Nine places, in order. Tap one for directions and what to bring.</p></div>
+  <div id="crewStops"></div>
+</section>
+<section id="c-info" class="view">
+  <div class="phead"><h1>Good to know</h1><p class="sec">The rules that matter, and who's who.</p></div>
+  <div class="card alert">
+    <h3>Three ways to get Will disqualified</h3>
+    <p style="margin-top:8px"><b>1. Never drive to Fish Creek Falls Trailhead.</b> You may walk or bike there — four miles from Olympian Hall — but a car in that lot can end his race.</p>
+    <p><b>2. Never drive up Buffalo Pass Road past Dry Lake.</b> Not once, not for a second. Summit Lake is the long way round, about two hours.</p>
+    <p><b>3. Never park at Dry Lake.</b> Pull in, let people out, turn round and leave. The sheriff tickets and tows.</p>
+  </div>
+  <div class="card"><h3>Handing him things</h3>
+    <p>You may only help him at the stops listed in this app, plus anywhere in town between Spring Creek Trailhead and Olympian Hall. Nowhere else. If you are not sure, don't — ask a volunteer first.</p>
+    <p>Be kind to the volunteers. The manual says plainly that being rude to them is grounds for disqualification, and they are all unpaid.</p></div>
+  <div class="card"><h3>If you can't find him</h3>
+    <p>There is tracking by bib number on the race website, though much of the course has no signal so it lags. <b>Do not phone the race asking where he is.</b> They know less than you do. If he is more than about two hours past the time shown here, tell a volunteer at the next stop and they will radio ahead.</p></div>
+  <div class="shead"><h2>Follow the race</h2></div>
+  <div id="followCrew"></div>
+  <div class="shead"><h2>Who's who</h2></div>
+  <div id="crewTeam"></div>
+  <div class="shead"><h2>The manual</h2><span class="note">20 pages</span></div>
+  <div id="manualToc"></div>
+  <div class="card flat" style="background:none;border:0;padding:0">
+    <a class="btn" href="2026-RRR-Manual.pdf" target="_blank" rel="noopener">Open the full manual</a>
+    <button class="btn tint" id="cacheManual">Save it to this phone for no-signal</button>
+    <p class="cap" id="cacheMsg" style="margin-top:9px;text-align:center"></p>
+  </div>
+</section>
+
+<!-- PACER -->
+<section id="p-leg" class="view"></section>
+<section id="p-course" class="view">
+  <div class="phead"><h1>Your ground</h1><p class="sec">The sections you'll be on. Tap one to read it properly.</p></div>
+  <div id="pacerSections"></div>
+</section>
+<section id="p-info" class="view">
+  <div class="phead"><h1>Pacer rules</h1><p class="sec">Get these wrong and it is Will's race that ends, not yours.</p></div>
+  <div class="card alert"><h3>The hard rules</h3>
+    <ul style="margin:10px 0 0;padding-left:19px;line-height:1.5">
+      <li style="margin-bottom:7px"><b>One pacer at a time.</b> The only exception is the last four miles from the top of the gondola.</li>
+      <li style="margin-bottom:7px"><b>You may only get on or off at five places:</b> Dry Lake 44.5, Olympian Hall 51.2, Olympian Hall 63.9, Dry Lake 70.8, Summit Lake 80.8.</li>
+      <li style="margin-bottom:7px"><b>No headphones</b> between Spring Creek Trailhead and Olympian Hall, either direction.</li>
+      <li style="margin-bottom:7px"><b>Check in at every aid station</b>, including both passes through Lane of Pain.</li>
+      <li><b>Get yourself to and from the stop.</b> Vehicles and non-pacer crew are not allowed at non-crew stations.</li>
+    </ul></div>
+  <div class="card"><h3>Muling</h3>
+    <p>The race directors are relaxed about this for Tortoises. Handing him a torch or a bar, or holding his bottle while he is sick, is fine. Carrying his pack for miles is not. You are there for safety, company, and keeping him on course.</p></div>
+  <div class="card gold"><h3>What to bring for yourself</h3>
+    <p>Nobody is crewing you. Bring your own headlamp and a spare, warm layers, a rain shell, gloves, water and all your own food. Aid stations will feed you but do not count on it, and Billy's Rabbit Hole and Lane of Pain are minimal.</p>
+    <p>Expect four to six hours out. It drops below freezing above 10,000 feet at night.</p></div>
+  <div class="card"><h3>Keeping him moving</h3>
+    <p>Your job at every stop is to get him out of it. Ten minutes, not thirty. Olympian Hall is heated and indoors and it ends more races than the climbs do.</p>
+    <p>Make him eat and drink on a schedule, out loud, whether he wants to or not. By mile seventy he will not be making good decisions and you will be making them for him.</p></div>
+  <div class="shead"><h2>Follow the race</h2></div>
+  <div id="followPacer"></div>
+  <div class="card flat" style="background:none;border:0;padding:0">
+    <a class="btn" href="2026-RRR-Manual.pdf" target="_blank" rel="noopener">Open the full manual</a>
+    <button class="btn tint" id="cacheManual3">Save for offline</button>
+    <p class="cap" id="cacheMsg3" style="margin-top:9px;text-align:center"></p>
+  </div>
+</section>
+
+<section id="x-course" class="view">
+  <div class="phead"><h1>The course</h1><p class="sec">Where he is, where he is going, and what each section is like.</p></div>
+  <div id="courseBody"></div>
+</section>
+
+<!-- RUNNER -->
+<section id="r-crew" class="view"><div id="myJob"></div></section>
+
+<section id="r-race" class="view">
+  <div id="raceHero"></div>
+  <div class="seg planpicker" id="planPicker"></div>
+  <div class="card" style="padding:0;overflow:hidden">
+    <div id="readout" style="background:linear-gradient(158deg,var(--hero-hi),var(--hero-lo));color:#fff;padding:12px 16px;display:flex;align-items:baseline;justify-content:space-between;gap:10px;min-height:50px"></div>
+    <svg id="profile" style="display:block;width:100%;touch-action:none"></svg>
+    <div id="profLegend"></div>
+    <div style="padding:10px 16px 12px;border-top:1px solid var(--hair);background:var(--surface-2)" class="cap">Drag along the profile to read the course. Tap to open that section. The grey band is the hours you will be running in the dark.</div>
+  </div>
+  <div id="nextStop"></div>
+  <div id="buffersWrap">
+    <div class="shead"><h2>Room to spare</h2><span class="note">against each cutoff</span></div>
+    <div class="list" id="buffers"></div>
+  </div>
+  <div class="shead"><h2>Every aid station</h2></div>
+  <div class="card"><div class="scrollx"><table class="an" id="asTable"></table></div></div>
+</section>
+
+<section id="r-course" class="view">
+  <div class="phead"><h1>The course</h1><p class="sec">Step through it aid station by aid station, then read each section in detail.</p></div>
+  <div class="shead"><h2>Course map</h2><span class="note">tap to step through</span></div>
+  <div id="mapBody"></div>
+  <div class="shead"><h2>Section by section</h2></div>
+  <div id="sections"></div>
+  <div class="shead"><h2>What 2025 actually did</h2></div>
+  <p class="sec" style="margin:-4px 0 12px">Sixty-eight Tortoises who finished between 28 and 32 hours.</p>
+  <div class="card"><div class="scrollx"><table class="an" id="anTable"></table></div></div>
+  <div class="card gold" id="anNotes"></div>
+</section>
+
+<section id="r-aid" class="view">
+  <div class="phead"><h1>Aid stations</h1><p class="sec">Seventeen check-ins. Tap any one for what's there, who's allowed, directions and your own notes.</p></div>
+  <div class="card" style="padding:14px 16px">
+    <div class="pills"><span class="pill">Crew</span><span class="pill gold">Pacer swap</span>
+      <span class="pill grey">Drop bag</span><span class="pill red">Cutoff</span></div>
+    <p class="cap" style="margin-top:10px">Times are on the selected plan from the Race tab.</p>
+  </div>
+  <div id="aidList"></div>
+  <div class="card">
+    <h3>Coordinates and offline maps</h3>
+    <p class="sec">Every station carries a latitude and longitude so a map link works with no signal, provided the Steamboat area is downloaded to the phone first.</p>
+    <div class="callout w"><b>Verify these before race week.</b> The coordinates here are approximate, taken from place locations rather than surveyed. Check them against the official CalTopo course map, and never navigate a vehicle to Summit Lake or Fish Creek Falls with a map app.</div>
+    <p class="cap">In Google Maps: search Steamboat Springs, tap the name, then Download offline map. Do it on wifi before you leave.</p>
+  </div>
+</section>
+
+<section id="r-profile" class="view">
+  <div id="profileHub"></div>
+</section>
+
+<section id="r-detail" class="view"><div id="detailBody"></div></section>
+
+<!-- SCHEDULE -->
+<section id="x-sched" class="view">
+  <div class="phead"><h1>Schedule</h1><p class="sec">Race weekend, plus anything you add — lodging, meals, flights.</p></div>
+  <div id="shareBanner"></div>
+  <button class="btn" id="addEvent"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>Add to the schedule</button>
+  <div class="btn-row">
+    <button class="btn tint sm" id="shareSched">Share additions</button>
+    <button class="btn tint sm" id="hidePast">Hide past days</button>
+  </div>
+  <div id="schedList"></div>
+</section>
+
+</main>
+<div class="foot" id="foot"></div>
+<nav class="tabs" id="tabs"></nav>
+<div class="modal" id="modal"><div class="sh" id="sheet"></div></div>
+<div class="fullmap" id="mapFull"></div>
+
+<script><!--DATA--></script>
+
+<script><!--APP--></script>
+</body>
+</html>
