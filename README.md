@@ -14,5 +14,6 @@ build.py         inlines src/ into index.html
 ```
 
 ```bash
-python3 build.py     # writes index.html
+python3 build.py [--race rrr100] [--out-dir DIR]   # writes index.html, sw.js, manifest.webmanifest, icons
+# race content lives in src/race/<race>/ (race.js, partials/, icons/); src/*.template.* are filled from it
 ```

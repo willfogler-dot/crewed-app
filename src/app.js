@@ -2,40 +2,41 @@
 /* ════════════ APP ════════════ */
 (function () {
   'use strict';
+
+  /* Course facts derived from the race data, never typed in. */
+  var RUNNER = RACE.runner.name;       /* default runner for this build */
+  var KEY = RACE.key + '.';           /* storage prefix, per race */
+  var COURSE_MI = STATIONS[STATIONS.length-1].mi;
+  var COURSE_CLIMB = STATIONS.reduce(function(t,s){ return t+(s.gain||0); },0);
+  var COURSE_MI_TXT = COURSE_MI.toFixed(1);
+  var COURSE_CLIMB_TXT = COURSE_CLIMB.toLocaleString('en-US');
+  /* Pacers may join or leave only at stations flagged pacer:1; the finish is the last. */
+  var SWAPS = STATIONS.filter(function(s){ return s.pacer; }).map(function(s){ return s.mi; });
+  var PACER_FROM = SWAPS[0];
   var START = new Date(RACE.startISO).getTime(), MIN = 60000;
   var S = { mode:null, plan:'goal', proj:'pace', theme:'light', gps:false, atomWho:{}, checks:{}, custom:[], people:[], notes:{}, splits:{}, aidOv:{}, secOv:{}, driveOv:{}, bib:'', me:null, hidePast:false, gearAdd:{}, gearRemoved:{}, gearOverride:{}, paceOv:{}, fuelOv:{} };
 
-  /* Where a map link is safe. Fish Creek has no vehicle access at all, and a
-     map to Summit Lake routes up Buffalo Pass Road, which is a disqualification. */
-  var MAPQ = {
-    'Start line, ski basin':'Gondola Square, Steamboat Springs, CO',
-    'Finish line, ski basin':'Gondola Square, Steamboat Springs, CO',
-    'Olympian Hall':'Olympian Hall, Steamboat Springs, CO',
-    'Olympian Hall, second time':'Olympian Hall, Steamboat Springs, CO',
-    'Dry Lake':'Dry Lake Campground, Buffalo Pass Rd, Steamboat Springs, CO',
-    'Dry Lake, second time':'Dry Lake Campground, Buffalo Pass Rd, Steamboat Springs, CO'
-  };
-  var NOMAP = {
-    'Fish Creek Falls Trailhead':'There is no vehicle access at all. Park at Olympian Hall and go the four miles on foot or by bike.',
-    'Summit Lake':'It will route you up Buffalo Pass Road above Dry Lake, which disqualifies Will. Use the written directions below — Rabbit Ears Pass, then Highway 14 toward Walden.'
-  };
+  /* Where a map link is safe, and where it is not: from the race file. */
+  var MAPQ = RACE.mapQuery;
+  var NOMAP = {};
+  Object.keys(RACE.noMap).forEach(function(k){ NOMAP[k] = RACE.noMap[k].replace(/\{runner\}/g, RUNNER); });
 
   var mem = {};
   function ls(k,v){ try{ if(v===undefined) return localStorage.getItem(k); localStorage.setItem(k,v); return v; }
     catch(e){ if(v===undefined) return mem[k]==null?null:mem[k]; mem[k]=v; return v; } }
   function jget(k,d){ try{ return JSON.parse(ls(k))||d; }catch(e){ return d; } }
-  function save(){ ls('rrr.mode',S.mode); ls('rrr.plan',S.plan); ls('rrr.me',S.me||'');
-    ls('rrr.checks',JSON.stringify(S.checks)); ls('rrr.custom',JSON.stringify(S.custom));
-    ls('rrr.people',JSON.stringify(S.people)); ls('rrr.notes',JSON.stringify(S.notes));
-    ls('rrr.secov',JSON.stringify(S.secOv||{}));
-    ls('rrr.driveov',JSON.stringify(S.driveOv||{}));
-    ls('rrr.splits',JSON.stringify(S.splits)); ls('rrr.aidov',JSON.stringify(S.aidOv));
-    ls('rrr.bib',S.bib||''); ls('rrr.theme',S.theme); ls('rrr.proj',S.proj);
-    ls('rrr.gps',S.gps?'1':''); ls('rrr.atomwho',JSON.stringify(S.atomWho||{}));
-    ls('rrr.gearadd',JSON.stringify(S.gearAdd||{})); ls('rrr.gearrm',JSON.stringify(S.gearRemoved||{}));
-    ls('rrr.gearov',JSON.stringify(S.gearOverride||{}));
-    ls('rrr.paceov',JSON.stringify(S.paceOv||{}));
-    ls('rrr.fuelov',JSON.stringify(S.fuelOv||{})); }
+  function save(){ ls(KEY+'mode',S.mode); ls(KEY+'plan',S.plan); ls(KEY+'me',S.me||'');
+    ls(KEY+'checks',JSON.stringify(S.checks)); ls(KEY+'custom',JSON.stringify(S.custom));
+    ls(KEY+'people',JSON.stringify(S.people)); ls(KEY+'notes',JSON.stringify(S.notes));
+    ls(KEY+'secov',JSON.stringify(S.secOv||{}));
+    ls(KEY+'driveov',JSON.stringify(S.driveOv||{}));
+    ls(KEY+'splits',JSON.stringify(S.splits)); ls(KEY+'aidov',JSON.stringify(S.aidOv));
+    ls(KEY+'bib',S.bib||''); ls(KEY+'theme',S.theme); ls(KEY+'proj',S.proj);
+    ls(KEY+'gps',S.gps?'1':''); ls(KEY+'atomwho',JSON.stringify(S.atomWho||{}));
+    ls(KEY+'gearadd',JSON.stringify(S.gearAdd||{})); ls(KEY+'gearrm',JSON.stringify(S.gearRemoved||{}));
+    ls(KEY+'gearov',JSON.stringify(S.gearOverride||{}));
+    ls(KEY+'paceov',JSON.stringify(S.paceOv||{}));
+    ls(KEY+'fuelov',JSON.stringify(S.fuelOv||{})); }
 
   var fT = new Intl.DateTimeFormat('en-US',{timeZone:RACE.tz,hour:'numeric',minute:'2-digit'});
   var fD = new Intl.DateTimeFormat('en-US',{timeZone:RACE.tz,weekday:'short'});
@@ -220,10 +221,10 @@
     var sp=splitOf(i)||{}, t=tone||'';
     var out='';
     if(sp.in==null){
-      out+='<button class="btn '+t+'" data-log="'+i+':in">Will arrived</button>';
+      out+='<button class="btn '+t+'" data-log="'+i+':in">'+RUNNER+' arrived</button>';
     } else if(sp.out==null){
       out+='<div class="logged"><b>Arrived '+clk(sp.in)+'</b> \u00b7 '+dur(sp.in)+' elapsed</div>'+
-        '<button class="btn '+t+'" data-log="'+i+':out">Will left</button>';
+        '<button class="btn '+t+'" data-log="'+i+':out">'+RUNNER+' left</button>';
     } else {
       out+='<div class="logged"><b>In '+clk(sp.in)+' \u00b7 out '+clk(sp.out)+'</b> \u00b7 '+
         dur(sp.out-sp.in)+' in the station</div>';
@@ -372,11 +373,10 @@
      the handful of places that still read it keep working. */
   function startApp(){
     S.mode='runner'; save();
-    NAVT = 'Run Rabbit Run 100';
+    NAVT = RACE.name;
     setNav(false);
     document.getElementById('foot').innerHTML =
-      'Cutoffs and rules from the 2026 Runner\u2019s Manual v1.1. Goal splits from your tracker.<br>' +
-      '2025 field data: 68 Tortoises finishing between 28 and 32 hours.';
+      RACE.copy.footer;
     buildTabs(); render();
   }
 
@@ -390,7 +390,7 @@
             dim:cv('--text-3','#879289'), hair:cv('--hair','rgba(22,34,27,.085)'),
             card:cv('--card','#fff'), night:cv('--night','#DFE3E4'), gold:cv('--gold-solid','#B5801E') };
     var W=Math.max(300, svg.parentNode.clientWidth||360), H=W<500?188:224;
-    var pl=38,pr=12,pt=14,pb=22,iw=W-pl-pr,ih=H-pt-pb,LO=6600,HI=10700,MX=101.8;
+    var pl=38,pr=12,pt=14,pb=22,iw=W-pl-pr,ih=H-pt-pb,LO=6600,HI=10700,MX=COURSE_MI;
     var X=function(m){return pl+m/MX*iw;}, Y=function(f){return pt+ih-(f-LO)/(HI-LO)*ih;};
     PG={W:W,pl:pl,iw:iw,MX:MX,X:X,Y:Y};
     svg.setAttribute('viewBox','0 0 '+W+' '+H); svg.setAttribute('width',W); svg.setAttribute('height',H);
@@ -476,7 +476,7 @@
     if(ro) ro.innerHTML='<span><span style="font-size:17px;font-weight:650;letter-spacing:-.02em">The course</span>'+
       '<span style="display:block;font-size:13px;opacity:.72;margin-top:1px">Drag to read any point</span></span>'+
       '<span style="font-size:13px;opacity:.82;text-align:right;line-height:1.45">'+
-      '<b class="num" style="font-size:15px;font-weight:650">101.8 mi</b><br>17,850 ft of climb</span>';
+      '<b class="num" style="font-size:15px;font-weight:650">'+COURSE_MI_TXT+' mi</b><br>'+COURSE_CLIMB_TXT+' ft of climb</span>';
   }
   function profileAt(cx){
     var svg=document.getElementById(PROF_ID); if(!svg) return null;
@@ -628,8 +628,8 @@
         '<div class="display num'+(d>0?' sm':'')+'">'+(d>0?d+' days '+h+'h '+mm+'m':
           String(h).padStart(2,'0')+':'+String(mm).padStart(2,'0')+':'+String(s%60).padStart(2,'0'))+'</div>'+
         '<div class="under">9:00 am Friday 18 September · 36 hours on the clock</div>'+
-        '<div class="stats"><div><div class="k">Distance</div><div class="v num">101.8 mi</div></div>'+
-        '<div><div class="k">Climb</div><div class="v num">17,850 ft</div></div>'+
+        '<div class="stats"><div><div class="k">Distance</div><div class="v num">'+COURSE_MI_TXT+' mi</div></div>'+
+        '<div><div class="k">Climb</div><div class="v num">'+COURSE_CLIMB_TXT+' ft</div></div>'+
         '<div><div class="k">'+planName+'</div><div class="v num">'+dur(fin)+'</div></div></div></div>';
     } else if(nm>RACE.limit+60){
       hero.innerHTML='<div class="hero"><div class="eyebrow">Race complete</div><div class="display num">36:00</div></div>';
@@ -647,7 +647,7 @@
         '<div class="stats"><div><div class="k">'+(lsi>=0?'Last logged':'Should be at')+'</div>'+
         '<div class="v num">'+(lsi>=0?STATIONS[lsi].mi.toFixed(1):mileAt(nm).toFixed(1))+' mi</div></div>'+
         '<div><div class="k">Still to run</div><div class="v num">'+
-        (101.8-(lsi>=0?STATIONS[lsi].mi:mileAt(nm))).toFixed(1)+' mi</div></div>'+
+        (COURSE_MI-(lsi>=0?STATIONS[lsi].mi:mileAt(nm))).toFixed(1)+' mi</div></div>'+
         '<div><div class="k">Time left</div><div class="v num">'+dur(RACE.limit-nm)+'</div></div></div></div>';
     }
     var i=0; for(var k=0;k<STATIONS.length;k++){ if(T(STATIONS[k])>nm){i=k;break;} i=k; }
@@ -722,11 +722,7 @@
         '<td><b>'+hm(a.avg)+'</b></td><td>'+(a.fast?hm(a.fast):'—')+'</td><td>'+(a.slow?hm(a.slow):'—')+'</td><td>'+a.pace+'</td></tr>';
     });
     document.getElementById('anTable').innerHTML=h+'</tbody>';
-    document.getElementById('anNotes').innerHTML='<h3>What the numbers say</h3>'+
-      '<p style="margin-top:8px"><b>The Emerald loop is the biggest single block of time on the course</b> — four hours four minutes on average, more than any other section, and it happens between one and five in the morning.</p>'+
-      '<p><b>Dry Lake to Summit is the slowest ground</b> — 24 minutes a mile, four hours for ten miles. Plan for it and do not panic.</p>'+
-      '<p><b>The final descent separates the field by a factor of three.</b> Fastest 49 minutes, slowest two hours 59, for the same six downhill miles. That is quads, and quads are spent eighty-four miles earlier in the Fish Creek canyon.</p>'+
-      '<p class="cap" style="margin-top:10px">Billy\'s Rabbit Hole had no timing mat on the return in 2025, so two rows show combined averages only.</p>';
+    document.getElementById('anNotes').innerHTML=RACE.copy.fieldNotes;
   }
   /* ── team helpers ── */
   function peopleFor(r){
@@ -851,7 +847,7 @@
     var pc=peopleFor('crew').length, pp=peopleFor('pacer').length, nc=noteCount();
     hub.innerHTML=
       '<div class="phead"><h1>Profile</h1><p class="sec">Your gear, your team, and everything you only look up once.</p></div>'+
-      '<div class="idcard"><h2>Will</h2><div class="u">Tortoise \u00b7 bib 400\u2013800 \u00b7 starts 9:00 am Friday</div>'+
+      '<div class="idcard"><h2>'+RUNNER+'</h2><div class="u">'+RACE.runner.division+' \u00b7 bib '+RACE.runner.bibRange+' \u00b7 starts '+RACE.startShort+'</div>'+
       '<div class="stats"><div><div class="k">Goal</div><div class="v num">'+dur(fin)+'</div></div>'+
       '<div><div class="k">Gear packed</div><div class="v num">'+g[0]+' of '+g[1]+'</div></div>'+
       '<div><div class="k">Team</div><div class="v num">'+((pc+pp)||'\u2014')+'</div></div></div></div>'+
@@ -905,7 +901,7 @@
 
   /* ── detail sub-views ── */
   var detailKey=null;
-  var NAVT='Run Rabbit Run 100';
+  var NAVT=RACE.name;
   function openDetail(k,noPush,keepScroll){
     var d=DETAILS[k]; if(!d) return;
     detailKey=k;
@@ -986,7 +982,7 @@
     var mandN=MANDATORY.filter(function(_,i){return S.checks['mg'+i];}).length;
     var out=foldHTML('mand','gold','Mandatory gear',
         '<span class="pill gold num" id="mgCount">'+mandN+' of 5</span>',
-        '<p class="sec">New for 2026. Checked on the way <i>out</i> of Olympian Hall, at mile 51.2 and again at 63.9, so you carry all five for the last 50.6 miles.</p>'+
+        RACE.copy.gearIntro+
         '<div style="margin-top:4px">'+MANDATORY.map(function(t,i){
           return '<label class="chk"><input type="checkbox" data-k="mg'+i+'"'+(S.checks['mg'+i]?' checked':'')+'><span>'+t+'</span></label>';
         }).join('')+'</div>')+
@@ -1266,8 +1262,8 @@
   function plannerPrintHTML(){
     var mins=paceNow(), T=fuelTotals(), fin=STATIONS[STATIONS.length-1];
     var h='<div class="brief plan-print"><div class="bhead">'+
-      '<h2>Run Rabbit Run 100 — race day plan</h2>'+
-      '<div class="bsub">Will · Tortoise · 9:00 am Friday 18 September 2026 · 36-hour limit</div></div>'+
+      '<h2>'+esc(RACE.name)+' — race day plan</h2>'+
+      '<div class="bsub">'+RUNNER+' · '+RACE.runner.division+' · '+RACE.startLabel+' · '+RACE.limitLabel+'</div></div>'+
       '<div class="bmeta">'+
         '<div><span>Finish</span><b>'+dur(mins[STATIONS.length-1])+'</b></div>'+
         '<div><span>Average</span><b>'+pace(fin.mi,mins[STATIONS.length-1])+'/mi</b></div>'+
@@ -1293,8 +1289,7 @@
         '<td>'+esc(planWhoText(i))+'</td></tr>';
     }
     h+='</tbody></table>'+
-      '<div class="brule">Never drive to Fish Creek Falls · never drive Buffalo Pass Road above Dry Lake · never park at Dry Lake. '+
-      'Cutoffs are the times he must <i>leave</i> by. Official times from the 2026 Runner’s Manual v1.1.</div></div>';
+      '<div class="brule">'+RACE.copy.rulesLine+RACE.copy.cutoffsNote+'</div></div>';
     return h;
   }
 
@@ -1343,8 +1338,7 @@
     });
   }
   function buildBags(){
-    var out='<div class="card alert"><p><b>Collected Thursday 3\u20136 pm, before the briefing.</b> Both bags are sealed about fifteen hours before you start, so you cannot adjust them to Friday\u2019s forecast. Pack for the bad version.</p>'+
-      '<p style="margin-top:8px">No hard-sided bags, nothing bigger than a shoebox. Bring a bright colour \u2014 you will be hunting for it in a field of identical bags.</p></div>';
+    var out=RACE.copy.bagsIntro;
     DROPBAGS.forEach(function(b,bi){
       out+='<div class="card"><div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:2px">'+
         '<h3>'+b.name+'</h3><span class="pill grey num">'+b.tag+'</span></div>';
@@ -1394,16 +1388,14 @@
         '<p class="sec">'+c.body+'</p>'+
         (lv?'<div class="callout n" style="margin-bottom:0"><b>Leave by '+lv+'</b></div>':'')+'</div>';
     }).join('')+'</div>'+
-    '<div class="card"><h3>Why Summit at mile 30 is skipped</h3><p class="sec">The drop bag covers it, and a four-hour round trip at mile 30 wrecks the crew before the stops that matter. Dry Lake has crew but <i>no</i> drop bag, so those two visits are the crew\u2019s highest-value work.</p></div>';
+    RACE.copy.summitSkipped;
   }
   function buildWeather(){
     return '<div class="card"><p class="sec">The 18 September average in town is a high of 71\u00b0F and a low of 42\u00b0F. It is much colder up high \u2014 expect below freezing at 10,300 feet overnight.</p>'+
-      '<div class="metrics"><div><div class="k">Sunrise</div><div class="v num">6:51 am</div></div>'+
-      '<div><div class="k">Sunset</div><div class="v num">7:14 pm</div></div>'+
-      '<div><div class="k">Dark by</div><div class="v num">7:40 pm</div></div></div>'+
-      '<p class="sec">2011 brought hail, rain, 40 mph winds and snow. 2022 brought snow, wind, fog and mud. 2025 was a blizzard with lightning.</p>'+
-      '<div class="callout w"><b>Carry a light from the start.</b> On the 36-hour schedule you reach Summit Lake \u2014 your first drop bag \u2014 at 8:30 pm, more than an hour after dark, and Long Lake at mile 24.3 has neither crew nor a bag. It weighs four ounces.</div>'+
-      '<p class="cap">Per the race director: more hundred-mile runners drop from unexpected overnight cold than from any other cause.</p></div>';
+      '<div class="metrics"><div><div class="k">Sunrise</div><div class="v num">'+RACE.sun.rise+'</div></div>'+
+      '<div><div class="k">Sunset</div><div class="v num">'+RACE.sun.set+'</div></div>'+
+      '<div><div class="k">Dark by</div><div class="v num">'+RACE.sun.dark+'</div></div></div>'+
+      RACE.copy.weatherNotes;
   }
   function buildElev(){
     return '<div class="card"><h3>Measured from the course GPX</h3>'+
@@ -1411,12 +1403,7 @@
       '<div class="metrics"><div><div class="k">Distance</div><div class="v num">101.2 mi</div></div>'+
       '<div><div class="k">Ascent</div><div class="v num">17,850 ft</div></div>'+
       '<div><div class="k">Descent</div><div class="v num">17,825 ft</div></div></div>'+
-      '<div class="callout n"><b>The manual\u2019s 20,391 ft is wrong.</b> It overstates the climb by about 2,500 feet, roughly 14 percent. Ascent and descent coming out within 25 feet of each other on a loop is what a real measurement looks like; two identical numbers to the foot is what a spreadsheet looks like.</div>'+
-      '<p class="sec">GPS watches on this course record 16,000 to 18,000 ft, which brackets the GPX figure \u2014 a barometric altimeter smooths away small undulations that the terrain model counts.</p>'+
-      '<h4 style="font-size:15px;font-weight:650;color:var(--green-ink);margin:18px 0 6px">Two things that will not match</h4>'+
-      '<p class="sec"><b>Mileages.</b> The GPX measures 101.2 miles and puts every aid station about 0.8 of a mile earlier than the manual does. This app keeps the manual\u2019s numbers \u2014 mile 44.5 for Dry Lake and so on \u2014 because that is what is on the signs and what the race directors and volunteers will say. The terrain between stations is stretched by less than one percent to fit.</p>'+
-      '<p class="sec"><b>Low-point elevations.</b> The terrain model reads higher than the manual at the bottom of the course: 7,070 ft at the start against the manual\u2019s 6,886, and 7,497 at Fish Creek Falls against 6,952. Elsewhere the two agree within about a hundred feet. The figures here are the measured ones, so the station markers sit on the drawn line.</p>'+
-      '<p class="cap">Source: RRR100 CalTopo export, track "Run Rabbit Run 100-2024". Confidence: high. Re-check if the 2026 course changes.</p></div>';
+      RACE.copy.elevNotes;
   }
   function buildRules(){
     return '<div class="list">'+RULES.map(function(r){
@@ -1424,7 +1411,7 @@
     }).join('')+'</div>';
   }
   function buildQuestions(){
-    return '<div class="card"><p class="sec" style="margin-bottom:10px">Open questions the manual does not settle. Ask at the Thursday briefing.</p>'+
+    return RACE.copy.questionsIntro+
       '<ol style="margin:0;padding-left:20px;line-height:1.5">'+
       QUESTIONS.map(function(q){return '<li style="margin-bottom:9px" class="sec">'+q+'</li>';}).join('')+'</ol></div>';
   }
@@ -1432,7 +1419,7 @@
     return '<div class="list">'+MANUAL_TOC.map(function(m){
       return '<div class="item" style="align-items:flex-start"><div class="mid"><div class="nm">'+m[0]+'</div><div class="dt">'+m[1]+'</div></div></div>';
     }).join('')+'</div>'+
-    '<a class="btn" href="2026-RRR-Manual.pdf" target="_blank" rel="noopener">Open the full manual</a>'+
+    '<a class="btn" href="'+RACE.manualFile+'" target="_blank" rel="noopener">Open the full manual</a>'+
     '<button class="btn tint" id="cacheManual2">Save for offline \u00b7 8 MB</button>'+
     '<p class="cap" id="cacheMsg2" style="margin-top:9px;text-align:center"></p>';
   }
@@ -1441,8 +1428,7 @@
     var A=atoms(), legs=pacerLegs(), pp=peopleFor('pacer');
     var night=function(m){ var h=(9+m/60)%24; return h>=19.6||h<6.85; };
     var out='<div class="card gold"><h3>The five legal blocks</h3>'+
-      '<p class="sec">A pacer may only join or leave at Dry Lake 44.5, Olympian 51.2, Olympian 63.9, Dry Lake 70.8 or Summit 80.8. Every possible pacer leg is one or more of these in a row \u2014 there is nothing else to work with.</p>'+
-      '<div class="callout w" style="margin-bottom:0"><b>The last block is 21 miles with no swap inside it.</b> Four blocks fall in your 7\u201313 mile range; that one does not, and no arrangement changes it. Family may join for the final four miles from the top of the gondola, so the shortest anyone can cover from Summit is about seventeen miles alone with you.</div></div>';
+      RACE.copy.pacerBlocksIntro;
 
     out+='<div class="shead"><h2>Assign the blocks</h2><span class="note">'+A.length+' blocks</span></div>';
     out+=A.map(function(at){
@@ -1757,7 +1743,7 @@
       '<div class="hero"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px">'+
       '<div class="eyebrow">'+(c.rest?'Right now':'Stop '+c.n+' of 9')+'</div>'+cd+'</div>'+
       '<h2>'+c.where+'</h2>'+
-      (a!=null?'<div class="display num">'+clk(a)+'</div><div class="under">'+fFull.format(new Date(START+a*MIN))+' — when Will should arrive</div>':'')+
+      (a!=null?'<div class="display num">'+clk(a)+'</div><div class="under">'+fFull.format(new Date(START+a*MIN))+' — when '+RUNNER+' should arrive</div>':'')+
       (lm!=null?'<div class="stats"><div><div class="k">Leave town</div><div class="v num">'+clk(lm)+'</div></div>'+
         '<div><div class="k">Drive</div><div class="v num">'+driveShort(c)+'</div></div>'+
         '<div><div class="k">Mile</div><div class="v num">'+(c.mi!=null?c.mi.toFixed(1):'—')+'</div></div></div>':'')+
@@ -1805,13 +1791,13 @@
             '<div class="mid"><div class="nm">'+esc(p.name)+'</div><div class="dt">'+role+'</div></div>'+
             (p.phone?'<a class="rt" href="tel:'+esc(p.phone)+'"><span class="a" style="color:var(--green)">Call</span></a>':'')+'</div>';
         }).join('')+'</div>'
-      : '<div class="card"><div class="empty">No team list yet.<br>Will can add everyone and re-share the link.</div></div>';
+      : '<div class="card"><div class="empty">No team list yet.<br>'+RUNNER+' can add everyone and re-share the link.</div></div>';
   }
   function openCrewStop(c){
     var a=crewArrive(c), lv=leaveBy(c), dr=driveFor(c), who=crewAt(c.n);
     sheet(c.where,
       '<div class="cap" style="margin:-6px 0 10px">Stop '+c.n+' of 9'+(c.mi!=null?' · mile '+c.mi.toFixed(1):'')+'</div>'+
-      (a!=null?'<div class="card tint" style="margin-bottom:12px"><div class="cap">Will should arrive</div>'+
+      (a!=null?'<div class="card tint" style="margin-bottom:12px"><div class="cap">'+RUNNER+' should arrive</div>'+
         '<div class="num" style="font-size:32px;font-weight:700;letter-spacing:-.03em;margin-top:2px">'+clk(a)+'</div>'+
         '<div class="cap">'+fFull.format(new Date(START+a*MIN))+'</div>'+
         (lv?'<div style="margin-top:10px"><span class="pill">Leave by '+lv+'</span></div>':'')+'</div>':'')+
@@ -1832,10 +1818,10 @@
      card at the top of the race screen, and it is driven by the person
      you said you were -- which lives in the shared plan, so Will can
      change someone's job from his own phone and their screen follows. */
-  var ME_WILL='will';
-  function meIsWill(){ return S.me===ME_WILL; }
+  var ME_RUNNER='will';
+  function meIsRunner(){ return S.me===ME_RUNNER; }
   function mePerson(){
-    if(!S.me||meIsWill()) return null;
+    if(!S.me||meIsRunner()) return null;
     for(var i=0;i<S.people.length;i++) if(S.people[i].id===S.me) return S.people[i];
     return null;
   }
@@ -2175,7 +2161,7 @@
           '<button data-sfilter="1"'+(only?' class="on"':'')+'>Mine '+minen+'</button>'+
           '</div>'
         : '')+
-      (meIsWill()?'<button class="linkbtn" id="editStops">Edit</button>':'')+'</div>'+
+      (meIsRunner()?'<button class="linkbtn" id="editStops">Edit</button>':'')+'</div>'+
       '<ol class="stoplist">'+
       rows.map(function(c, ri){
         var ix=CREW.indexOf(c), seq=vis.indexOf(c)+1;
@@ -2246,24 +2232,24 @@
     ['Pick your name once',
      'Everything you see is filtered to you. Tapped the wrong name? Switch, top right.'],
     ['The Crew tab is your list',
-     'Every stop you drive to, in order, with the time Will should get there and what to have ready.'],
+     'Every stop you drive to, in order, with the time '+RUNNER+' should get there and what to have ready.'],
     ['The times are a prediction, not a promise',
      'A Goal, B Goal and C Goal are how fast you assume he runs. Tap one and every time in the app moves with it. If he is running slow, tap a slower goal.'],
     ['Tap a stop for the rest',
      'Directions, where to park, what happens at that station, and the pacer swap if there is one.'],
     ['Notes are the same two everywhere',
-     'Will\u2019s note and a Crew note. Anyone on the crew can write the Crew note, from the button underneath. Everyone sees both, on every screen that shows that stop.'],
+     RUNNER+'\u2019s note and a Crew note. Anyone on the crew can write the Crew note, from the button underneath. Everyone sees both, on every screen that shows that stop.'],
     ['It works with no signal',
-     'Once it has opened on your phone it keeps working on Buffalo Pass. Anything you write syncs by itself when you get signal back.'],
+     RACE.copy.helpSignal],
     ['Three rules that end his race',
-     'Never drive to Fish Creek Falls trailhead. Never drive Buffalo Pass Road above Dry Lake. Never park at Dry Lake.']
+     RACE.copy.helpRules]
   ];
   /* Will wrote this app; nobody else on the team has ever opened it. The
      first thing on their first screen says so, and goes away when they say
      it can. A modal that opens itself would sit on top of whatever they do
      next and swallow their back button. */
   function howCardHTML(){
-    if(meIsWill() || ls('rrr.helpseen')) return '';
+    if(meIsRunner() || ls(KEY+'helpseen')) return '';
     return '<div class="howcard"><div><b>First time here?</b>'+
       '<span>Two minutes on how this works, then you are set for race day. '+
       'It stays on the Profile tab if you want it later.</span></div>'+
@@ -2312,9 +2298,9 @@
     var es=el.querySelector('#editStops');
     if(es) es.onclick=editStops;
     var hr=el.querySelector('#howRead');
-    if(hr) hr.onclick=function(){ ls('rrr.helpseen','1'); renderMyJob(); openDetail('how'); };
+    if(hr) hr.onclick=function(){ ls(KEY+'helpseen','1'); renderMyJob(); openDetail('how'); };
     var hs=el.querySelector('#howSkip');
-    if(hs) hs.onclick=function(){ ls('rrr.helpseen','1'); renderMyJob(); };
+    if(hs) hs.onclick=function(){ ls(KEY+'helpseen','1'); renderMyJob(); };
   }
 
   /* ── the gate: who are you ── */
@@ -2333,9 +2319,9 @@
         personHue(p.id));
     }).join('');
     el.innerHTML =
-      pick(ME_WILL,'Will','Running it','<svg viewBox="0 0 24 24"><path d="M3 17l5-7 4 4 4-8 5 11"/></svg>') +
+      pick(ME_RUNNER,RUNNER,'Running it','<svg viewBox="0 0 24 24"><path d="M3 17l5-7 4 4 4-8 5 11"/></svg>') +
       (team || '<p class="cap" style="margin:10px 2px">The team list has not reached this phone yet. '+
-               'It arrives with the first sync — give it a moment, or ask Will to re-share the link.</p>');
+               'It arrives with the first sync — give it a moment, or ask '+RUNNER+' to re-share the link.</p>');
     el.querySelectorAll('[data-me]').forEach(function(b){
       b.onclick=function(){ setMe(b.dataset.me); };
     });
@@ -2367,7 +2353,7 @@
     var allLegs=pacerLegs().filter(function(L){ return !!L.who; });
     if(!me){
       el.innerHTML='<div class="phead"><h1>Which leg are you on?</h1><p class="sec">'+
-        (pacers.length?'Tap your name.':'Nobody has been added yet. Assign blocks on the Pacer plan screen, or ask Will to re-share the link.')+'</p></div>'+
+        (pacers.length?'Tap your name.':'Nobody has been added yet. Assign blocks on the Pacer plan screen, or ask '+RUNNER+' to re-share the link.')+'</p></div>'+
         (pacers.length?'<div class="list">'+pacers.map(function(p){
           var mine=legsForPerson(p.id);
           var dt=mine.length?mine.map(function(L){return L.mi.toFixed(1)+' mi';}).join(' + '):'Not yet assigned';
@@ -2771,7 +2757,6 @@
     ROUTE.forEach(function(p){ var d=Math.abs(p[0]-mi); if(d<best){best=d;pt=p;} });
     return pt;
   }
-  var PACER_FROM = 44.5;
 
   function legInto(i){
     if(i<=0) return null;
@@ -2835,7 +2820,7 @@
       /* the highlight follows the runner: the leg being run right now, not
          the one just finished */
       seg=[ PV.at>=0 ? STATIONS[PV.at].mi : 0,
-            (PV.at+1<STATIONS.length) ? STATIONS[PV.at+1].mi : 101.8 ];
+            (PV.at+1<STATIONS.length) ? STATIONS[PV.at+1].mi : COURSE_MI ];
     } else if(step>=0 && step<STATIONS.length-1){
       seg=[STATIONS[step].mi, STATIONS[step+1].mi];   // browse: the leg ahead
     } else if(step===STATIONS.length-1){
@@ -2954,7 +2939,7 @@
         /* heading: bearing between a point a little behind and a little
            ahead on the route, in screen space, so it rotates correctly
            under any projection. */
-        var ahd=routeLerp(Math.min(101.8,mark+0.15)), bhd=routeLerp(Math.max(0,mark-0.15));
+        var ahd=routeLerp(Math.min(COURSE_MI,mark+0.15)), bhd=routeLerp(Math.max(0,mark-0.15));
         var heading=0;
         if(ahd&&bhd) heading=Math.atan2(P.Y(ahd[0])-P.Y(bhd[0]), P.X(ahd[1])-P.X(bhd[1]))*180/Math.PI;
         o.push('<circle id="pvHalo" class="pv-pulse" cx="'+mkx.toFixed(2)+'" cy="'+mky.toFixed(2)+'" r="16" fill="'+C.red+'" opacity=".22"/>');
@@ -3109,32 +3094,32 @@
   }
   function coverageStrip(){
     function seg(a,b,cls,title){
-      var l=(a/101.8*100).toFixed(2), w=((b-a)/101.8*100).toFixed(2);
+      var l=(a/COURSE_MI*100).toFixed(2), w=((b-a)/COURSE_MI*100).toFixed(2);
       return '<i class="'+cls+'" style="left:'+l+'%;width:'+w+'%" title="'+title+'"></i>';
     }
     var body='', legend='', note='';
     if(MAPV.lens==='pacer'){
-      body=seg(0,PACER_FROM,'solo','Solo')+seg(PACER_FROM,101.8,'paced','Paced');
-      legend='<span><i class="k solo"></i>Alone \u2014 44.5 mi</span><span><i class="k paced"></i>Pacer allowed \u2014 57.3 mi</span>';
-      note='Pacers cannot join until Dry Lake at mile 44.5. Swaps are only at the five gold marks.';
+      body=seg(0,PACER_FROM,'solo','Solo')+seg(PACER_FROM,COURSE_MI,'paced','Paced');
+      legend='<span><i class="k solo"></i>Alone \u2014 '+PACER_FROM+' mi</span><span><i class="k paced"></i>Pacer allowed \u2014 '+(COURSE_MI-PACER_FROM).toFixed(1)+' mi</span>';
+      note='Pacers cannot join until '+STATIONS[idxOf(PACER_FROM)].name+' at mile '+PACER_FROM+'. Swaps are only at the '+['zero','one','two','three','four','five','six','seven','eight','nine','ten'][SWAPS.length-1]+' gold marks.';
     } else if(MAPV.lens==='crew'){
-      body=seg(0,101.8,'nocrew','No crew');
-      STATIONS.forEach(function(s){ if(s.crew) body+=seg(Math.max(0,s.mi-1),Math.min(101.8,s.mi+1),'crew',s.name); });
-      legend='<span><i class="k crew"></i>Crew can reach him \u2014 7 places</span><span><i class="k nocrew"></i>On his own</span>';
-      note='The longest stretch with no crew is Summit Lake to Dry Lake, 14.4 miles. Fish Creek is foot or bike only.';
+      body=seg(0,COURSE_MI,'nocrew','No crew');
+      STATIONS.forEach(function(s){ if(s.crew) body+=seg(Math.max(0,s.mi-1),Math.min(COURSE_MI,s.mi+1),'crew',s.name); });
+      legend=RACE.copy.lens.crewLegend;
+      note=RACE.copy.lens.crewNote;
     } else {
-      body=seg(0,101.8,'nocrew','Course');
-      STATIONS.forEach(function(s){ if(s.bag) body+=seg(Math.max(0,s.mi-.9),Math.min(101.8,s.mi+.9),'bag',s.name); });
-      legend='<span><i class="k bag"></i>Drop bag \u2014 4 visits</span><span><i class="k nocrew"></i>Carry everything</span>';
-      note='Two bags, four visits: Summit Lake at 30.1 and 80.8, Olympian at 51.2 and 63.9.';
+      body=seg(0,COURSE_MI,'nocrew','Course');
+      STATIONS.forEach(function(s){ if(s.bag) body+=seg(Math.max(0,s.mi-.9),Math.min(COURSE_MI,s.mi+.9),'bag',s.name); });
+      legend=RACE.copy.lens.bagLegend;
+      note=RACE.copy.lens.bagNote;
     }
     var ticks=STATIONS.filter(function(s){return s.major;}).map(function(s){
-      return '<b style="left:'+(s.mi/101.8*100).toFixed(2)+'%">'+s.mi.toFixed(0)+'</b>';
+      return '<b style="left:'+(s.mi/COURSE_MI*100).toFixed(2)+'%">'+s.mi.toFixed(0)+'</b>';
     }).join('');
     var pos='', nm=now();
     if(nm>0&&nm<RACE.limit+120){
       var L=livePos(), pm=L.state==='station'?L.station.mi:(L.mi!=null?L.mi:mileAt(nm));
-      pos='<u style="left:'+(pm/101.8*100).toFixed(2)+'%"></u>';
+      pos='<u style="left:'+(pm/COURSE_MI*100).toFixed(2)+'%"></u>';
     }
     return '<div class="card"><h3>'+(MAPV.lens==='pacer'?'Pacer coverage':MAPV.lens==='crew'?'Crew access':'Drop bags')+
       '</h3><p class="sec" style="margin-bottom:14px">'+note+'</p>'+
@@ -3147,7 +3132,7 @@
      pacer leg is a run of consecutive atoms between them. Four of the
      five are 7–13 miles; the last is 21 with no legal swap inside it,
      which is the fact the whole plan has to be built around. */
-  var SWAPS = [44.5, 51.2, 63.9, 70.8, 80.8, 101.8];
+  /* SWAPS and PACER_FROM are derived at the top of this file from STATIONS[].pacer */
   function atoms(){
     var out=[];
     for(var k=1;k<SWAPS.length;k++){
@@ -3191,7 +3176,7 @@
     if(known) return known;
     var night=function(m){ var h=(9+m/60)%24; return h>=19.6||h<6.85; };
     var dark=night(T(L.from))||night(T(L.to));
-    var toName=L.to.mi>=101.8?'the finish':L.to.name;
+    var toName=L.to.mi>=COURSE_MI?'the finish':L.to.name;
     return {
       n:null, from:L.from.mi, to:L.to.mi, dist:L.mi.toFixed(1)+' miles',
       title:L.from.name+' to '+toName,
@@ -3232,23 +3217,23 @@
      which is why it replaced two separate controls. */
   function timelineHTML(mi, opts){
     var o=opts||{};
-    var pct=Math.max(0,Math.min(100, mi/101.8*100));
+    var pct=Math.max(0,Math.min(100, mi/COURSE_MI*100));
     var dots=STATIONS.map(function(s,i){
       var sp=splitOf(i), gone=sp&&sp.out!=null;
       var cls='tld'+(s.crew?' crew':'')+(s.pacer?' pac':'')+(gone?' done':'')+
               (Math.abs(s.mi-mi)<0.15?' here':'');
-      return '<button class="'+cls+'" data-tl="'+i+'" style="left:'+(s.mi/101.8*100).toFixed(2)+'%" '+
+      return '<button class="'+cls+'" data-tl="'+i+'" style="left:'+(s.mi/COURSE_MI*100).toFixed(2)+'%" '+
         'title="'+esc(s.name)+' \u00b7 mile '+s.mi.toFixed(1)+'"></button>';
     }).join('');
-    var labs=STATIONS.filter(function(s){return s.major&&s.mi>0&&s.mi<101.8;}).map(function(s){
-      return '<b style="left:'+(s.mi/101.8*100).toFixed(2)+'%">'+s.mi.toFixed(0)+'</b>';
+    var labs=STATIONS.filter(function(s){return s.major&&s.mi>0&&s.mi<COURSE_MI;}).map(function(s){
+      return '<b style="left:'+(s.mi/COURSE_MI*100).toFixed(2)+'%">'+s.mi.toFixed(0)+'</b>';
     }).join('');
     /* night bands, so you can see at a glance what happens in the dark */
     var bands=RACE.dark.map(function(d){
       var a0=mileAt(d[0]), b0=mileAt(d[1]);
       if(b0<=a0) return '';
-      return '<i class="night" style="left:'+(a0/101.8*100).toFixed(2)+'%;width:'+
-        ((b0-a0)/101.8*100).toFixed(2)+'%"></i>';
+      return '<i class="night" style="left:'+(a0/COURSE_MI*100).toFixed(2)+'%;width:'+
+        ((b0-a0)/COURSE_MI*100).toFixed(2)+'%"></i>';
     }).join('');
     return '<div class="tl'+(o.live?' live':'')+'">'+
       '<div class="tltrack" id="tlTrack">'+bands+
@@ -3264,7 +3249,7 @@
     var dragging=false;
     function miFrom(clientX){
       var r=track.getBoundingClientRect();
-      return Math.max(0, Math.min(101.8, (clientX-r.left)/r.width*101.8));
+      return Math.max(0, Math.min(COURSE_MI, (clientX-r.left)/r.width*COURSE_MI));
     }
     /* A drag may well start on top of a dot, so never swallow pointerdown.
        Decide between "tapped a station" and "scrubbed" on release. */
@@ -3292,7 +3277,7 @@
   }
   function timelineMove(mi){
     var f=document.getElementById('tlFill'), t=document.getElementById('tlThumb');
-    var pct=Math.max(0,Math.min(100, mi/101.8*100)).toFixed(2)+'%';
+    var pct=Math.max(0,Math.min(100, mi/COURSE_MI*100)).toFixed(2)+'%';
     if(f) f.style.width=pct;
     if(t) t.style.left=pct;
   }
@@ -3403,7 +3388,7 @@
       eyebrow='Check-in '+MAPV.step+' of 16 \u00b7 mile '+s.mi.toFixed(1)+' \u00b7 '+dur(T(s))+' in';
       title=s.name;
     } else {
-      eyebrow='101.8 miles \u00b7 17,850 ft';
+      eyebrow=COURSE_MI_TXT+' miles \u00b7 '+COURSE_CLIMB_TXT+' ft';
       title='The whole course';
     }
     if(now) now.innerHTML='<span>'+esc(eyebrow)+'</span><b>'+esc(title)+'</b>';
@@ -3505,7 +3490,7 @@
           '<span class="bl">'+l[1]+'<em>'+l[2]+'</em></span></button>';
       }).join('')+'</div>');
     shEl.querySelectorAll('[data-lbase]').forEach(function(b){
-      b.onclick=function(){ MAPV.base=b.dataset.lbase; ls('rrr.base',MAPV.base); closeSheet(); fullMapPaint(); };
+      b.onclick=function(){ MAPV.base=b.dataset.lbase; ls(KEY+'base',MAPV.base); closeSheet(); fullMapPaint(); };
     });
     shEl.querySelectorAll('[data-llens]').forEach(function(b){
       b.onclick=function(){ MAPV.lens=b.dataset.llens; closeSheet(); fullMapPaint(); };
@@ -3600,7 +3585,7 @@
          projected. .fm-empty lets that one state centre itself instead. */
       return '<div class="fm-grab"></div>'+
         '<div class="fm-empty"><div class="fm-head"><div><div class="fm-nm">The whole course</div>'+
-        '<div class="fm-sub">101.8 miles · 17,850 ft · 7 crew stops · 5 pacer swaps</div></div>'+
+        '<div class="fm-sub">'+COURSE_MI_TXT+' miles · '+COURSE_CLIMB_TXT+' ft · 7 crew stops · 5 pacer swaps</div></div>'+
         '</div>'+
         '<div class="fm-facts"><span>Tap a station on the map, or step through with the arrows</span></div>'+
         '</div>';
@@ -3679,7 +3664,7 @@
           MAPV.step=i; pvRecenter(false); pvSheetUpdate(true); break;
         }
       }
-      if(PV.mi>=101.8){ PV.mi=101.8; pvSheetUpdate(true); pvStop(); return; }
+      if(PV.mi>=COURSE_MI){ PV.mi=COURSE_MI; pvSheetUpdate(true); pvStop(); return; }
     }
 
     var pt=routeLerp(PV.mi);
@@ -3700,7 +3685,7 @@
         if(d1){ d1.setAttribute('cx',x.toFixed(2)); d1.setAttribute('cy',y.toFixed(2)); }
         if(d2){ d2.setAttribute('cx',x.toFixed(2)); d2.setAttribute('cy',y.toFixed(2)); }
         if(d3){
-          var ahd2=routeLerp(Math.min(101.8,PV.mi+0.15)), bhd2=routeLerp(Math.max(0,PV.mi-0.15));
+          var ahd2=routeLerp(Math.min(COURSE_MI,PV.mi+0.15)), bhd2=routeLerp(Math.max(0,PV.mi-0.15));
           if(ahd2&&bhd2){
             var heading2=Math.atan2(P.Y(ahd2[0])-P.Y(bhd2[0]), P.X(ahd2[1])-P.X(bhd2[1]))*180/Math.PI;
             d3.setAttribute('transform','translate('+x.toFixed(2)+','+y.toFixed(2)+') rotate('+heading2.toFixed(1)+')');
@@ -3808,8 +3793,8 @@
     if(!s){
       panel='<div class="card"><h3>Walk the course</h3>'+
         '<p class="sec">Tap any point on the map, or use the arrows, to step through the seventeen check-ins one at a time \u2014 what the leg into each one is like, who is allowed there, and what time you should reach it.</p>'+
-        '<div class="metrics" style="margin-bottom:0"><div><div class="k">Distance</div><div class="v num">101.8 mi</div></div>'+
-        '<div><div class="k">Climb</div><div class="v num">17,850 ft</div></div>'+
+        '<div class="metrics" style="margin-bottom:0"><div><div class="k">Distance</div><div class="v num">'+COURSE_MI_TXT+' mi</div></div>'+
+        '<div><div class="k">Climb</div><div class="v num">'+COURSE_CLIMB_TXT+' ft</div></div>'+
         '<div><div class="k">Crew stops</div><div class="v num">7</div></div></div></div>';
     } else {
       var who=[];
@@ -3871,7 +3856,7 @@
 
     drawMap();
     el.querySelectorAll('[data-lens]').forEach(function(x){ x.onclick=function(){ MAPV.lens=x.dataset.lens; renderMap(); }; });
-    el.querySelectorAll('[data-base]').forEach(function(x){ x.onclick=function(){ MAPV.base=x.dataset.base; ls('rrr.base',MAPV.base); renderMap(); }; });
+    el.querySelectorAll('[data-base]').forEach(function(x){ x.onclick=function(){ MAPV.base=x.dataset.base; ls(KEY+'base',MAPV.base); renderMap(); }; });
     el.querySelectorAll('[data-go]').forEach(function(x){
       x.onclick=function(){
         var n=MAPV.step+(x.dataset.go==='next'?1:-1);
@@ -3959,7 +3944,7 @@
       var la=pos.coords.latitude, lo=pos.coords.longitude;
       var n=nearestMile(la,lo);
       GPS.last={ lat:la, lon:lo, mi:n.mi, off:n.offM, acc:pos.coords.accuracy, at:Date.now() };
-      ls('rrr.gpslast', JSON.stringify(GPS.last));
+      ls(KEY+'gpslast', JSON.stringify(GPS.last));
       pushGPS();
       if(S.mode==='runner'||S.mode==='crew') { paintGPS(); }
     }, function(){ /* denied or unavailable: stay silent, the app is unaffected */ },
@@ -4013,7 +3998,7 @@
     var eA=elevAt(fromMi), eB=elevAt(toMi), d=Math.max(0.01,toMi-fromMi);
     var net=eB-eA, up=gain||0, down=Math.max(0,up-net);
     return { d:d, eA:Math.round(eA), eB:Math.round(eB), net:net, up:up, down:down,
-             upPerMi:up/d, upGrade:up/(d*5280)*100, share:up/17850*100 };
+             upPerMi:up/d, upGrade:up/(d*5280)*100, share:up/COURSE_CLIMB*100 };
   }
   function legTerrainOut(i){
     if(i<0 || i>=STATIONS.length-1) return null;
@@ -4133,7 +4118,7 @@
   }
   function legCard(i){
     if(i<=0) return '<div class="legcard"><div class="legtop"><b>The start line</b>'+
-      '<span>Gondola Square, 9:00 am Friday</span></div></div>';
+      '<span>'+RACE.startSpot+', '+RACE.startShort+'</span></div></div>';
     var A=STATIONS[i-1], B=STATIONS[i], L=legInto(i);
     var net=B.elev-A.elev, loss=Math.max(0,(B.gain||0)-net);
     var sec=L.sec;
@@ -4166,7 +4151,7 @@
   function aidMapBtn(i){
     var s=STATIONS[i], x=AIDX[i]; if(!x||!x.ll) return '';
     var q=x.ll[0].toFixed(5)+','+x.ll[1].toFixed(5);
-    var warn = NOMAP[s.name==='Fish Creek Falls'?'Fish Creek Falls Trailhead':s.name==='Summit Lake'?'Summit Lake':''];
+    var warn = NOMAP[RACE.noMapStop[s.name]||''];
     return (warn?'<div class="callout w"><b>Do not drive to this one.</b> '+warn+'</div>':'')+
       '<a class="btn '+(warn?'ghost':'')+'" style="text-decoration:none" target="_blank" rel="noopener" '+
       'href="https://www.google.com/maps/search/?api=1&query='+q+'">'+
@@ -4179,14 +4164,14 @@
      starts empty. Nothing is pre-filled: stock copy in an editable field reads
      as something you already wrote and cannot be cleared. */
   var AID_FIELDS = [
-    { k:'runner', who:'runner', label:'Will\u2019s note',
-      hint:'Will writes this. What he wants here, and his plan for the stop.' },
+    { k:'runner', who:'runner', label:RUNNER+'\u2019s note',
+      hint:RUNNER+' writes this. What he wants here, and his plan for the stop.' },
     { k:'crew',   who:'crew',   label:'Crew note',
       hint:'Anyone on the crew can write this. Food, kit, who is doing what.' }
   ];
   /* Will owns his own note and can edit either; the crew edit theirs. Two
      people writing one field at 3am is how a plan gets lost. */
-  function mayEdit(f){ return meIsWill() || f.who==='crew'; }
+  function mayEdit(f){ return meIsRunner() || f.who==='crew'; }
   function aidField(i,k){ var o=aidOv(i); return (o&&typeof o[k]==='string')?o[k]:''; }
   function aidWho(i){ var o=aidOv(i); return o.who||[]; }
   function setAidOv(i,patch){
@@ -4364,7 +4349,7 @@
       AID_FIELDS.filter(mayEdit).forEach(function(f){ patch[f.k]=null; });
       patch.gear=null;
       /* only the runner clears the shared assignment and the pre-reshape keys */
-      if(meIsWill()){ patch.who=null; patch.plan=null; patch.has=null; patch.notes=null; }
+      if(meIsRunner()){ patch.who=null; patch.plan=null; patch.has=null; patch.notes=null; }
       setAidOv(i,patch);
       closeSheet(); afterAidEdit();
     };
@@ -4480,12 +4465,13 @@
   }
 
   function followCard(){
+    var F = RACE.copy.follow;
     return '<div class="card"><h3>Follow the race</h3>'+
-      '<p class="sec">Official timing and the livestream. Exact 2026 links are confirmed at the Thursday briefing \u2014 if one of these is not live yet, that is why.</p>'+
-      '<a class="btn tint" style="text-decoration:none;margin-top:10px" target="_blank" rel="noopener" href="https://www.kandutiming.com/live/">Kandu Timing \u00b7 checkpoint times</a>'+
-      '<a class="btn tint" style="text-decoration:none" target="_blank" rel="noopener" href="https://runrabbitrunsteamboat.com/results/">Race website \u00b7 results and tracking</a>'+
-      '<a class="btn tint" style="text-decoration:none" target="_blank" rel="noopener" href="https://www.mountainoutpost.com/">Mountain Outpost \u00b7 livestream</a>'+
-      '<div class="callout n" style="margin-bottom:0">Timing mats sit at the aid stations, so the official tracker updates in jumps and can lag several minutes in the remote sections. What you log in this app is faster than what the website will show you.</div></div>';
+      '<p class="sec">'+F.intro+'</p>'+
+      F.links.map(function(l,n){
+        return '<a class="btn tint" style="text-decoration:none'+(n===0?';margin-top:10px':'')+'" target="_blank" rel="noopener" href="'+l.url+'">'+l.label+'</a>';
+      }).join('')+
+      '<div class="callout n" style="margin-bottom:0">'+F.note+'</div></div>';
   }
 
 
@@ -4499,18 +4485,15 @@
     var pn=PLANS.filter(function(p){return p.k===S.plan;})[0].name;
     var h='';
     h+='<div class="brief">';
-    h+='<div class="bhead"><div><h2>Run Rabbit Run 100 \u2014 crew &amp; pacer plan</h2>'+
-       '<p>Will \u00b7 Tortoise \u00b7 starts 9:00 am Friday 18 September 2026 \u00b7 Steamboat Springs</p></div>'+
-       '<div class="bmeta"><b>'+pn+' '+dur(fin)+'</b><span>36-hour limit \u00b7 finish by 9:00 pm Sat</span></div></div>';
+    h+='<div class="bhead"><div><h2>'+RACE.name+' \u2014 crew &amp; pacer plan</h2>'+
+       '<p>'+RUNNER+' \u00b7 '+RACE.runner.division+' \u00b7 starts '+RACE.startLabel+' \u00b7 '+RACE.place+'</p></div>'+
+       '<div class="bmeta"><b>'+pn+' '+dur(fin)+'</b><span>'+RACE.limitLabel+' \u00b7 finish by '+RACE.finishBy+'</span></div></div>';
 
-    h+='<div class="brule"><h3>Three things that disqualify Will</h3><ol>'+
-       '<li><b>Never drive to Fish Creek Falls Trailhead.</b> Walk or bike, four miles from Olympian Hall.</li>'+
-       '<li><b>Never drive up Buffalo Pass Road past Dry Lake.</b> Summit Lake is the two-hour way round, every time.</li>'+
-       '<li><b>Never park at Dry Lake.</b> Drop off, turn round, leave. The sheriff tickets and tows.</li>'+
-       '</ol><p>Help him only at the stops below, plus in town between Spring Creek Trailhead and Olympian Hall. Be kind to volunteers \u2014 rudeness is grounds for disqualification.</p></div>';
+    h+='<div class="brule"><h3>Three things that disqualify '+RUNNER+'</h3><ol>'+
+       RACE.copy.briefRules+'</div>';
 
     h+='<h3 class="bsec">Crew rotation</h3><table class="btable"><thead><tr>'+
-       '<th>#</th><th>Where</th><th>Mile</th><th>Will arrives</th><th>Leave town by</th><th>Drive</th><th>Who</th><th>What to have ready</th></tr></thead><tbody>';
+       '<th>#</th><th>Where</th><th>Mile</th><th>'+RUNNER+' arrives</th><th>Leave town by</th><th>Drive</th><th>Who</th><th>What to have ready</th></tr></thead><tbody>';
     CREW.forEach(function(c){
       var t=crewArrive(c), lv=leaveMins(c);
       h+='<tr'+(c.key?' class="key"':'')+'><td>'+c.n+'</td><td><b>'+c.where+'</b></td>'+
@@ -4543,7 +4526,7 @@
     h+='</tbody></table>';
 
     h+='<h3 class="bsec">Driving</h3><div class="bcols">';
-    ['Olympian Hall','Dry Lake','Summit Lake','Fish Creek Falls Trailhead'].forEach(function(k){
+    RACE.driveKeys.forEach(function(k){
       var d=DRIVES[k]; if(!d) return;
       h+='<div class="bcard"><h4>'+k+' <span>'+d.t+'</span></h4><p>'+d.d+'</p>'+
         (d.warn?'<p class="bwarn">'+d.warn+'</p>':'')+'</div>';
@@ -4572,7 +4555,7 @@
     h+='</tbody></table>';
 
     h+='<div class="bfoot">Times shown on the <b>'+pn+'</b> schedule ('+dur(fin)+'). '+
-       'If Will is running behind, every time here shifts later by roughly the same amount. '+
+       'If '+RUNNER+' is running behind, every time here shifts later by roughly the same amount. '+
        'Cutoffs are fixed and are the times he must <i>leave</i> by. '+
        'Generated from the race plan app \u00b7 official times from the 2026 Runner\u2019s Manual v1.1.</div>';
     h+='</div>';
@@ -4619,7 +4602,7 @@
   function whoAmI(){
     var p=S.people.filter(function(x){return x.id===S.me;})[0];
     if(p) return p.name;
-    return meIsWill() ? 'Will' : 'someone';
+    return meIsRunner() ? RUNNER : 'someone';
   }
   function sbHead(extra){
     var h={ 'apikey':SUPA.key, 'Authorization':'Bearer '+SUPA.key, 'Content-Type':'application/json' };
@@ -4678,7 +4661,7 @@
         for(k in remote) merged[k]=remote[k];
         var unsent=Object.keys(S.splits).filter(function(x){ return !(x in remote); });
         var changed=JSON.stringify(merged)!==JSON.stringify(S.splits);
-        S.splits=merged; ls('rrr.splits',JSON.stringify(S.splits));
+        S.splits=merged; ls(KEY+'splits',JSON.stringify(S.splits));
         unsent.forEach(pushSplit);
         return changed;
       });
@@ -4747,7 +4730,7 @@
           touched.push(i);
         });
         if(!touched.length) return false;
-        ls('rrr.splits',JSON.stringify(S.splits));
+        ls(KEY+'splits',JSON.stringify(S.splits));
         touched.forEach(pushSplit);
         return true;
       })
@@ -4796,7 +4779,7 @@
     if(pp.length) bits.push(pp.length+' '+(pp.length>1?'people':'person'));
     if(ev.length) bits.push(ev.length+' schedule '+(ev.length>1?'items':'item'));
     document.getElementById('shareBanner').innerHTML=
-      '<div class="banner"><p><b>Will shared '+bits.join(' and ')+' with you.</b></p>'+
+      '<div class="banner"><p><b>'+RUNNER+' shared '+bits.join(' and ')+' with you.</b></p>'+
       '<div class="btn-row" style="margin:10px 0 0"><button class="btn sm" id="mergeYes">Add them</button>'+
       '<button class="btn ghost sm" id="mergeNo">No thanks</button></div></div>';
     document.getElementById('mergeYes').onclick=function(){
@@ -4817,7 +4800,7 @@
       var m=document.getElementById(msgId);
       if(!('caches' in window)){ m.textContent='This browser cannot save it. Open the app from the web link rather than a downloaded file.'; return; }
       m.textContent='Downloading, this takes a moment…';
-      caches.open('rrr-docs-v1').then(function(c){return c.add('2026-RRR-Manual.pdf');})
+      caches.open(RACE.key+'-docs-v1').then(function(c){return c.add(RACE.manualFile);})
         .then(function(){ m.textContent='Saved. It will open with no signal.'; })
         .catch(function(){ m.textContent='That did not work. Check your connection and try again.'; });
     };
@@ -4833,11 +4816,11 @@
   }
 
   /* ── boot ── */
-  S.checks=jget('rrr.checks',{}); S.custom=jget('rrr.custom',[]); S.people=jget('rrr.people',[]);
-  S.gearAdd=jget('rrr.gearadd',{}); S.gearRemoved=jget('rrr.gearrm',{}); S.gearOverride=jget('rrr.gearov',{});
-  S.paceOv=jget('rrr.paceov',{}); S.fuelOv=jget('rrr.fuelov',{});
-  S.notes=jget('rrr.notes',{}); S.splits=jget('rrr.splits',{}); S.aidOv=jget('rrr.aidov',{});
-  S.secOv=jget('rrr.secov',{}); S.driveOv=jget('rrr.driveov',{});
+  S.checks=jget(KEY+'checks',{}); S.custom=jget(KEY+'custom',[]); S.people=jget(KEY+'people',[]);
+  S.gearAdd=jget(KEY+'gearadd',{}); S.gearRemoved=jget(KEY+'gearrm',{}); S.gearOverride=jget(KEY+'gearov',{});
+  S.paceOv=jget(KEY+'paceov',{}); S.fuelOv=jget(KEY+'fuelov',{});
+  S.notes=jget(KEY+'notes',{}); S.splits=jget(KEY+'splits',{}); S.aidOv=jget(KEY+'aidov',{});
+  S.secOv=jget(KEY+'secov',{}); S.driveOv=jget(KEY+'driveov',{});
   /* section notes used to be a single unlabelled box called "Your notes",
      written only by Will. Move them into the runner channel so there is one
      note model in the app; the originals stay put. */
@@ -4850,7 +4833,7 @@
       if(!String(S.notes[k]||'').trim()) return;
       S.secOv[n]=S.secOv[n]||{}; S.secOv[n].runner=S.notes[k]; moved=true;
     });
-    if(moved) ls('rrr.secov',JSON.stringify(S.secOv));
+    if(moved) ls(KEY+'secov',JSON.stringify(S.secOv));
   })();
   /* earlier builds kept one note per station under notes['aid<N>']; move it
      into the new three-field shape so nothing written so far is lost */
@@ -4871,14 +4854,14 @@
         .filter(function(v){ return typeof v==='string' && v.trim(); });
       if(parts.length){ o.runner=parts.join('\n'); moved=true; }
     });
-    if(moved){ ls('rrr.notes',JSON.stringify(S.notes)); ls('rrr.aidov',JSON.stringify(S.aidOv)); }
+    if(moved){ ls(KEY+'notes',JSON.stringify(S.notes)); ls(KEY+'aidov',JSON.stringify(S.aidOv)); }
   })();
   /* "Bring" was a third note channel: real content, shown like a note, and
      editable by nobody. It is what the crew brings and does, which is the
      crew note's job, so it moves there once and becomes editable. Seeded only
      into an empty channel, and only once -- clearing a note must not bring
      the old text back on the next load. */
-  if(!ls('rrr.bringmoved')){
+  if(!ls(KEY+'bringmoved')){
     var bmoved=false;
     CREW.forEach(function(c){
       if(c.mi==null || !c.what) return;
@@ -4888,15 +4871,15 @@
         S.aidOv[i].crew=c.what; bmoved=true;
       }
     });
-    ls('rrr.bringmoved','1');
-    if(bmoved) ls('rrr.aidov',JSON.stringify(S.aidOv));
+    ls(KEY+'bringmoved','1');
+    if(bmoved) ls(KEY+'aidov',JSON.stringify(S.aidOv));
   }
   /* Last build put the old "Bring" sentence into the crew note. Half of them
      are comma lists -- "Warm layer, hot drink, real food, his night kit" --
      which is a packing list written sideways. Split those into the gear list
      and leave the prose ones where they are. Only touches a crew note that
      is still word-for-word the shipped text, so an edited one is never lost. */
-  if(!ls('rrr.gearsplit')){
+  if(!ls(KEY+'gearsplit')){
     var gmoved=false;
     CREW.forEach(function(c){
       if(c.mi==null || !c.what || c.what.indexOf(',')<0) return;
@@ -4912,14 +4895,14 @@
       delete o.crew;
       gmoved=true;
     });
-    ls('rrr.gearsplit','1');
-    if(gmoved) ls('rrr.aidov',JSON.stringify(S.aidOv));
+    ls(KEY+'gearsplit','1');
+    if(gmoved) ls(KEY+'aidov',JSON.stringify(S.aidOv));
   }
-  S.bib=ls('rrr.bib')||''; MAPV.base=ls('rrr.base')||'satellite';
-  if(!BASES[MAPV.base]) MAPV.base='satellite'; S.theme=ls('rrr.theme')||'light'; S.proj=ls('rrr.proj')||'pace'; S.gps=ls('rrr.gps')==='1'; S.atomWho=jget('rrr.atomwho',{});
-  try{ GPS.last=JSON.parse(ls('rrr.gpslast')||'null'); }catch(e){}
+  S.bib=ls(KEY+'bib')||''; MAPV.base=ls(KEY+'base')||'satellite';
+  if(!BASES[MAPV.base]) MAPV.base='satellite'; S.theme=ls(KEY+'theme')||'light'; S.proj=ls(KEY+'proj')||'pace'; S.gps=ls(KEY+'gps')==='1'; S.atomWho=jget(KEY+'atomwho',{});
+  try{ GPS.last=JSON.parse(ls(KEY+'gpslast')||'null'); }catch(e){}
   STATIONS.forEach(function(s,i){ s.__i=i; });
-  S.plan=ls('rrr.plan')||'goal'; S.me=ls('rrr.me')||null;
+  S.plan=ls(KEY+'plan')||'goal'; S.me=ls(KEY+'me')||null;
   /* ?crew and ?pacer are still accepted so links already sent keep working.
      They no longer pick an interface -- there is only one. */
   S.mode='runner';

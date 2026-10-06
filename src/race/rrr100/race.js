@@ -16,7 +16,85 @@ var SUPA = {
    2025 between 28 and 32 hours, from the same tracker.
    Times are minutes from the Tortoise start, Fri 18 Sep 2026, 09:00 Mountain. */
 
-var RACE = { startISO:'2026-09-18T09:00:00-06:00', tz:'America/Denver', dark:[[640,1285],[2078,2400]], limit:2160 };
+var RACE = {
+  /* identity: filled into the page at build time */
+  name: 'Run Rabbit Run 100', short: 'RRR100', place: 'Steamboat Springs',
+  dates: '18\u201319 September 2026', monthYear: 'September 2026',
+  year: 2026,
+  sun: { rise:'6:51 am', set:'7:14 pm', dark:'7:40 pm' },
+  key: 'rrr',                       /* prefix for every stored setting on a phone */
+  manualFile: '2026-RRR-Manual.pdf',
+  manualPages: 20,
+  /* the default runner on this build; each team can set its own */
+  runner: { name: 'Will', division: 'Tortoise', bibRange: '400\u2013800' },
+  startSpot: 'Gondola Square', finishBy: '9:00 pm Sat',
+  startShort: '9:00 am Friday', startLabel: '9:00 am Friday 18 September 2026', limitLabel: '36-hour limit',
+  /* timing */
+  startISO:'2026-09-18T09:00:00-06:00', tz:'America/Denver', dark:[[640,1285],[2078,2400]], limit:2160
+};
+
+/* Where a map link is safe, and where it is not. Keys are stop names as the
+   crew list spells them. {runner} becomes the runner's name. */
+RACE.mapQuery = {
+  'Start line, ski basin':'Gondola Square, Steamboat Springs, CO',
+  'Finish line, ski basin':'Gondola Square, Steamboat Springs, CO',
+  'Olympian Hall':'Olympian Hall, Steamboat Springs, CO',
+  'Olympian Hall, second time':'Olympian Hall, Steamboat Springs, CO',
+  'Dry Lake':'Dry Lake Campground, Buffalo Pass Rd, Steamboat Springs, CO',
+  'Dry Lake, second time':'Dry Lake Campground, Buffalo Pass Rd, Steamboat Springs, CO'
+};
+RACE.noMap = {
+  'Fish Creek Falls Trailhead':'There is no vehicle access at all. Park at Olympian Hall and go the four miles on foot or by bike.',
+  'Summit Lake':'It will route you up Buffalo Pass Road above Dry Lake, which disqualifies {runner}. Use the written directions below — Rabbit Ears Pass, then Highway 14 toward Walden.'
+};
+RACE.noMapStop = { 'Fish Creek Falls':'Fish Creek Falls Trailhead', 'Summit Lake':'Summit Lake' };  /* station name -> noMap key */
+RACE.driveKeys = ['Olympian Hall','Dry Lake','Summit Lake','Fish Creek Falls Trailhead'];          /* order of the driving cards */
+
+/* Copy that belongs to this race. {runner} is not substituted here; use it only where noted. */
+RACE.copy = {
+  footer: 'Cutoffs and rules from the 2026 Runner’s Manual v1.1. Goal splits from your tracker.<br>2025 field data: 68 Tortoises finishing between 28 and 32 hours.',
+  rulesLine: 'Never drive to Fish Creek Falls · never drive Buffalo Pass Road above Dry Lake · never park at Dry Lake. ',
+  cutoffsNote: 'Cutoffs are the times he must <i>leave</i> by. Official times from the 2026 Runner’s Manual v1.1.',
+  helpSignal: 'Once it has opened on your phone it keeps working on Buffalo Pass. Anything you write syncs by itself when you get signal back.',
+  helpRules: 'Never drive to Fish Creek Falls trailhead. Never drive Buffalo Pass Road above Dry Lake. Never park at Dry Lake.',
+  briefRules: '<li><b>Never drive to Fish Creek Falls Trailhead.</b> Walk or bike, four miles from Olympian Hall.</li><li><b>Never drive up Buffalo Pass Road past Dry Lake.</b> Summit Lake is the two-hour way round, every time.</li><li><b>Never park at Dry Lake.</b> Drop off, turn round, leave. The sheriff tickets and tows.</li></ol><p>Help him only at the stops below, plus in town between Spring Creek Trailhead and Olympian Hall. Be kind to volunteers — rudeness is grounds for disqualification.</p>',
+  fieldNotes: '<h3>What the numbers say</h3>'+
+      '<p style="margin-top:8px"><b>The Emerald loop is the biggest single block of time on the course</b> — four hours four minutes on average, more than any other section, and it happens between one and five in the morning.</p>'+
+      '<p><b>Dry Lake to Summit is the slowest ground</b> — 24 minutes a mile, four hours for ten miles. Plan for it and do not panic.</p>'+
+      '<p><b>The final descent separates the field by a factor of three.</b> Fastest 49 minutes, slowest two hours 59, for the same six downhill miles. That is quads, and quads are spent eighty-four miles earlier in the Fish Creek canyon.</p>'+
+      '<p class="cap" style="margin-top:10px">Billy\'s Rabbit Hole had no timing mat on the return in 2025, so two rows show combined averages only.</p>',
+  gearIntro: '<p class="sec">New for 2026. Checked on the way <i>out</i> of Olympian Hall, at mile 51.2 and again at 63.9, so you carry all five for the last 50.6 miles.</p>',
+  bagsIntro: '<div class="card alert"><p><b>Collected Thursday 3\u20136 pm, before the briefing.</b> Both bags are sealed about fifteen hours before you start, so you cannot adjust them to Friday\u2019s forecast. Pack for the bad version.</p>'+
+      '<p style="margin-top:8px">No hard-sided bags, nothing bigger than a shoebox. Bring a bright colour \u2014 you will be hunting for it in a field of identical bags.</p></div>',
+  summitSkipped: '<div class="card"><h3>Why Summit at mile 30 is skipped</h3><p class="sec">The drop bag covers it, and a four-hour round trip at mile 30 wrecks the crew before the stops that matter. Dry Lake has crew but <i>no</i> drop bag, so those two visits are the crew\u2019s highest-value work.</p></div>',
+  weatherNotes: '<p class="sec">2011 brought hail, rain, 40 mph winds and snow. 2022 brought snow, wind, fog and mud. 2025 was a blizzard with lightning.</p>'+
+      '<div class="callout w"><b>Carry a light from the start.</b> On the 36-hour schedule you reach Summit Lake \u2014 your first drop bag \u2014 at 8:30 pm, more than an hour after dark, and Long Lake at mile 24.3 has neither crew nor a bag. It weighs four ounces.</div>'+
+      '<p class="cap">Per the race director: more hundred-mile runners drop from unexpected overnight cold than from any other cause.</p></div>',
+  elevNotes: '<div class="callout n"><b>The manual\u2019s 20,391 ft is wrong.</b> It overstates the climb by about 2,500 feet, roughly 14 percent. Ascent and descent coming out within 25 feet of each other on a loop is what a real measurement looks like; two identical numbers to the foot is what a spreadsheet looks like.</div>'+
+      '<p class="sec">GPS watches on this course record 16,000 to 18,000 ft, which brackets the GPX figure \u2014 a barometric altimeter smooths away small undulations that the terrain model counts.</p>'+
+      '<h4 style="font-size:15px;font-weight:650;color:var(--green-ink);margin:18px 0 6px">Two things that will not match</h4>'+
+      '<p class="sec"><b>Mileages.</b> The GPX measures 101.2 miles and puts every aid station about 0.8 of a mile earlier than the manual does. This app keeps the manual\u2019s numbers \u2014 mile 44.5 for Dry Lake and so on \u2014 because that is what is on the signs and what the race directors and volunteers will say. The terrain between stations is stretched by less than one percent to fit.</p>'+
+      '<p class="sec"><b>Low-point elevations.</b> The terrain model reads higher than the manual at the bottom of the course: 7,070 ft at the start against the manual\u2019s 6,886, and 7,497 at Fish Creek Falls against 6,952. Elsewhere the two agree within about a hundred feet. The figures here are the measured ones, so the station markers sit on the drawn line.</p>'+
+      '<p class="cap">Source: RRR100 CalTopo export, track "Run Rabbit Run 100-2024". Confidence: high. Re-check if the 2026 course changes.</p></div>',
+  questionsIntro: '<div class="card"><p class="sec" style="margin-bottom:10px">Open questions the manual does not settle. Ask at the Thursday briefing.</p>',
+  pacerBlocksIntro: '<p class="sec">A pacer may only join or leave at Dry Lake 44.5, Olympian 51.2, Olympian 63.9, Dry Lake 70.8 or Summit 80.8. Every possible pacer leg is one or more of these in a row \u2014 there is nothing else to work with.</p>'+
+      '<div class="callout w" style="margin-bottom:0"><b>The last block is 21 miles with no swap inside it.</b> Four blocks fall in your 7\u201313 mile range; that one does not, and no arrangement changes it. Family may join for the final four miles from the top of the gondola, so the shortest anyone can cover from Summit is about seventeen miles alone with you.</div></div>',
+  lens: {
+    crewLegend: '<span><i class="k crew"></i>Crew can reach him — 7 places</span><span><i class="k nocrew"></i>On his own</span>',
+    crewNote: 'The longest stretch with no crew is Summit Lake to Dry Lake, 14.4 miles. Fish Creek is foot or bike only.',
+    bagLegend: '<span><i class="k bag"></i>Drop bag — 4 visits</span><span><i class="k nocrew"></i>Carry everything</span>',
+    bagNote: 'Two bags, four visits: Summit Lake at 30.1 and 80.8, Olympian at 51.2 and 63.9.'
+  },
+  follow: {
+    intro: 'Official timing and the livestream. Exact 2026 links are confirmed at the Thursday briefing — if one of these is not live yet, that is why.',
+    links: [
+      { url:'https://www.kandutiming.com/live/', label:'Kandu Timing · checkpoint times' },
+      { url:'https://runrabbitrunsteamboat.com/results/', label:'Race website · results and tracking' },
+      { url:'https://www.mountainoutpost.com/', label:'Mountain Outpost · livestream' }
+    ],
+    note: 'Timing mats sit at the aid stations, so the official tracker updates in jumps and can lag several minutes in the remote sections. What you log in this app is faster than what the website will show you.'
+  }
+};
 
 /* Labels only. The keys are what every stored override and every synced
    plan row is filed under, so they do not move. */
