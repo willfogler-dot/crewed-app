@@ -12,7 +12,7 @@ var SUPA = {
 
 /* ════════════ DATA ════════════
    Aid stations, cutoffs and rules: 2026 Runner's Manual v1.1 (29 Jul 2026).
-   Goal splits: Will's own tracker. Field splits: 68 Tortoises who finished
+   Goal splits: the runner's own tracker. Field splits: 68 Tortoises who finished
    2025 between 28 and 32 hours, from the same tracker.
    Times are minutes from the Tortoise start, Fri 18 Sep 2026, 09:00 Mountain. */
 
@@ -112,7 +112,7 @@ var PLANS = [
   { k:'slow',   name:'Cutoff',  sub:'36:00' }
 ];
 
-/* gain = estimated gross climb for the segment INTO this station (Will's tracker) */
+/* gain = estimated gross climb for the segment INTO this station (runner's tracker) */
 var STATIONS = [
   { mi:0,     name:'Start — Ski Basin',   elev:7070,  gain:0,    bag:1,crew:1,pacer:0, goal:0,    field:0,    p24:0, steady:0,    slow:0,    cut:null, major:1 },
   { mi:5.4,   name:'Mount Werner',        elev:10358, gain:3300, bag:0,crew:0,pacer:0, goal:133,  field:136,  p24:75, steady:91,   slow:105,  cut:390 },
@@ -1253,8 +1253,8 @@ var FUELPLAN = [
   { aid:'Fruit', seg:'90g Carbs', ac:30, sc:90, caps:4, water:1, caf:0, note:'' },
   { aid:'Fruit', seg:'90g Carbs', ac:30, sc:90, caps:3, water:1, caf:0, note:'Back up night ops in the drop bag' },
   { aid:'Fruit', seg:'Swedish Fish (30g Carbs)', ac:30, sc:30, caps:3, water:0.5, caf:0, note:'' },
-  { aid:'Schmucker + Goldfish + Cookies', seg:'Swedish Fish (60g Carbs)', ac:70, sc:60, caps:1, water:1, caf:0, note:'Meet Megan and pick up Emma' },
-  { aid:'Sandwich + Salami + Mashed Potatoes + Cookies', seg:'—', ac:100, sc:0, caps:0, water:1, caf:25, note:'Emma pacing' },
+  { aid:'Schmucker + Goldfish + Cookies', seg:'Swedish Fish (60g Carbs)', ac:70, sc:60, caps:1, water:1, caf:0, note:'' },
+  { aid:'Sandwich + Salami + Mashed Potatoes + Cookies', seg:'—', ac:100, sc:0, caps:0, water:1, caf:25, note:'Pacer 1' },
   { aid:'Fruit', seg:'—', ac:30, sc:0, caps:2, water:0.5, caf:0, note:'Chris pacing' },
   { aid:'Fruit', seg:'—', ac:30, sc:0, caps:2, water:0.5, caf:0, note:'Chris pacing' },
   { aid:'Ramen + Mashed Potatoes + Cheese', seg:'Swedish Fish (60g Carbs)', ac:125, sc:60, caps:0, water:1, caf:150, note:'Chris pacing' },

@@ -1113,7 +1113,7 @@
 
   /* Who is at a check-in and who is running into it. This used to be a free
      text field in FUELPLAN, which meant it said whatever was typed there a
-     year ago -- "Emma pacing" long after the legs had been reassigned. Both
+     year ago -- "Pacer 1 pacing" long after the legs had been reassigned. Both
      answers already exist in the plan, so read them rather than retype them. */
   function crewAtStation(i){
     var out=[], seen={};
@@ -1688,7 +1688,7 @@
     if(NOMAP[where]) return '<div class="callout w" style="margin:0"><b>Do not use a map app.</b> '+NOMAP[where]+'</div>';
     return '';
   }
-  /* A stop becomes "next" when it is time to LEAVE for it, not when Will arrives.
+  /* A stop becomes "next" when it is time to LEAVE for it, not when the runner arrives.
      The rest block has no mile, so it sits just ahead of the following real stop. */
   function pickTime(i){
     var c=CREW[i];
@@ -1816,7 +1816,7 @@
   /* ── who am I, and what is my job ──────────────────────────────
      One interface, one link. What differs between people is a single
      card at the top of the race screen, and it is driven by the person
-     you said you were -- which lives in the shared plan, so Will can
+     you said you were -- which lives in the shared plan, so the runner can
      change someone's job from his own phone and their screen follows. */
   var ME_RUNNER='will';
   function meIsRunner(){ return S.me===ME_RUNNER; }
@@ -1949,7 +1949,7 @@
   function visibleCrew(){ return CREW.filter(function(c){ return !stopHidden(c.n); }); }
 
   /* Which of the nine the crew actually drive to. Shared, so one change on
-     Will's phone reaches every phone. */
+     the runner's phone reaches every phone. */
   function editStops(){
     sheet('Which stops show',
       '<p class="sec" style="margin-bottom:12px">Untick a stop the crew is not driving to. '+
@@ -1990,8 +1990,8 @@
   var RUN_SVG='<svg class="prole" viewBox="0 0 24 24"><circle cx="14" cy="4.6" r="2"/>'+
     '<path d="M9.5 21l2.3-6.6L9 11l1-4 3.6 1 2.4 2.6M13.8 14.4L16.4 21M6 10.4l3-2"/></svg>';
   /* A chip says who. If it is a pacer it also says so -- a runner mark
-     instead of the colour dot, and what they are doing at this stop. Emma's
-     name on an aid station with no other clue reads as "Emma is crewing",
+     instead of the colour dot, and what they are doing at this stop. A name’s
+     name on an aid station with no other clue reads as "Crew 1 is crewing",
      which is the opposite of true. */
   function personChip(p, me, tag){
     /* the name as an attribute as well as text: a pacer chip's text carries a
@@ -2244,7 +2244,7 @@
     ['Three rules that end his race',
      RACE.copy.helpRules]
   ];
-  /* Will wrote this app; nobody else on the team has ever opened it. The
+  /* The runner wrote this app; nobody else on the team has ever opened it. The
      first thing on their first screen says so, and goes away when they say
      it can. A modal that opens itself would sit on top of whatever they do
      next and swallow their back button. */
@@ -2269,7 +2269,7 @@
   function renderMyJob(){
     var el=document.getElementById('myJob'); if(!el) return;
     var p=mePerson();
-    if(!p){ el.innerHTML=''; MYJOB_HTML=null; return; }  /* Will, or nobody chosen */
+    if(!p){ el.innerHTML=''; MYJOB_HTML=null; return; }  /* the runner, or nobody chosen */
     var head='<div class="phead"><h1>'+esc(p.name)+'</h1></div>';
     var html = head + howCardHTML() +
       (p.role==='pacer' ? pacerJobHTML(p) : '') +
@@ -3166,7 +3166,7 @@
   }
   function legsForPerson(id){ return pacerLegs().filter(function(L){ return L.who===id; }); }
   /* A custom leg someone builds in the Pacer plan tab won't always match one
-     of the three spans Will already wrote up in detail -- fall back to a
+     of the three spans the runner already wrote up in detail -- fall back to a
      plain, honest description built from the leg's own numbers rather than
      leaving it blank. */
   function legNarrative(L){
@@ -4169,7 +4169,7 @@
     { k:'crew',   who:'crew',   label:'Crew note',
       hint:'Anyone on the crew can write this. Food, kit, who is doing what.' }
   ];
-  /* Will owns his own note and can edit either; the crew edit theirs. Two
+  /* The runner owns their own note and can edit either; the crew edit theirs. Two
      people writing one field at 3am is how a plan gets lost. */
   function mayEdit(f){ return meIsRunner() || f.who==='crew'; }
   function aidField(i,k){ var o=aidOv(i); return (o&&typeof o[k]==='string')?o[k]:''; }
@@ -4823,7 +4823,7 @@
   S.notes=jget(KEY+'notes',{}); S.splits=jget(KEY+'splits',{}); S.aidOv=jget(KEY+'aidov',{});
   S.secOv=jget(KEY+'secov',{}); S.driveOv=jget(KEY+'driveov',{});
   /* section notes used to be a single unlabelled box called "Your notes",
-     written only by Will. Move them into the runner channel so there is one
+     written only by the runner. Move them into the runner channel so there is one
      note model in the app; the originals stay put. */
   (function(){
     var moved=false;
