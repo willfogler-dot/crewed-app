@@ -382,13 +382,14 @@
     });
     document.querySelectorAll('.view').forEach(function(x){x.classList.remove('on');});
     document.getElementById(tabsFor()[0][0]).classList.add('on');
+    document.body.classList.toggle('on-now', tabsFor()[0][0]==='n-now');
   }
   /* Everyone gets the same app now; the only thing identity changes is the
      job card at the top of the race screen. S.mode is kept at 'runner' so
      the handful of places that still read it keep working. */
   function startApp(){
     S.mode='runner'; save();
-    NAVT = RACE.name;
+    NAVT = mePerson() ? RACE.short : RACE.name;   /* crew see their own name beside it, so the short one fits */
     setNav(false);
     document.getElementById('foot').innerHTML =
       RACE.copy.footer;
@@ -907,6 +908,7 @@
      add or the browser coalesces them and nothing plays. */
   function swapView(toId, dir){
     var to=document.getElementById(toId); if(!to) return;
+    document.body.classList.toggle('on-now', toId==='n-now');
     document.querySelectorAll('.view').forEach(function(x){
       if(x!==to) x.classList.remove('on','en-push','en-pop','en-r','en-l');
     });
@@ -2324,6 +2326,7 @@
   /* ── the gate: who are you ── */
   function renderGate(){
     var el=document.getElementById('gatePicks'); if(!el) return;
+    skyPaint(document.getElementById('gateSky'), now(), null);
     function pick(id,name,sub,ico,hue){
       return '<button class="pick" data-me="'+id+'">'+
         '<span class="ico'+(hue!=null?' pc'+hue:'')+'">'+(ico||'<b style="font-size:14px;font-weight:700">'+esc(initials(name))+'</b>')+'</span>'+
@@ -2344,6 +2347,11 @@
       b.onclick=function(){ setMe(b.dataset.me); };
     });
   }
+  /* the gate's sky ends wherever the race name does, plus room for the ridge */
+  function gateFit(){
+    var sky=document.getElementById('gateSky'), sec=document.querySelector('#gate .sec'); if(!sky||!sec) return;
+    sky.style.height=(sec.offsetTop+sec.offsetHeight+168)+'px';
+  }
   function setMe(id){
     S.me=id; save();
     document.getElementById('gate').classList.remove('on'); syncScrollLock();
@@ -2352,6 +2360,7 @@
   function openGate(){
     renderGate();
     document.getElementById('gate').classList.add('on');
+    gateFit();
     window.scrollTo(0,0); syncScrollLock();
   }
 

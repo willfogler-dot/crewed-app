@@ -35,7 +35,7 @@
   }
   function demoPaint(){
     var lab=document.getElementById('demoT'), r=document.getElementById('demoR');
-    if(lab) lab.textContent=clkDay(DEMO.t)+' · '+(DEMO.t<0?'before the start':hm(DEMO.t)+' elapsed');
+    if(lab) lab.textContent=clkDay(DEMO.t);
     if(r && +r.value!==Math.round(DEMO.t)) r.value=Math.round(DEMO.t);
     var pl=document.getElementById('demoPlay'); if(pl) pl.textContent=DEMO.timer?'Pause':'Play';
   }
@@ -49,9 +49,9 @@
     document.body.classList.add('demo');
     var bar=document.getElementById('demoBar');
     if(bar){
-      bar.innerHTML='<div class="demo-in"><div class="demo-h"><span class="lbl">Demo · drag through race day</span><button id="demoPlay">Play</button></div>'+
-        '<input type="range" id="demoR" min="-60" max="'+DEMO.end+'" step="1" value="'+DEMO.t+'" aria-label="Race time">'+
-        '<div class="demo-t num" id="demoT"></div></div>';
+      bar.innerHTML='<div class="demo-in"><button id="demoPlay">Play</button>'+
+        '<div class="demo-m"><input type="range" id="demoR" min="-60" max="'+DEMO.end+'" step="1" value="'+DEMO.t+'" aria-label="Race time">'+
+        '<div class="demo-t"><span>Replay race day</span><b class="num" id="demoT"></b></div></div></div>';
       document.getElementById('demoR').oninput=function(){ DEMO.manual={}; demoSet(+this.value); };
       document.getElementById('demoPlay').onclick=function(){
         if(DEMO.timer){ clearInterval(DEMO.timer); DEMO.timer=null; }

@@ -109,13 +109,13 @@
     var drive=c?driveMins(c):0, sp=splitOf(t.si)||{}, here=sp.in!=null;
     var eyebrow = t.kind==='pstart' ? 'You start pacing here'
                 : t.kind==='pend'   ? 'Your leg ends here'
-                : t.si===L ? 'The finish' : 'Your next stop · '+(t.k+1)+' of '+t.n;
+                : t.si===L ? 'The finish' : 'Stop '+(t.k+1)+' of '+t.n;
     var place = c ? c.where : shortName(s);
     var left=p.min-nm, sub;
     if(here) sub=esc(RUNNER)+' is in the station';
-    else if(p.src==='plan') sub='On the plan · no checkpoints yet';
+    else if(p.src==='plan') sub='On the plan. No checkpoints yet.';
     else if(left>=0) sub=esc(RUNNER)+' expected in <b>'+dur(left)+'</b>';
-    else if(p.hi!=null && nm<=p.hi) sub='Due any minute · still inside the range';
+    else if(p.hi!=null && nm<=p.hi) sub='Due any minute, still inside the window';
     else sub='<b>'+dur(-left)+' past</b> the expected time';
 
     /* The number the crew act on is the early edge, not the middle, and a
@@ -135,7 +135,7 @@
       go='<div class="nw-go '+cls+'"><b>'+head+'</b><span>'+body+'</span></div>';
     }
     var facts='';
-    if(p.lo!=null) facts+='<div class="wide"><span class="lbl">Likely between</span><b class="num">'+clkRange(p)+'</b></div>';
+    if(p.lo!=null) facts+='<div class="wide"><span class="lbl">Arrival window</span><b class="num">'+clkRange(p)+'</b></div>';
     else facts+='<div><span class="lbl">Plan</span><b class="num">'+clk(planT(s))+'</b></div>';
     if(c && driveMins(c)) facts+='<div><span class="lbl">Drive</span><b class="num">'+driveShort(c)+'</b></div>';
     if(t.leg) facts+='<div><span class="lbl">Your leg</span><b class="num">'+t.leg.mi.toFixed(1)+' mi</b></div>';
@@ -147,17 +147,15 @@
     if(c) acts+='<button class="btn tint sm" data-nstop="'+c.n+'">'+nico('list')+'What to bring</button>';
     var warn = c && NOMAP[c.where] ? '<div class="nw-warn"><b>Do not use a map app.</b> '+NOMAP[c.where]+'</div>' : '';
 
-    return '<section class="nw-hero'+(here?' here':'')+'">'+
-      '<div class="lbl-row"><span class="lbl">'+eyebrow+'</span><span class="lbl">Mile '+s.mi.toFixed(1)+'</span></div>'+
-      '<h1 class="nw-place">'+esc(place)+'</h1>'+
-      '<div class="nw-eta">'+bigClock(here?sp.in:p.min)+'<span>'+dyOf(here?sp.in:p.min)+'</span></div>'+
-      '<p class="nw-sub">'+sub+'</p>'+
-      (here?'':rangeBar(p, drive, edge))+
-      '<div class="nw-facts">'+facts+'</div>'+
-      (here?'':go)+ warn +
-      nowLogHTML(t.si)+
-      (acts?'<div class="nw-acts">'+acts+'</div>':'')+
-      '</section>';
+    return {
+      sky: '<p class="sky-k">'+eyebrow+', mile '+s.mi.toFixed(1)+'</p>'+
+        '<h1 class="sky-place">'+esc(place)+'</h1>'+
+        '<div class="sky-eta'+(here?' here':'')+'">'+bigClock(here?sp.in:p.min)+'</div>'+
+        '<p class="sky-sub">'+sub+'</p>',
+      ground: '<section class="nw-win">'+(here?'':rangeBar(p, drive, edge))+'<div class="nw-facts">'+facts+'</div></section>'+
+        '<section class="nw-do">'+(here?'':go)+ warn + nowLogHTML(t.si)+
+        (acts?'<div class="nw-acts">'+acts+'</div>':'')+'</section>'
+    };
   }
 
   /* mats cannot record a departure, so a departure is always a person */
@@ -165,88 +163,51 @@
   /* ── last seen ── */
   function seenHTML(){
     var i=lastSplitIdx(), nm=now();
-    if(i<0) return '<section class="nw-seen none"><div class="lbl-row"><span class="lbl">Last seen</span></div>'+
-      '<p class="nw-seen-t">Nothing logged yet.</p><p class="nw-seen-s">Times below are '+esc(RUNNER)+'’s plan until the first checkpoint comes in.</p></section>';
+    if(i<0) return '<section class="nw-seen none"><p class="nw-seen-t">Nothing logged yet.</p><p class="nw-seen-s">Times below are '+esc(RUNNER)+'’s plan until the first checkpoint comes in.</p></section>';
     var sp=splitOf(i), s=STATIONS[i], out=sp.out!=null, at=out?sp.out:sp.in, ago=nm-at;
     var d=splitVal(i)-planT(s);
     var delta=Math.abs(d)<6?'<em class="ok">on plan</em>':d>0?'<em class="behind">'+dur(d)+' behind plan</em>':'<em class="ok">'+dur(-d)+' ahead of plan</em>';
     var src=srcWord(sp);
     var stale=ago>150;
     return '<section class="nw-seen'+(stale?' stale':'')+'">'+
-      '<div class="lbl-row"><span class="lbl"><i class="nw-dot"></i>Last seen</span><span class="lbl">'+(ago<1?'just now':dur(ago)+' ago')+'</span></div>'+
+      '<div class="lbl-row"><span class="lbl"><i class="nw-dot"></i>Last seen '+(ago<1?'just now':dur(ago)+' ago')+'</span><span class="lbl">'+delta+'</span></div>'+
       '<p class="nw-seen-t">'+(out?'Left':'Reached')+' <b>'+esc(shortName(s))+'</b> at <b class="num">'+clk(at)+'</b></p>'+
-      '<p class="nw-seen-s">Mile '+s.mi.toFixed(1)+' · '+src+' · '+delta+'</p>'+
+      '<p class="nw-seen-s">Mile '+s.mi.toFixed(1)+', from a '+src+'</p>'+
       '</section>';
   }
 
-  /* ── the course strip ── */
-  var STRIP=null;
-  function stripGeom(){
-    if(STRIP) return STRIP;
-    var lo=1e9, hi=-1e9, i; for(i=0;i<PROFILE.length;i++){ lo=Math.min(lo,PROFILE[i][1]); hi=Math.max(hi,PROFILE[i][1]); }
-    var W=1000, H=132, top=16, base=112, stepN=Math.max(1,Math.floor(PROFILE.length/420)), pts=[];
-    function X(mi){ return mi/COURSE_MI*W; }
-    function Y(ft){ return base-(ft-lo)/(hi-lo)*(base-top); }
-    for(i=0;i<PROFILE.length;i+=stepN) pts.push([X(PROFILE[i][0]), Y(PROFILE[i][1])]);
-    var lastP=PROFILE[PROFILE.length-1]; pts.push([X(lastP[0]), Y(lastP[1])]);
-    var line='M'+pts.map(function(p){ return p[0].toFixed(1)+' '+p[1].toFixed(1); }).join('L');
-    STRIP={ W:W, H:H, base:base, X:X, Y:Y, line:line, area:line+'L'+W+' '+base+'L0 '+base+'Z' };
-    return STRIP;
-  }
-  function stripHTML(t){
-    var g=stripGeom(), L=livePos(), nm=now(), last=lastSplitIdx();
-    var pos=null, bandA=null, bandB=null;
-    if(L.state==='station'){ pos=L.station.mi; }
+  /* ── where the runner is: a point, and how sure ── */
+  function posInfo(){
+    var L=livePos(), nm=now(), last=lastSplitIdx(), o={ pos:null, a:null, b:null, state:L.state, text:'' };
+    if(L.state==='station'){ o.pos=L.station.mi; o.text='In '+esc(shortName(L.station))+', '+dur(L.since)+' so far.'; }
     else if(L.state==='moving'){
-      pos=L.mi;
+      o.pos=L.mi;
       if(!L.gps && PROJ && last>=0){
-        bandA=Math.max(STATIONS[last].mi, mileAtSeries(nm,'hi')); bandB=Math.max(bandA, mileAtSeries(nm,'lo'));
-        pos=Math.min(Math.max(pos,bandA),bandB);
+        o.a=Math.max(STATIONS[last].mi, mileAtSeries(nm,'hi')); o.b=Math.max(o.a, mileAtSeries(nm,'lo'));
+        o.pos=Math.min(Math.max(o.pos,o.a),o.b);
       }
-    } else if(L.state==='done'){ pos=COURSE_MI; }
-    var dark=(RACE.dark||[]).map(function(d){
-      var a=mileAt(d[0]), b=mileAt(d[1]); return b>a?'<rect class="dk" x="'+g.X(a).toFixed(1)+'" y="0" width="'+(g.X(b)-g.X(a)).toFixed(1)+'" height="'+g.base+'"/>':''; }).join('');
-    var ticks=STATIONS.map(function(s,i){
-      var x=g.X(s.mi).toFixed(1), mine=t&&i===t.si;
-      return '<line class="tk'+(s.crew?' cw':'')+(stopPassed(i)?' pd':'')+'" x1="'+x+'" x2="'+x+'" y1="'+g.base+'" y2="'+(g.base+(s.crew?12:7))+'"/>'+
-        (mine?'<line class="tg" x1="'+x+'" x2="'+x+'" y1="6" y2="'+g.base+'"/>':'');
-    }).join('');
-    var done = pos!=null ? '<clipPath id="nwDone"><rect x="0" y="0" width="'+g.X(pos).toFixed(1)+'" height="'+g.H+'"/></clipPath>'+
-      '<path class="dn" d="'+g.area+'" clip-path="url(#nwDone)"/>' : '';
-    var band = bandA!=null && bandB-bandA>0.3 ? '<rect class="bd" x="'+g.X(bandA).toFixed(1)+'" y="0" width="'+(g.X(bandB)-g.X(bandA)).toFixed(1)+'" height="'+g.base+'"/>' : '';
-    var dot = pos!=null && L.state!=='done' ? '<span class="nw-me" style="left:'+(pos/COURSE_MI*100).toFixed(2)+'%;top:'+(g.Y(elevAt(pos))/g.H*100).toFixed(2)+'%"></span>' : '';
-    var flag = t ? '<span class="nw-flag'+(STATIONS[t.si].mi/COURSE_MI>0.72?' r':'')+'" style="left:'+(STATIONS[t.si].mi/COURSE_MI*100).toFixed(2)+'%">'+esc(shortName(STATIONS[t.si]))+'</span>' : '';
-
-    var head, sub;
-    if(L.state==='pre'){ head='At the start'; sub=COURSE_MI_TXT+' miles · '+COURSE_CLIMB_TXT+' ft of climb'; }
-    else if(L.state==='done'){ head='Finished'; sub=dur(L.at)+' · '+clkDay(L.at); }
-    else if(L.state==='station'){ head='In '+esc(shortName(L.station)); sub='Mile '+L.station.mi.toFixed(1)+' · '+dur(L.since)+' in the station'; }
-    else if(L.state==='moving'){
       var prev=STATIONS[Math.max(0,L.nextIdx-1)];
-      head = bandA!=null && bandB-bandA>=1.5 ? 'Mile '+Math.floor(bandA)+'–'+Math.ceil(bandB) : 'About mile '+pos.toFixed(L.gps?1:0);
-      sub = esc(shortName(prev))+' → '+esc(shortName(L.next))+' · '+(L.gps?'from the phone’s GPS':last>=0?'estimated from the last checkpoint':'estimated from the plan');
-    } else { head='Race over'; sub=''; }
-    var axis=''; for(var m=0;m<=COURSE_MI;m+=25) axis+='<i style="left:'+(m/COURSE_MI*100).toFixed(1)+'%">'+m+'</i>';
-    return '<section class="nw-pos"><div class="lbl-row"><span class="lbl">Where '+esc(RUNNER)+' is</span><span class="lbl">'+(L.state==='moving'&&!L.gps?'estimate':'')+'</span></div>'+
-      '<p class="nw-pos-h">'+head+'</p><p class="nw-pos-s">'+sub+'</p>'+
-      '<div class="nw-strip"><svg viewBox="0 0 '+g.W+' '+g.H+'" preserveAspectRatio="none">'+dark+
-      '<path class="ar" d="'+g.area+'"/>'+done+band+
-      '<path class="ln" d="'+g.line+'"/><line class="bl" x1="0" x2="'+g.W+'" y1="'+g.base+'" y2="'+g.base+'"/>'+ticks+'</svg>'+flag+dot+
-      '<div class="nw-axis">'+axis+'</div></div></section>';
+      o.text=(o.a!=null && o.b-o.a>=1.5 ? 'Somewhere around mile '+Math.floor(o.a)+' to '+Math.ceil(o.b) : 'About mile '+o.pos.toFixed(L.gps?1:0))+
+        ', between '+esc(shortName(prev))+' and '+esc(shortName(L.next))+'. '+
+        (L.gps?'From the phone\u2019s GPS.':last>=0?'Estimated from the last checkpoint.':'Estimated from the plan.');
+    }
+    else if(L.state==='done'){ o.pos=COURSE_MI; }
+    else if(L.state==='pre'){ o.pos=0; o.text=COURSE_MI_TXT+' miles and '+COURSE_CLIMB_TXT+' feet of climbing, start to finish.'; }
+    return o;
   }
 
   /* ── what follows ── */
   function afterHTML(t){
     var rows=laterStops(t); if(!rows.length) return '';
-    return '<section class="nw-after"><div class="lbl-row rule"><span class="lbl">After that</span><span class="lbl">expected · range</span></div>'+
+    return '<section class="nw-after"><h2 class="nw-h">After that</h2><div class="nw-list">'+
       rows.map(function(r){
         var s=STATIONS[r.si], p=etaOf(r.si), name=r.c?r.c.where:shortName(s);
         return '<button class="nw-row" '+(r.c?'data-nstop="'+r.c.n+'"':'data-naid="'+r.si+'"')+'>'+
           '<span class="post num">'+s.mi.toFixed(0)+'</span>'+
           '<span class="mid"><b>'+esc(name)+'</b><s>'+(r.c&&driveMins(r.c)?driveShort(r.c)+' drive':'mile '+s.mi.toFixed(1))+
-            (s.cut!=null?' · cutoff '+clk(s.cut):'')+'</s></span>'+
+            (s.cut!=null?', cutoff '+clk(s.cut):'')+'</s></span>'+
           '<span class="rt"><b class="num">'+clk(p.min)+'</b><s class="num">'+(p.lo!=null?clkRange(p):dyOf(p.min))+'</s></span></button>';
-      }).join('')+'</section>';
+      }).join('')+'</div></section>';
   }
 
   /* ── recent checkpoints, and the door to logging anything else ── */
@@ -255,13 +216,13 @@
     rows=rows.slice(-3).reverse();
     var live=now()>=0;
     if(!rows.length && !live) return '';
-    return '<section class="nw-feed"><div class="lbl-row rule"><span class="lbl">Checkpoints</span><span class="lbl">'+(rows.length?'latest first':'')+'</span></div>'+
+    return '<section class="nw-feed"><h2 class="nw-h">Checkpoints</h2>'+(rows.length?'<div class="nw-list">':'')+
       rows.map(function(r){
         var s=STATIONS[r[0]], sp=r[1], d=splitVal(r[0])-planT(s);
         return '<button class="nw-cp" data-fix="'+r[0]+'"><span class="num t">'+clk(sp.out!=null?sp.out:sp.in)+'</span>'+
-          '<span class="mid"><b>'+(sp.out!=null?'Left ':'Reached ')+esc(shortName(s))+'</b><s>mile '+s.mi.toFixed(1)+' · '+srcWord(sp)+'</s></span>'+
+          '<span class="mid"><b>'+(sp.out!=null?'Left ':'Reached ')+esc(shortName(s))+'</b><s>mile '+s.mi.toFixed(1)+', '+srcWord(sp)+'</s></span>'+
           '<span class="dv num '+(d>5?'behind':'ok')+'">'+(Math.abs(d)<1?'±0':(d>0?'+':'−')+hm(Math.abs(d)))+'</span></button>';
-      }).join('')+
+      }).join('')+(rows.length?'</div>':'')+
       '<div class="nw-acts"><button class="btn tint sm" data-logany>'+nico('plus')+'Log another station</button>'+
       '<button class="btn tint sm" id="nwSend">'+nico('send')+'Send an update</button></div></section>';
   }
@@ -273,33 +234,35 @@
     var me=mePerson(), n=myStops().length, s=t?STATIONS[t.si]:null;
     function step(k,title,sub){ return '<button class="nw-row" data-nprep="'+k+'"><span class="post sm">'+(ls(KEY+'prep_'+k)?nico('check'):'')+'</span>'+
       '<span class="mid"><b>'+title+'</b><s>'+sub+'</s></span>'+CHEV+'</button>'; }
-    return '<section class="nw-hero pre"><div class="lbl-row"><span class="lbl">Until the start</span><span class="lbl">'+esc(RACE.startShort)+'</span></div>'+
-      '<h1 class="nw-place">'+esc(RACE.name)+'</h1>'+
-      '<div class="nw-eta count">'+big+'</div>'+
-      '<p class="nw-sub">'+esc(RACE.place)+' · '+COURSE_MI_TXT+' miles · '+esc(RACE.limitLabel||'')+'</p>'+
-      (t&&s?'<div class="nw-facts"><div><span class="lbl">Your first stop</span><b>'+esc(t.c?t.c.where:shortName(s))+'</b></div>'+
-        '<div><span class="lbl">'+esc(RUNNER)+' due</span><b class="num">'+clkDay(T(s))+'</b></div></div>':'')+
-      '</section>'+
-      '<section class="nw-after"><div class="lbl-row rule"><span class="lbl">Before race day</span><span class="lbl">four things</span></div>'+
+    return { sky: '<p class="sky-k">Starts '+esc(RACE.startShort)+'</p>'+
+      '<h1 class="sky-place">'+esc(RACE.name)+'</h1>'+
+      '<div class="sky-eta count">'+big+'</div>'+
+      '<p class="sky-sub">to go, in '+esc(RACE.place)+'</p>',
+     ground: (t&&s?'<section class="nw-win"><div class="nw-facts"><div class="wide"><span class="lbl">Your first stop</span><b>'+esc(t.c?t.c.where:shortName(s))+'</b></div>'+
+        '<div><span class="lbl">'+esc(RUNNER)+' due</span><b class="num">'+clkDay(T(s))+'</b></div></div></section>':'')+
+      '<section class="nw-after"><h2 class="nw-h">Before race day</h2><div class="nw-list">'+
       step('stops','Read your '+(me&&me.role==='pacer'?'leg':n+' stops'),'Where to be, what to bring, how to get there')+
       step('rules','Learn the rules that end the race','Short, and not negotiable')+
       step('how','Two minutes on how this works','Logging, ranges, and what syncs')+
       step('offline','Make it work with no signal','Add to your home screen and save the manual')+
-      '</section>';
+      '</div></section>' };
   }
 
   /* ── compose ── */
-  function nowHTML(){
-    var L=livePos(), t=nowTarget();
-    if(L.state==='pre') return preHTML(t)+stripHTML(t);
+  function nowParts(){
+    var L=livePos(), t=nowTarget(), P=posInfo();
+    var where = P.text ? '<p class="nw-where">'+P.text+'</p>' : '';
+    if(L.state==='pre'){ var pr=preHTML(t); return { sky:pr.sky, ground:where+pr.ground, pos:P, t:t }; }
     if(L.state==='done')
-      return '<section class="nw-hero done"><div class="lbl-row"><span class="lbl">Finished</span><span class="lbl">'+COURSE_MI_TXT+' miles</span></div>'+
-        '<h1 class="nw-place">'+esc(RUNNER)+' is done.</h1><div class="nw-eta">'+'<b class="num">'+hm(L.at)+'</b><i>hrs</i></div>'+
-        '<p class="nw-sub">Crossed the line at '+clkDay(L.at)+'</p></section>'+stripHTML(null)+feedHTML();
+      return { sky:'<p class="sky-k">Finished, '+COURSE_MI_TXT+' miles</p><h1 class="sky-place">'+esc(RUNNER)+' is done</h1>'+
+        '<div class="sky-eta"><b class="num">'+hm(L.at)+'</b><i>hrs</i></div><p class="sky-sub">Crossed the line at '+clkDay(L.at)+'</p>',
+        ground:feedHTML(), pos:P, t:null };
     if(L.state==='over' || !t)
-      return seenHTML()+'<section class="nw-hero done"><div class="lbl-row"><span class="lbl">Nothing left for you</span></div>'+
-        '<h1 class="nw-place">Your stops are done.</h1><p class="nw-sub">Thank you. The finish is at '+esc(RACE.startSpot||RACE.place)+'.</p></section>'+stripHTML(null)+feedHTML();
-    return heroHTML(t)+seenHTML()+stripHTML(t)+afterHTML(t)+feedHTML();
+      return { sky:'<p class="sky-k">Nothing left for you</p><h1 class="sky-place">Your stops are done</h1>'+
+        '<p class="sky-sub">Thank you. The finish is at '+esc(RACE.startSpot||RACE.place)+'.</p>',
+        ground:where+seenHTML()+feedHTML(), pos:P, t:null };
+    var h=heroHTML(t);
+    return { sky:h.sky, ground:where+h.ground+seenHTML()+afterHTML(t)+feedHTML(), pos:P, t:t };
   }
 
   function toast(msg, undo){
@@ -343,7 +306,11 @@
   function renderNow(){
     var el=document.getElementById('nowBody'); if(!el) return;
     if(!mePerson()){ if(NOW_HTML!==''){ el.innerHTML=''; NOW_HTML=''; } return; }
-    var html=nowHTML();
+    var parts=nowParts(), sky=document.getElementById('nowSky'), nv=document.getElementById('nav');
+    /* the sky runs up underneath the header, so it needs the header's real height */
+    if(nv && nv.offsetHeight) document.documentElement.style.setProperty('--navh', nv.offsetHeight+'px');
+    skyPaint(sky, now(), parts);
+    var html=parts.ground;
     if(html===NOW_HTML) return;
     NOW_HTML=html; el.innerHTML=html;
     el.querySelectorAll('[data-nlog]').forEach(function(b){

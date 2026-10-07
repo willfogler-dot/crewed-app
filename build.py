@@ -46,7 +46,7 @@ def partial(m):
 page = fill(rd('shell.html'))
 page = re.sub(r'<!--@([\w-]+)-->', partial, page)
 # Modules that live inside the app's closure are spliced in at /*@modules*/; pure ones are prepended.
-MODULES = ['eta.js', 'now.js', 'know.js', 'demo.js']
+MODULES = ['eta.js', 'sky.js', 'now.js', 'know.js', 'demo.js']
 app = rd('app.js')
 assert app.count('/*@modules*/') == 1, 'app.js needs exactly one /*@modules*/ marker'
 app = app.replace('/*@modules*/', '\n'.join(rd(m) for m in MODULES))

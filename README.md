@@ -31,11 +31,14 @@ Read the report's "Needs a human" section before using the output. Ascent is smo
 threshold; on Rock Hawk that gave 3,342 ft against the race's advertised 3,325 ft, and station gains landed within
 25 ft of hand measurements. The report also shows the raw and strict figures so the method range is visible.
 
-## Interface: the Survey system
+## Interface: Ridgeline
 
-`src/survey.css` is the design system, loaded after `style.css`. Glacier-grey paper, navy ink, one signal
-colour (orange by day, amber in dark mode). Structure comes from ruled lines and type, not boxes.
-Headings and numerals are Bricolage Grotesque (SIL OFL), embedded in `src/fonts.css` so they work offline.
+`src/survey.css` is the design system, loaded after `style.css`. The one loud thing is the sky (`src/sky.js`):
+the top of the Now screen and of the name picker is the sky as it is at that moment of the race (night, dawn,
+day, dusk, with the sun or moon where it would be), ending in the course's own elevation profile, with the
+runner as a lamp on the ridge. Below the ridge everything is quiet: a mist page, white rounded surfaces,
+indigo ink, and one accent the colour of a headlamp. Labels are sentence case. Headings and numerals are
+Bricolage Grotesque (SIL OFL), embedded in `src/fonts.css`. Sunrise and sunset come from `RACE.sun`.
 
 Crew and pacers get three tabs:
 
