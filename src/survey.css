@@ -342,3 +342,45 @@ body[data-sky=day] .sky-pin em{color:#fff}
 }
 @media (prefers-reduced-motion:reduce){ .sky-lamp,.nw-dot{animation:none} .sky-l,.sky-disc{transition:none} }
 @media print{ #demoBar,.toast,.sky{display:none!important} }
+
+/* ═══════════════════════════════════════════════════════════════════
+   FLY: the 3D course preview
+   ═══════════════════════════════════════════════════════════════════ */
+#fly3d{z-index:2;background:#131A4C;cursor:grab}
+#fly3d canvas{outline:0}
+/* no position here: the host is already absolutely placed, and overriding that collapses it to nothing */
+.maplibregl-map{overflow:hidden;-webkit-tap-highlight-color:transparent}
+.maplibregl-canvas-container,.maplibregl-canvas{position:absolute;left:0;top:0}
+.maplibregl-marker{position:absolute;top:0;left:0;will-change:transform}
+.maplibregl-canary{background-color:salmon}
+.maplibregl-control-container{display:none}
+.fullmap.fly .fm-hud{z-index:5}
+.fullmap.fly .hud-lens{display:none}
+.fullmap.flyload #fly3d::after{content:"Loading the terrain";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:15px;font-weight:600;background:#131A4C;z-index:3}
+.hud-btn.hud-3d{font-family:var(--font-display);font-size:14.5px;font-weight:800;letter-spacing:-.02em;color:var(--text)}
+.hud-btn.hud-3d.on{background:var(--signal);color:var(--on-signal)}
+.fly-credit{position:absolute;z-index:4;left:64px;right:64px;top:calc(18px + var(--st));text-align:center;font-size:10px;line-height:1.3;color:#fff;
+  opacity:.72;text-shadow:0 1px 3px rgba(0,0,0,.7);pointer-events:none}
+.fly-me{width:18px;height:18px;border-radius:50%;background:#FFE08A;border:3px solid #fff;box-shadow:0 0 0 5px rgba(255,197,61,.35),0 2px 10px rgba(0,0,0,.5)}
+.fly-st{display:flex;flex-direction:column;align-items:center;pointer-events:none}
+.fly-st i{width:8px;height:8px;border-radius:50%;background:#fff;border:2px solid #161D3A;box-shadow:0 1px 4px rgba(0,0,0,.5)}
+.fly-st.c i{width:11px;height:11px;background:#FFC53D}
+.fly-st.past i{opacity:.55}
+.fly-st b{display:block;margin-bottom:5px;padding:5px 10px 6px;border-radius:10px;background:#fff;color:#161D3A;font-size:13px;font-weight:700;line-height:1.15;
+  white-space:nowrap;text-align:center;box-shadow:0 6px 18px -6px rgba(0,0,0,.6);opacity:0;transform:translateY(6px);transition:opacity .35s,transform .35s var(--ease)}
+.fly-st b s{display:block;text-decoration:none;font-size:11px;font-weight:600;color:#666E8C}
+.fly-st.near b{opacity:1;transform:none}
+.fly-prof{position:relative;width:100%;max-width:560px;height:44px;border-radius:13px;overflow:hidden;pointer-events:none;
+  background:color-mix(in srgb,var(--card) 90%,transparent);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);box-shadow:0 8px 22px -12px rgba(8,12,36,.5)}
+.fly-prof svg{position:absolute;inset:0;width:100%;height:100%}
+.fly-prof .a{fill:var(--text);opacity:.14}
+.fly-prof .d{fill:var(--signal)}
+.fly-prof i{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--text)}
+.fly-prof b{position:absolute;right:9px;top:5px;font-family:var(--font-display);font-size:13px;font-weight:700;letter-spacing:-.02em;color:var(--text);
+  font-variant-numeric:tabular-nums}
+@media (max-width:819px){
+  /* on a phone the terrain gets the whole screen; the station sheet comes back when 3D is switched off */
+  .fullmap.fly .fm-sheet{display:none}
+  .fullmap.fly .fm-cockpit,.fullmap.fly.previewing .fm-cockpit{bottom:calc(14px + var(--sb))}
+}

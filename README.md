@@ -62,3 +62,17 @@ outside race weekend. A build with no backend switches to demo by itself once it
 Nothing in demo is saved or synced.
 
 Modules listed in `build.py` (`MODULES`) are spliced into `app.js` at `/*@modules*/`, inside its closure.
+
+## 3D course preview
+
+`src/fly.js` adds a 3D view to the full-screen course map (the **3D** button). It reuses the preview's own
+clock, transport bar, scrubber and speeds, and replaces only the camera: real terrain with imagery draped on
+it, a chase camera that follows the trail's heading, a slow orbit at each aid station, and a mini elevation
+profile that tracks the same mile.
+
+- Engine: MapLibre GL JS 4.7.1 (BSD-3), vendored in `vendor/` and copied to the build as `maplibre-gl.js`.
+  It is fetched only when 3D is first opened.
+- Terrain: Terrarium elevation tiles from AWS Open Data. No key, no cost. Imagery: whichever basemap the flat map uses.
+- Needs a connection and WebGL. Without either, the flat preview carries on unchanged.
+- Camera height is pinned to the course file's elevation (`flyGround`) so a late terrain tile cannot drop
+  the camera inside the mountain. This touches two private fields of the pinned engine version.

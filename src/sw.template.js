@@ -27,7 +27,7 @@ self.addEventListener('fetch', e => {
   const url = new URL(req.url);
 
   // Map tiles: serve from cache first so a saved map works with no signal.
-  if (/arcgisonline\.com|nationalmap\.gov|opentopomap\.org/.test(url.host)) {
+  if (/arcgisonline\.com|nationalmap\.gov|opentopomap\.org|elevation-tiles-prod/.test(url.host + url.pathname)) {
     e.respondWith(
       caches.match(req).then(hit => hit || fetch(req).catch(() => new Response('', { status: 504 })))
     );

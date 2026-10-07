@@ -1965,6 +1965,48 @@ body[data-sky=day] .sky-pin em{color:#fff}
 }
 @media (prefers-reduced-motion:reduce){ .sky-lamp,.nw-dot{animation:none} .sky-l,.sky-disc{transition:none} }
 @media print{ #demoBar,.toast,.sky{display:none!important} }
+
+/* ═══════════════════════════════════════════════════════════════════
+   FLY: the 3D course preview
+   ═══════════════════════════════════════════════════════════════════ */
+#fly3d{z-index:2;background:#131A4C;cursor:grab}
+#fly3d canvas{outline:0}
+/* no position here: the host is already absolutely placed, and overriding that collapses it to nothing */
+.maplibregl-map{overflow:hidden;-webkit-tap-highlight-color:transparent}
+.maplibregl-canvas-container,.maplibregl-canvas{position:absolute;left:0;top:0}
+.maplibregl-marker{position:absolute;top:0;left:0;will-change:transform}
+.maplibregl-canary{background-color:salmon}
+.maplibregl-control-container{display:none}
+.fullmap.fly .fm-hud{z-index:5}
+.fullmap.fly .hud-lens{display:none}
+.fullmap.flyload #fly3d::after{content:"Loading the terrain";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  color:#fff;font-size:15px;font-weight:600;background:#131A4C;z-index:3}
+.hud-btn.hud-3d{font-family:var(--font-display);font-size:14.5px;font-weight:800;letter-spacing:-.02em;color:var(--text)}
+.hud-btn.hud-3d.on{background:var(--signal);color:var(--on-signal)}
+.fly-credit{position:absolute;z-index:4;left:64px;right:64px;top:calc(18px + var(--st));text-align:center;font-size:10px;line-height:1.3;color:#fff;
+  opacity:.72;text-shadow:0 1px 3px rgba(0,0,0,.7);pointer-events:none}
+.fly-me{width:18px;height:18px;border-radius:50%;background:#FFE08A;border:3px solid #fff;box-shadow:0 0 0 5px rgba(255,197,61,.35),0 2px 10px rgba(0,0,0,.5)}
+.fly-st{display:flex;flex-direction:column;align-items:center;pointer-events:none}
+.fly-st i{width:8px;height:8px;border-radius:50%;background:#fff;border:2px solid #161D3A;box-shadow:0 1px 4px rgba(0,0,0,.5)}
+.fly-st.c i{width:11px;height:11px;background:#FFC53D}
+.fly-st.past i{opacity:.55}
+.fly-st b{display:block;margin-bottom:5px;padding:5px 10px 6px;border-radius:10px;background:#fff;color:#161D3A;font-size:13px;font-weight:700;line-height:1.15;
+  white-space:nowrap;text-align:center;box-shadow:0 6px 18px -6px rgba(0,0,0,.6);opacity:0;transform:translateY(6px);transition:opacity .35s,transform .35s var(--ease)}
+.fly-st b s{display:block;text-decoration:none;font-size:11px;font-weight:600;color:#666E8C}
+.fly-st.near b{opacity:1;transform:none}
+.fly-prof{position:relative;width:100%;max-width:560px;height:44px;border-radius:13px;overflow:hidden;pointer-events:none;
+  background:color-mix(in srgb,var(--card) 90%,transparent);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);box-shadow:0 8px 22px -12px rgba(8,12,36,.5)}
+.fly-prof svg{position:absolute;inset:0;width:100%;height:100%}
+.fly-prof .a{fill:var(--text);opacity:.14}
+.fly-prof .d{fill:var(--signal)}
+.fly-prof i{position:absolute;top:0;bottom:0;width:2px;margin-left:-1px;background:var(--text)}
+.fly-prof b{position:absolute;right:9px;top:5px;font-family:var(--font-display);font-size:13px;font-weight:700;letter-spacing:-.02em;color:var(--text);
+  font-variant-numeric:tabular-nums}
+@media (max-width:819px){
+  /* on a phone the terrain gets the whole screen; the station sheet comes back when 3D is switched off */
+  .fullmap.fly .fm-sheet{display:none}
+  .fullmap.fly .fm-cockpit,.fullmap.fly.previewing .fm-cockpit{bottom:calc(14px + var(--sb))}
+}
 </style>
 </head>
 <body>
@@ -6957,6 +6999,7 @@ if(typeof module!=='undefined') module.exports={project:project,projFeats:projFe
         '<button class="hud-btn hud-close" id="fmClose" aria-label="Close">'+
           '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>'+
         '<div class="hud-right">'+
+          '<button class="hud-btn hud-3d" id="fm3d" aria-label="3D fly-through">3D</button>'+
           '<button class="hud-btn" id="fmLayers" aria-label="Layers">'+
             '<svg viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></svg></button>'+
           '<button class="hud-btn" id="fmIn" aria-label="Zoom in"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>'+
@@ -6973,13 +7016,15 @@ if(typeof module!=='undefined') module.exports={project:project,projFeats:projFe
     MAPV.view=null; PV.on=false;
     fullMapPaint();
     document.getElementById('fmClose').onclick=fullMapClose;
-    document.getElementById('fmFit').onclick=function(){ pvStop(); MAPV.view=null; fullMapPaint(); };
+    document.getElementById('fmFit').onclick=function(){ pvStop(); MAPV.view=null; fullMapPaint(); if(FLY.on) flyOverview(); };
+    document.getElementById('fm3d').onclick=flyToggle;
     document.getElementById('fmIn').onclick=function(){ zoomBy(0.6); };
     document.getElementById('fmOut').onclick=function(){ zoomBy(-0.6); };
     document.getElementById('fmLayers').onclick=layersSheet;
     try{ history.pushState({fullmap:1},''); }catch(e){}
   }
   function zoomBy(dz){
+    if(FLY.on){ flyZoom(dz); return; }
     if(PV.on){ pvZoom(dz); return; }
     var P=MAPV.P; if(!P) return;
     MAPV.view={ lat:P.latAt(MAPV.H/2), lon:P.lonAt(MAPV.W/2), z:Math.max(1,Math.min(17,P.z+dz)) };
@@ -7067,6 +7112,7 @@ if(typeof module!=='undefined') module.exports={project:project,projFeats:projFe
   /* ── 4. stepping highlights; it only moves the camera if the station is
      off screen, and never changes the zoom the user has chosen. ── */
   function showStation(i){
+    if(FLY.on && i>=0) flyGo(STATIONS[i].mi);
     if(i>=0 && MAPV.P){
       var pt=routeAt(STATIONS[i].mi);
       if(pt){
@@ -7262,10 +7308,12 @@ if(typeof module!=='undefined') module.exports={project:project,projFeats:projFe
       if(h){ var t=h.querySelector('.tiles'), s=h.querySelector('.mapsvg');
         if(t) t.style.transform=''; if(s) s.style.transform=''; } }
     if(el&&el.classList.contains('on')){ fullMapSheet(); fmBarPaint(); }
+    if(FLY.on){ flyInteract(true); flyFree(); }      /* paused: the terrain is yours to drag and turn */
   }
   /* full re-render centred on the dot, at a zoom that shows the terrain */
   function pvRecenter(hard){
     var pt=routeLerp(PV.mi); if(!pt) return;
+    if(FLY.on){ flyCam(hard); return; }             /* 3D owns the camera; the flat map stays as it was underneath */
     if(hard||!PV.zoom) PV.zoom=Math.max(12.4, Math.min(14.2, (MAPV.fitZ||11)+2.4));
     MAPV.view={ lat:pt[0], lon:pt[1], z:PV.zoom };
     drawMap('mapHostF');
@@ -7279,7 +7327,7 @@ if(typeof module!=='undefined') module.exports={project:project,projFeats:projFe
     if(!PV.last) PV.last=ts;
     var dt=Math.min(120, ts-PV.last); PV.last=ts;
 
-    if(PV.frozen){ PV.raf=requestAnimationFrame(pvFrame); return; }
+    if(PV.frozen || (FLY.on && FLY.easing)){ PV.raf=requestAnimationFrame(pvFrame); return; }
     if(PV.hold>0){ PV.hold-=dt; }
     else {
       PV.mi += (dt/1000)*PV_MPS*PV.speed;
@@ -7294,7 +7342,8 @@ if(typeof module!=='undefined') module.exports={project:project,projFeats:projFe
     }
 
     var pt=routeLerp(PV.mi);
-    if(pt && PV.baseP){
+    if(FLY.on) flyFrame(dt);
+    else if(pt && PV.baseP){
       var P=PV.baseP, x=P.X(pt[1]), y=P.Y(pt[0]);
       var dx=MAPV.W/2-x, dy=MAPV.H/2-y;
       var host=document.getElementById('mapHostF');
@@ -7352,7 +7401,7 @@ if(typeof module!=='undefined') module.exports={project:project,projFeats:projFe
     timelineMove(PV.mi);
     var now=document.getElementById('fmNow'); if(!now) return;
     var eb=now.querySelector('span'), tb=now.querySelector('b');
-    if(eb) eb.textContent='Previewing \u00b7 '+clkDay(minsAtMile(PV.mi))+' \u00b7 '+dur(minsAtMile(PV.mi))+' in';
+    if(eb) eb.textContent=(FLY.on?'Mile '+PV.mi.toFixed(1):'Previewing')+' \u00b7 '+clkDay(minsAtMile(PV.mi))+' \u00b7 '+dur(minsAtMile(PV.mi))+' in';
     var want=(PV.hold>0&&PV.at>0)?STATIONS[PV.at].name:secFor(PV.mi).title;
     if(tb&&tb.textContent!==want) tb.textContent=want;
   }
@@ -7402,7 +7451,7 @@ if(typeof module!=='undefined') module.exports={project:project,projFeats:projFe
   }
 
   function fullMapClose(){
-    pvStop();
+    pvStop(); flyClose();
     document.getElementById('mapFull').classList.remove('on');
     document.body.classList.remove('noscroll');
     syncScrollLock();
@@ -9125,6 +9174,219 @@ if(typeof module!=='undefined') module.exports={project:project,projFeats:projFe
     if(HAS_PACERS && !Object.keys(S.atomWho||{}).length && S.people.some(function(p){ return p.id==='d3'; }))
       S.atomWho={0:'d3',1:'d3',2:'d4',3:'d4'};
     demoApply(); demoPaint();
+  }
+
+  /* ════════════ FLY ════════════
+     The course preview, in 3D. The clock, the transport bar, the scrubber and
+     the speeds are the preview's own (PV); this module only replaces what the
+     camera sees: real terrain with imagery draped over it, a chase camera that
+     follows the trail's heading, and an orbit at every aid station.
+
+     Engine: MapLibre GL JS (BSD-3), vendored and loaded only when 3D is first
+     opened, so the app itself carries no extra weight. Terrain is the open
+     Terrarium elevation tiles on AWS (no key, no cost); imagery is whichever
+     basemap the flat map is already using. Needs a connection and WebGL; with
+     neither, the flat preview carries on exactly as before. */
+  var FLY={ on:false, ready:false, easing:false, map:null, me:null, marks:[], mi:0, brg:0, cz:13.6, cp:62, zoom:14.1, pitch:64,
+            tProg:0, tNear:0, tSky:0 };
+  var FLY_DEM='https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png';
+  var FLY_SKY={ night:{ c:['#080C2A','#131A4C','#2A2B6A'], night:1 }, dawn:{ c:['#232C6C','#C2648F','#FFB58A'], night:0.35 },
+                day:{ c:['#8FC6F1','#B4DAF6','#EAF4F8'], night:0 }, dusk:{ c:['#262A6A','#D25B7E','#FF9E66'], night:0.35 } };
+  var FLY_EXAG=1.25;                 /* vertical exaggeration: enough to read relief on a phone, not enough to lie */
+  function flyCan(){ try{ var c=document.createElement('canvas'); return !!(c.getContext('webgl2')||c.getContext('webgl')); }catch(e){ return false; } }
+  function flyLib(cb){
+    if(window.maplibregl) return cb(true);
+    var s=document.createElement('script'); s.src='maplibre-gl.js';
+    s.onload=function(){ cb(!!window.maplibregl); }; s.onerror=function(){ cb(false); };
+    document.head.appendChild(s);
+  }
+  function flyLL(mi){ var p=routeLerp(Math.max(0,Math.min(COURSE_MI,mi))); return [p[1],p[0]]; }
+  /* which way the trail is going, taken over most of a mile so switchbacks do not whip the camera */
+  function flyBearing(mi){
+    var a=routeLerp(Math.max(0,mi-0.25)), b=routeLerp(Math.min(COURSE_MI,mi+0.75));
+    var dy=b[0]-a[0], dx=(b[1]-a[1])*Math.cos(a[0]*Math.PI/180);
+    if(Math.abs(dx)+Math.abs(dy)<1e-7) return FLY.brg;
+    return Math.atan2(dx,dy)*180/Math.PI;
+  }
+  function flyPad(){
+    var c=document.getElementById('fmCockpit'), h=document.getElementById('fly3d');
+    var b=(c&&h)?Math.max(0, h.getBoundingClientRect().bottom-c.getBoundingClientRect().top):120;
+    var H=h?h.clientHeight:600;
+    /* the runner sits a little below the middle of what is visible, so most of the frame is trail still to come */
+    return { top:Math.round(H*0.30), bottom:Math.min(b+10, H*0.5), left:0, right:0 };
+  }
+  function flyInteract(on){
+    if(!FLY.map) return;
+    ['dragPan','dragRotate','scrollZoom','touchZoomRotate','touchPitch','doubleClickZoom','keyboard'].forEach(function(h){
+      try{ FLY.map[h][on?'enable':'disable'](); }catch(e){} });
+  }
+  function flyFail(msg){ flyClose(); toast(msg); }
+  function flyToggle(){ if(FLY.on) flyClose(); else flyOpen(); }
+  function flyOpen(){
+    var full=document.getElementById('mapFull'); if(!full||FLY.on) return;
+    if(navigator.onLine===false){ toast('3D needs a connection. The flat preview works with no signal.'); return; }
+    if(!flyCan()){ toast('This device cannot draw 3D, so the flat preview stays.'); return; }
+    FLY.on=true; FLY.ready=false; FLY.easing=false;
+    full.classList.add('fly','flyload');
+    var host=document.createElement('div'); host.id='fly3d'; host.className='fm-canvas';
+    full.insertBefore(host, full.querySelector('.fm-cockpit'));
+    var cred=document.createElement('div'); cred.className='fly-credit'; cred.id='flyCredit'; full.appendChild(cred);
+    var ck=document.getElementById('fmCockpit'), g=skyGeom();
+    if(ck){ var pr=document.createElement('div'); pr.id='flyProf'; pr.className='fly-prof';
+      pr.innerHTML='<svg viewBox="0 40 '+g.W+' 210" preserveAspectRatio="none"><clipPath id="flyPc"><rect x="0" y="0" width="0" height="300"/></clipPath>'+
+        '<path class="a" d="'+g.area+'"/><path class="d" d="'+g.area+'" clip-path="url(#flyPc)"/></svg><i id="flyPx"></i>'+
+        '<b id="flyRead"></b>';
+      ck.insertBefore(pr, ck.firstChild); }
+    var b3=document.getElementById('fm3d'); if(b3) b3.classList.add('on');
+    flyLib(function(ok){
+      if(!FLY.on) return;
+      if(!ok) return flyFail('3D could not load. Check the connection and try again.');
+      flyBuild(host);
+    });
+  }
+  function flyBuild(host){
+    var base=(BASES[MAPV.base]&&BASES[MAPV.base].url)?BASES[MAPV.base]:BASES.satellite;
+    var cred=document.getElementById('flyCredit');
+    if(cred) cred.textContent='Imagery: '+base.credit+'. Terrain: Mapzen, AWS Open Data.';
+    var mi=PV.on?PV.mi:(MAPV.step>0?STATIONS[MAPV.step].mi:0);
+    FLY.mi=mi; FLY.brg=flyBearing(mi); FLY.cz=FLY.zoom; FLY.cp=FLY.pitch;
+    var map;
+    try{
+      map=new maplibregl.Map({ container:host, attributionControl:false, maxPitch:80, fadeDuration:120,
+        center:flyLL(mi), zoom:FLY.zoom, pitch:FLY.pitch, bearing:FLY.brg,
+        style:{ version:8,
+          sources:{ base:{ type:'raster', tiles:[base.url], tileSize:256, maxzoom:Math.min(base.max||17,17) },
+                    dem:{ type:'raster-dem', tiles:[FLY_DEM], encoding:'terrarium', tileSize:256, maxzoom:14 } },
+          layers:[ { id:'bg', type:'background', paint:{ 'background-color':'#1C2434' } },
+                   { id:'base', type:'raster', source:'base' } ] } });
+    }catch(e){ return flyFail('3D could not start on this device.'); }
+    FLY.map=map;
+    map.on('load', function(){
+      if(!FLY.on) return;
+      try{ map.setTerrain({ source:'dem', exaggeration:FLY_EXAG }); }catch(e){}
+      map.addSource('route', { type:'geojson', lineMetrics:true,
+        data:{ type:'Feature', properties:{}, geometry:{ type:'LineString', coordinates:ROUTE.map(function(r){ return [r[2],r[1]]; }) } } });
+      map.addLayer({ id:'rt-case', type:'line', source:'route', layout:{ 'line-cap':'round','line-join':'round' },
+        paint:{ 'line-color':'rgba(8,12,36,.55)', 'line-width':['interpolate',['linear'],['zoom'],10,4,15,9] } });
+      map.addLayer({ id:'rt', type:'line', source:'route', layout:{ 'line-cap':'round','line-join':'round' },
+        paint:{ 'line-width':['interpolate',['linear'],['zoom'],10,2,15,4.5], 'line-gradient':flyGrad(mi) } });
+      FLY.marks=STATIONS.map(function(s,i){
+        var el=document.createElement('div'); el.className='fly-st'+(s.crew?' c':'');
+        el.innerHTML='<b>'+esc(shortName(s))+'<s>mile '+s.mi.toFixed(1)+'</s></b><i></i>';
+        var ll=flyLL(Math.min(s.mi,COURSE_MI-0.01));
+        return { i:i, el:el, m:new maplibregl.Marker({ element:el, anchor:'bottom' }).setLngLat(ll).addTo(map) };
+      });
+      var me=document.createElement('div'); me.className='fly-me';
+      FLY.me=new maplibregl.Marker({ element:me, anchor:'center' }).setLngLat(flyLL(mi)).addTo(map);
+      FLY.ready=true;
+      document.getElementById('mapFull').classList.remove('flyload');
+      flyPaintAux(0,true);
+      if(PV.on){ flyInteract(false); flyCam(true); } else flyOverview(0);
+    });
+    map.on('error', function(){ /* a missing tile is not worth a message; the terrain simply stays flat there */ });
+  }
+  /* The camera's height comes from the course file, not from whichever terrain
+     tile happens to have arrived. Left to itself the engine reads the ground
+     height under the camera from the tiles, gets zero while one is still
+     loading, and drops the camera inside the mountain for a few frames. We
+     already know the elevation at every mile, so we tell it. (Two private
+     fields of the vendored, version-pinned engine.) */
+  function flyGround(mi){
+    var map=FLY.map; if(!map||!map.terrain) return;
+    map._elevationFreeze=true;
+    map.transform.elevation=elevAt(mi)*0.3048*FLY_EXAG;
+  }
+  function flyFree(){ if(FLY.map) FLY.map._elevationFreeze=false; }
+  function flyGrad(mi){
+    var f=Math.max(0.0005, Math.min(0.9995, mi/COURSE_MI));
+    return ['step',['line-progress'],'#FFC53D',f,'rgba(255,255,255,.92)'];
+  }
+  /* establishing shot: the whole course, tilted */
+  function flyOverview(ms){
+    if(!FLY.ready) return;
+    var a=[1e9,1e9], b=[-1e9,-1e9];
+    ROUTE.forEach(function(r){ a[0]=Math.min(a[0],r[2]); a[1]=Math.min(a[1],r[1]); b[0]=Math.max(b[0],r[2]); b[1]=Math.max(b[1],r[1]); });
+    var p=flyPad(); p.top=70; p.left=30; p.right=30;
+    flyInteract(true); flyFree();
+    FLY.map.fitBounds([a,b], { pitch:52, bearing:-18, padding:p, duration:ms==null?1400:ms });
+  }
+  /* things that do not need sixty updates a second */
+  function flyPaintAux(dt, force){
+    var map=FLY.map, mi=FLY.mi, t=performance.now();
+    if(force || t-FLY.tProg>110){ FLY.tProg=t;
+      try{ map.setPaintProperty('rt','line-gradient',flyGrad(mi)); }catch(e){}
+      var r=document.querySelector('#flyPc rect'), x=document.getElementById('flyPx'), rd=document.getElementById('flyRead');
+      if(r) r.setAttribute('width',(mi/COURSE_MI*1000).toFixed(1));
+      if(x) x.style.left=(mi/COURSE_MI*100).toFixed(2)+'%';
+      if(rd){ var txt=ft(elevAt(mi))+' ft'; if(rd.textContent!==txt) rd.textContent=txt; }
+    }
+    if(force || t-FLY.tNear>240){ FLY.tNear=t;
+      var hold=PV.on&&PV.hold>0&&PV.at>0;
+      FLY.marks.forEach(function(k){ var d=STATIONS[k.i].mi-mi;
+        k.el.classList.toggle('near', (hold&&k.i===PV.at) || (d>-0.15 && d<1.6));
+        k.el.classList.toggle('past', d<-0.15); });
+    }
+    if(force || t-FLY.tSky>900){ FLY.tSky=t;
+      /* the sky and the light follow the hour the runner is due at this mile */
+      var s=FLY_SKY[skyAt(minsAtMile(mi)).ph]||FLY_SKY.day, h=document.getElementById('fly3d');
+      if(FLY.sky!==s){ FLY.sky=s;
+        if(h) h.style.background='linear-gradient(180deg,'+s.c[0]+' 0,'+s.c[1]+' 30%,'+s.c[2]+' 62%)';
+        try{ map.setPaintProperty('base','raster-brightness-max', 1-0.42*s.night);
+             map.setPaintProperty('base','raster-saturation', -0.35*s.night); }catch(e){}
+        try{ if(map.setSky) map.setSky({ 'sky-color':s.c[1], 'horizon-color':s.c[2], 'fog-color':s.c[2],
+             'sky-horizon-blend':0.6, 'horizon-fog-blend':0.6, 'fog-ground-blend':0.35 }); }catch(e){}
+      }
+    }
+  }
+  /* hard: cut (or glide, if the camera is somewhere else entirely) to the chase position at PV.mi */
+  function flyCam(hard){
+    if(!FLY.ready) return;
+    var map=FLY.map, mi=PV.mi; FLY.mi=mi;
+    var z=FLY.zoom-Math.log(PV.speed||1)/Math.LN2*0.55, br=flyBearing(mi), c=flyLL(mi);
+    FLY.me.setLngLat(c); flyPaintAux(0,true);
+    if(!hard) return;
+    flyInteract(false);
+    var far=map.getZoom()<z-1.2 || Math.abs(map.getCenter().lng-c[0])+Math.abs(map.getCenter().lat-c[1])>0.02;
+    FLY.brg=br; FLY.cz=z; FLY.cp=FLY.pitch;
+    if(far){
+      FLY.easing=true; flyFree();
+      map.once('moveend', function(){ FLY.easing=false; });
+      map.flyTo({ center:c, zoom:z, pitch:FLY.pitch, bearing:br, padding:flyPad(), duration:1900, essential:true });
+      setTimeout(function(){ FLY.easing=false; }, 2600);      /* never let a dropped event strand the clock */
+    } else { flyGround(mi); map.jumpTo({ center:c, zoom:z, pitch:FLY.pitch, bearing:br, padding:flyPad() }); }
+  }
+  /* every frame while the preview is playing */
+  function flyFrame(dt){
+    if(!FLY.ready || FLY.easing) return;
+    var map=FLY.map, mi=PV.mi, hold=PV.hold>0&&PV.at>0; FLY.mi=mi;
+    if(hold) FLY.brg+=dt*0.011;                                   /* a slow orbit while stopped at an aid station */
+    else { var d=((flyBearing(mi)-FLY.brg+540)%360)-180; FLY.brg+=d*(1-Math.exp(-dt/750)); }
+    var zt=(hold?FLY.zoom+0.3:FLY.zoom-Math.log(PV.speed||1)/Math.LN2*0.55), pt=hold?55:FLY.pitch, k=1-Math.exp(-dt/650);
+    FLY.cz+=(zt-FLY.cz)*k; FLY.cp+=(pt-FLY.cp)*k;
+    var c=flyLL(mi);
+    flyGround(mi);
+    map.jumpTo({ center:c, bearing:FLY.brg, pitch:FLY.cp, zoom:FLY.cz, padding:flyPad() });
+    FLY.me.setLngLat(c);
+    flyPaintAux(dt,false);
+  }
+  /* not playing: go and look at a mile */
+  function flyGo(mi){
+    if(!FLY.ready) return; FLY.mi=mi;
+    FLY.me.setLngLat(flyLL(mi)); flyPaintAux(0,true);
+    FLY.brg=flyBearing(mi); flyFree();
+    FLY.map.easeTo({ center:flyLL(mi), zoom:FLY.zoom+0.2, pitch:58, bearing:FLY.brg, padding:flyPad(), duration:1100 });
+  }
+  function flyZoom(dz){
+    FLY.zoom=Math.max(11.5, Math.min(15.6, FLY.zoom+dz));
+    if(FLY.ready && !PV.on) FLY.map.easeTo({ zoom:FLY.map.getZoom()+dz, duration:300 });
+  }
+  function flyClose(){
+    var full=document.getElementById('mapFull');
+    if(FLY.map){ try{ FLY.map.remove(); }catch(e){} }
+    FLY.map=null; FLY.me=null; FLY.marks=[]; FLY.sky=null; FLY.on=false; FLY.ready=false; FLY.easing=false;
+    ['fly3d','flyCredit','flyProf'].forEach(function(id){ var e=document.getElementById(id); if(e&&e.parentNode) e.parentNode.removeChild(e); });
+    if(full) full.classList.remove('fly','flyload');
+    var b3=document.getElementById('fm3d'); if(b3) b3.classList.remove('on');
   }
 
   function render(){

@@ -46,7 +46,7 @@ def partial(m):
 page = fill(rd('shell.html'))
 page = re.sub(r'<!--@([\w-]+)-->', partial, page)
 # Modules that live inside the app's closure are spliced in at /*@modules*/; pure ones are prepended.
-MODULES = ['eta.js', 'sky.js', 'now.js', 'know.js', 'demo.js']
+MODULES = ['eta.js', 'sky.js', 'now.js', 'know.js', 'demo.js', 'fly.js']
 app = rd('app.js')
 assert app.count('/*@modules*/') == 1, 'app.js needs exactly one /*@modules*/ marker'
 app = app.replace('/*@modules*/', '\n'.join(rd(m) for m in MODULES))
@@ -71,4 +71,5 @@ json.loads(manifest)                                  # must stay valid JSON
 (OUT/'manifest.webmanifest').write_text(manifest, encoding='utf8', newline='')
 for f in (RACE_DIR/'icons').glob('*.png'):
     shutil.copy(f, OUT/f.name)
+shutil.copy(R/'vendor'/'maplibre-gl.js', OUT/'maplibre-gl.js')      # 3D preview engine, fetched only when 3D is opened
 print('built %s -> %s  (%d chars, cache %s-shell-%s)' % (RACE, OUT/'index.html', len(page), META['key'], h))

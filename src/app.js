@@ -3358,6 +3358,7 @@
         '<button class="hud-btn hud-close" id="fmClose" aria-label="Close">'+
           '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></svg></button>'+
         '<div class="hud-right">'+
+          '<button class="hud-btn hud-3d" id="fm3d" aria-label="3D fly-through">3D</button>'+
           '<button class="hud-btn" id="fmLayers" aria-label="Layers">'+
             '<svg viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5z"/><path d="M3 13l9 5 9-5"/></svg></button>'+
           '<button class="hud-btn" id="fmIn" aria-label="Zoom in"><svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg></button>'+
@@ -3374,13 +3375,15 @@
     MAPV.view=null; PV.on=false;
     fullMapPaint();
     document.getElementById('fmClose').onclick=fullMapClose;
-    document.getElementById('fmFit').onclick=function(){ pvStop(); MAPV.view=null; fullMapPaint(); };
+    document.getElementById('fmFit').onclick=function(){ pvStop(); MAPV.view=null; fullMapPaint(); if(FLY.on) flyOverview(); };
+    document.getElementById('fm3d').onclick=flyToggle;
     document.getElementById('fmIn').onclick=function(){ zoomBy(0.6); };
     document.getElementById('fmOut').onclick=function(){ zoomBy(-0.6); };
     document.getElementById('fmLayers').onclick=layersSheet;
     try{ history.pushState({fullmap:1},''); }catch(e){}
   }
   function zoomBy(dz){
+    if(FLY.on){ flyZoom(dz); return; }
     if(PV.on){ pvZoom(dz); return; }
     var P=MAPV.P; if(!P) return;
     MAPV.view={ lat:P.latAt(MAPV.H/2), lon:P.lonAt(MAPV.W/2), z:Math.max(1,Math.min(17,P.z+dz)) };
@@ -3468,6 +3471,7 @@
   /* ── 4. stepping highlights; it only moves the camera if the station is
      off screen, and never changes the zoom the user has chosen. ── */
   function showStation(i){
+    if(FLY.on && i>=0) flyGo(STATIONS[i].mi);
     if(i>=0 && MAPV.P){
       var pt=routeAt(STATIONS[i].mi);
       if(pt){
@@ -3663,10 +3667,12 @@
       if(h){ var t=h.querySelector('.tiles'), s=h.querySelector('.mapsvg');
         if(t) t.style.transform=''; if(s) s.style.transform=''; } }
     if(el&&el.classList.contains('on')){ fullMapSheet(); fmBarPaint(); }
+    if(FLY.on){ flyInteract(true); flyFree(); }      /* paused: the terrain is yours to drag and turn */
   }
   /* full re-render centred on the dot, at a zoom that shows the terrain */
   function pvRecenter(hard){
     var pt=routeLerp(PV.mi); if(!pt) return;
+    if(FLY.on){ flyCam(hard); return; }             /* 3D owns the camera; the flat map stays as it was underneath */
     if(hard||!PV.zoom) PV.zoom=Math.max(12.4, Math.min(14.2, (MAPV.fitZ||11)+2.4));
     MAPV.view={ lat:pt[0], lon:pt[1], z:PV.zoom };
     drawMap('mapHostF');
@@ -3680,7 +3686,7 @@
     if(!PV.last) PV.last=ts;
     var dt=Math.min(120, ts-PV.last); PV.last=ts;
 
-    if(PV.frozen){ PV.raf=requestAnimationFrame(pvFrame); return; }
+    if(PV.frozen || (FLY.on && FLY.easing)){ PV.raf=requestAnimationFrame(pvFrame); return; }
     if(PV.hold>0){ PV.hold-=dt; }
     else {
       PV.mi += (dt/1000)*PV_MPS*PV.speed;
@@ -3695,7 +3701,8 @@
     }
 
     var pt=routeLerp(PV.mi);
-    if(pt && PV.baseP){
+    if(FLY.on) flyFrame(dt);
+    else if(pt && PV.baseP){
       var P=PV.baseP, x=P.X(pt[1]), y=P.Y(pt[0]);
       var dx=MAPV.W/2-x, dy=MAPV.H/2-y;
       var host=document.getElementById('mapHostF');
@@ -3753,7 +3760,7 @@
     timelineMove(PV.mi);
     var now=document.getElementById('fmNow'); if(!now) return;
     var eb=now.querySelector('span'), tb=now.querySelector('b');
-    if(eb) eb.textContent='Previewing \u00b7 '+clkDay(minsAtMile(PV.mi))+' \u00b7 '+dur(minsAtMile(PV.mi))+' in';
+    if(eb) eb.textContent=(FLY.on?'Mile '+PV.mi.toFixed(1):'Previewing')+' \u00b7 '+clkDay(minsAtMile(PV.mi))+' \u00b7 '+dur(minsAtMile(PV.mi))+' in';
     var want=(PV.hold>0&&PV.at>0)?STATIONS[PV.at].name:secFor(PV.mi).title;
     if(tb&&tb.textContent!==want) tb.textContent=want;
   }
@@ -3803,7 +3810,7 @@
   }
 
   function fullMapClose(){
-    pvStop();
+    pvStop(); flyClose();
     document.getElementById('mapFull').classList.remove('on');
     document.body.classList.remove('noscroll');
     syncScrollLock();
