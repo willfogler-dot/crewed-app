@@ -909,6 +909,7 @@
   function swapView(toId, dir){
     var to=document.getElementById(toId); if(!to) return;
     document.body.classList.toggle('on-now', toId==='n-now');
+    SKY_INTRO=true; setTimeout(function(){ topSkyFit(true); }, 0);
     document.querySelectorAll('.view').forEach(function(x){
       if(x!==to) x.classList.remove('on','en-push','en-pop','en-r','en-l');
     });
@@ -2350,12 +2351,12 @@
   /* the gate's sky ends wherever the race name does, plus room for the ridge */
   function gateFit(){
     var sky=document.getElementById('gateSky'), sec=document.querySelector('#gate .sec'); if(!sky||!sec) return;
-    sky.style.height=(sec.offsetTop+sec.offsetHeight+168)+'px';
+    sky.style.height=(sec.offsetTop+sec.offsetHeight+196)+'px';
   }
   function setMe(id){
     S.me=id; save();
     document.getElementById('gate').classList.remove('on'); syncScrollLock();
-    startApp();
+    SKY_INTRO=true; startApp();
   }
   function openGate(){
     renderGate();
@@ -4841,7 +4842,7 @@
     paintClock();
     renderPlanPicker(); drawProfile(); resetReadout();
     renderMyJob(); renderRace(); renderSections(); renderAid(); renderProfile();
-    renderSched(); renderNow(); renderKnow();
+    renderSched(); renderNow(); renderKnow(); topSkyFit();
   }
 
   /* ── boot ── */
@@ -4981,7 +4982,7 @@
   } else { SWOK=false; swBadge(); }
 
   var rt; window.addEventListener('resize',function(){ clearTimeout(rt);
-    rt=setTimeout(function(){ drawProfile(); },160); });
+    rt=setTimeout(function(){ drawProfile(); topSkyFit(); },160); });
 
   applyTheme();
   demoInit();

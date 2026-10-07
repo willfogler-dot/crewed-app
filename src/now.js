@@ -6,7 +6,7 @@
        where is the runner right now       the course strip, with the range drawn on it
        what happens after this             the stops that follow
      and it is where a sighting gets logged, with one tap, stamped at the tap. */
-  var NOW_HTML=null;
+  var NOW_HTML=null, SKY_INTRO=true;
   var OFFM = +new Intl.DateTimeFormat('en-US',{timeZone:RACE.tz,minute:'numeric'}).format(new Date(START));
   var NI = {
     pin:'<path d="M12 21.5s7-6 7-11.5a7 7 0 10-14 0c0 5.5 7 11.5 7 11.5z"/><circle cx="12" cy="10" r="2.6"/>',
@@ -309,7 +309,7 @@
     var parts=nowParts(), sky=document.getElementById('nowSky'), nv=document.getElementById('nav');
     /* the sky runs up underneath the header, so it needs the header's real height */
     if(nv && nv.offsetHeight) document.documentElement.style.setProperty('--navh', nv.offsetHeight+'px');
-    skyPaint(sky, now(), parts);
+    skyPaint(sky, now(), parts, SKY_INTRO && document.body.classList.contains('on-now')); if(document.body.classList.contains('on-now')) SKY_INTRO=false;
     var html=parts.ground;
     if(html===NOW_HTML) return;
     NOW_HTML=html; el.innerHTML=html;
