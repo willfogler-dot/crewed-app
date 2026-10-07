@@ -62,10 +62,10 @@ RACE.driveKeys = ['Olympian Hall','Dry Lake','Summit Lake','Fish Creek Falls Tra
 RACE.copy = {
   footer: 'Cutoffs and rules from the 2026 Runner’s Manual v1.1. Goal splits from your tracker.<br>2025 field data: 68 Tortoises finishing between 28 and 32 hours.',
   rulesLine: 'Never drive to Fish Creek Falls · never drive Buffalo Pass Road above Dry Lake · never park at Dry Lake. ',
-  cutoffsNote: 'Cutoffs are the times he must <i>leave</i> by. Official times from the 2026 Runner’s Manual v1.1.',
+  cutoffsNote: 'Cutoffs are the times the runner must <i>leave</i> by. Official times from the 2026 Runner’s Manual v1.1.',
   helpSignal: 'Once it has opened on your phone it keeps working on Buffalo Pass. Anything you write syncs by itself when you get signal back.',
   helpRules: 'Never drive to Fish Creek Falls trailhead. Never drive Buffalo Pass Road above Dry Lake. Never park at Dry Lake.',
-  briefRules: '<li><b>Never drive to Fish Creek Falls Trailhead.</b> Walk or bike, four miles from Olympian Hall.</li><li><b>Never drive up Buffalo Pass Road past Dry Lake.</b> Summit Lake is the two-hour way round, every time.</li><li><b>Never park at Dry Lake.</b> Drop off, turn round, leave. The sheriff tickets and tows.</li></ol><p>Help him only at the stops below, plus in town between Spring Creek Trailhead and Olympian Hall. Be kind to volunteers — rudeness is grounds for disqualification.</p>',
+  briefRules: '<li><b>Never drive to Fish Creek Falls Trailhead.</b> Walk or bike, four miles from Olympian Hall.</li><li><b>Never drive up Buffalo Pass Road past Dry Lake.</b> Summit Lake is the two-hour way round, every time.</li><li><b>Never park at Dry Lake.</b> Drop off, turn round, leave. The sheriff tickets and tows.</li></ol><p>Help only at the stops below, plus in town between Spring Creek Trailhead and Olympian Hall. Be kind to volunteers — rudeness is grounds for disqualification.</p>',
   fieldNotes: '<h3>What the numbers say</h3>'+
       '<p style="margin-top:8px"><b>The Emerald loop is the biggest single block of time on the course</b> — four hours four minutes on average, more than any other section, and it happens between one and five in the morning.</p>'+
       '<p><b>Dry Lake to Summit is the slowest ground</b> — 24 minutes a mile, four hours for ten miles. Plan for it and do not panic.</p>'+
@@ -88,7 +88,7 @@ RACE.copy = {
   pacerBlocksIntro: '<p class="sec">A pacer may only join or leave at Dry Lake 44.5, Olympian 51.2, Olympian 63.9, Dry Lake 70.8 or Summit 80.8. Every possible pacer leg is one or more of these in a row \u2014 there is nothing else to work with.</p>'+
       '<div class="callout w" style="margin-bottom:0"><b>The last block is 21 miles with no swap inside it.</b> Four blocks fall in your 7\u201313 mile range; that one does not, and no arrangement changes it. Family may join for the final four miles from the top of the gondola, so the shortest anyone can cover from Summit is about seventeen miles alone with you.</div></div>',
   lens: {
-    crewLegend: '<span><i class="k crew"></i>Crew can reach him — 7 places</span><span><i class="k nocrew"></i>On his own</span>',
+    crewLegend: '<span><i class="k crew"></i>Crew can reach the runner — 7 places</span><span><i class="k nocrew"></i>No crew</span>',
     crewNote: 'The longest stretch with no crew is Summit Lake to Dry Lake, 14.4 miles. Fish Creek is foot or bike only.',
     bagLegend: '<span><i class="k bag"></i>Drop bag — 4 visits</span><span><i class="k nocrew"></i>Carry everything</span>',
     bagNote: 'Two bags, four visits: Summit Lake at 30.1 and 80.8, Olympian at 51.2 and 63.9.'
@@ -116,7 +116,7 @@ var PLANS = [
 /* gain = estimated gross climb for the segment INTO this station (runner's tracker) */
 var STATIONS = [
   { mi:0,     name:'Start — Ski Basin',   elev:7070,  gain:0,    bag:1,crew:1,pacer:0, goal:0,    field:0,    p24:0, steady:0,    slow:0,    cut:null, major:1 },
-  { mi:5.4,   name:'Mount Werner',        elev:10358, gain:3300, bag:0,crew:0,pacer:0, goal:133,  field:136,  p24:75, steady:91,   slow:105,  cut:390 },
+  { mi:5.4,   name:'Mount Werner',        elev:10358, gain:3300, bag:0,crew:0,pacer:0, goal:133,  field:136,  p24:75, steady:144,  slow:105,  cut:390 },
   { mi:17.7,  name:'Fish Creek Falls',    elev:7497,  gain:950,  bag:0,crew:2,pacer:0, goal:243,  field:248,  p24:210, steady:263,  slow:285,  cut:540,
     note:'Crew on foot or bicycle only, four miles from Olympian Hall. A car here risks disqualification.' },
   { mi:24.3,  name:'Long Lake',           elev:9915,  gain:2675, bag:0,crew:0,pacer:0, goal:365,  field:372,  p24:330, steady:396,  slow:525,  cut:null },
@@ -1124,7 +1124,7 @@ var SECTIONS = [
     '<h4>This is the widest spread on the whole course</h4>'+
     '<p>The 2025 field averaged 1:37 for these six miles. The fastest did it in <b>49 minutes</b>. The slowest took <b>2 hours 59</b>. Nothing else on the course separates people by a factor of three. That gap is quads, and quads are decided back at mile 12 in the Fish Creek canyon.</p>'+
     '<blockquote>Six miles of steep downhill will be the final bout of torture that the course will be throwing at you.</blockquote>'+
-    '<div class="callout g"><b>Poles.</b> One 2022 finisher\'s single stated regret was not putting poles in his Summit Lake drop bag for exactly this descent. Poles are legal for everyone in 2026.</div>'+
+    '<div class="callout g"><b>Poles.</b> One 2022 finisher\'s single stated regret was not putting poles in the Summit Lake drop bag for exactly this descent. Poles are legal for everyone in 2026.</div>'+
     '<p>You will probably do this in the dark. <b>The clock does not stop until you hug the Designated Hugger.</b></p>' }
 ];
 
@@ -1151,28 +1151,28 @@ var CREW = [
     body:'Both races start at the base of the ski basin. Head for Mount Werner Road and follow signs to Gondola Square, then walk toward Slopeside. Park in the Gondola Square garage opposite the Sheraton, or free at Upper Knolls a quarter of a mile away. After this you have nine hours off — use them.' },
   { n:2, where:'Fish Creek Falls Trailhead', mi:17.7, opt:1,
     what:'A bottle and something salty. This stop is optional.',
-    body:'You cannot drive here and a car in that lot risks his race. Park at Olympian Hall and walk or bike the four miles up Fish Creek Falls Road. There is no shuttle. If nobody fancies the ride, skip it — he is carrying enough.' },
+    body:'You cannot drive here and a car in that lot risks the race. Park at Olympian Hall and walk or bike the four miles up Fish Creek Falls Road. There is no shuttle. If nobody fancies the ride, skip it — the runner is carrying enough.' },
   { n:3, where:'Rest, eat, sleep', mi:null, rest:1,
     what:'A proper meal and a nap.',
     body:'From about 2 pm until 8 pm you have nothing to do. Do not spend it sitting in a car park. The next eighteen hours are the actual job, and you will be driving mountain roads in the dark on the far side of them.' },
   { n:4, where:'Dry Lake', mi:44.5, drive:45, pacer:'Pacer 1 joins here',
-    what:'Warm layer, hot drink, real food, his night kit.',
-    body:'There is no drop bag here, so anything he wants, you carry. Pull in, hand things over, put the pacer out, turn round and leave — there is no parking and the sheriff tickets and tows. Do not drive one foot further up Buffalo Pass Road.' },
+    what:'Warm layer, hot drink, real food, the night kit.',
+    body:'There is no drop bag here, so anything the runner wants, you carry. Pull in, hand things over, put the pacer out, turn round and leave — there is no parking and the sheriff tickets and tows. Do not drive one foot further up Buffalo Pass Road.' },
   { n:5, where:'Olympian Hall', mi:51.2, drive:15, key:1,
     what:'All five mandatory gear items, spares of everything, dry socks, hot food, the big camping chair.',
-    body:'The biggest stop of the race and the only indoor one. Halfway. His gear is checked on the way OUT — headlamp plus a backup, warm jacket, space blanket, raincoat, gloves — so have spares in hand. He will want to sit down. Give him ten minutes, then get him moving. Plenty of parking out front and by the ball fields.' },
+    body:'The biggest stop of the race and the only indoor one. Halfway. Gear is checked on the way OUT — headlamp plus a backup, warm jacket, space blanket, raincoat, gloves — so have spares in hand. Your runner will want to sit down. Allow ten minutes, then get them moving. Plenty of parking out front and by the ball fields.' },
   { n:6, where:'Olympian Hall, second time', mi:63.9, drive:15,
     what:'Dry socks, coffee, breakfast, a layer for sunrise.',
-    body:'He has just done the Emerald Mountain loop in the dark, which the 2025 data says is the slowest four hours of the whole race. Sunrise is 6:51 am. Gear is checked again on the way out. Same rule: ten minutes, then out the door.' },
+    body:'Your runner has just done the Emerald Mountain loop in the dark, which the 2025 data says is the slowest four hours of the whole race. Sunrise is 6:51 am. Gear is checked again on the way out. Same rule: ten minutes, then out the door.' },
   { n:7, where:'Dry Lake, second time', mi:70.8, drive:45, pacer:'Last pacer swap',
     what:'Full bottles, food for four hours, sunscreen.',
-    body:'Drop and go again. He is about to do the hardest section of the race — ten miles that took the 2025 field an average of four hours. Send him with more food than seems reasonable. Whoever paces from here finishes at 10,300 feet and needs collecting.' },
+    body:'Drop and go again. What comes next is the hardest section of the race — ten miles that took the 2025 field an average of four hours. Send more food than seems reasonable. Whoever paces from here finishes at 10,300 feet and needs collecting.' },
   { n:8, where:'Summit Lake', mi:80.8, drive:120, key:1,
     what:'Last hot food, a fresh light for the finish, poles for the descent.',
     body:'Two hours of driving, and you must go the long way round — up Rabbit Ears Pass, left on Highway 14 toward Walden, then Buffalo Pass Road from the far side. You may not use Buffalo Pass Road above Dry Lake. There is no phone signal up there. Leave town two and a half hours before you need to arrive.' },
   { n:9, where:'Finish line, ski basin', mi:101.8, drive:120,
-    what:'Warm clothes for him, a chair, and a beer.',
-    body:'Two hours to get back down from Summit. The finish party runs from 10 am Saturday — free to runners, twenty dollars for everyone else, beer from noon. The clock does not stop until he hugs the Designated Hugger.' }
+    what:'Warm clothes, a chair, and a beer.',
+    body:'Two hours to get back down from Summit. The finish party runs from 10 am Saturday — free to runners, twenty dollars for everyone else, beer from noon. The clock does not stop until the runner hugs the Designated Hugger.' }
 ];
 
 var DRIVES = {

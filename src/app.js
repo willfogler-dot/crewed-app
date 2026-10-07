@@ -47,6 +47,13 @@
   var fT = new Intl.DateTimeFormat('en-US',{timeZone:RACE.tz,hour:'numeric',minute:'2-digit'});
   var fD = new Intl.DateTimeFormat('en-US',{timeZone:RACE.tz,weekday:'short'});
   var fFull = new Intl.DateTimeFormat('en-US',{timeZone:RACE.tz,weekday:'long',month:'long',day:'numeric'});
+  /* 'YYYY-MM-DDTHH:MM' as a clock time in the race's own time zone -> ms.
+     Two passes, so a time just after a daylight-saving change still lands right. */
+  var fZ = new Intl.DateTimeFormat('en-CA',{timeZone:RACE.tz,year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+  function tzOffset(ms){ var g={}; fZ.formatToParts(new Date(ms)).forEach(function(p){ g[p.type]=p.value; });
+    return Date.UTC(+g.year,+g.month-1,+g.day,(+g.hour)%24,+g.minute,+g.second)-Math.floor(ms/1000)*1000; }
+  function tzMs(s){ var m=/(\d+)-(\d+)-(\d+)T(\d+):(\d+)/.exec(s); if(!m) return NaN;
+    var w=Date.UTC(+m[1],+m[2]-1,+m[3],+m[4],+m[5]), t=w-tzOffset(w); return w-tzOffset(t); }
   function tOf(ms){ return fT.format(new Date(ms)).replace(' AM',' am').replace(' PM',' pm'); }
   function clk(m){ return (m==null||!isFinite(m))?'—':tOf(START+m*MIN); }
   /* day on its own, so a stat tile can show "1:03 pm" big with "arrive by
@@ -220,7 +227,7 @@
     function manual(f){
       var dd=document.getElementById('lgD').value, tt=document.getElementById('lgT').value;
       if(!dd||!tt) return;
-      setSplit(i,f,(new Date(dd+'T'+tt+':00-06:00').getTime()-START)/MIN); done();
+      setSplit(i,f,(tzMs(dd+'T'+tt)-START)/MIN); done();
     }
     document.getElementById('setIn').onclick=function(){ manual('in'); };
     document.getElementById('setOut').onclick=function(){ manual('out'); };
@@ -589,7 +596,7 @@
     }
     return '<div class="card live">'+
       '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px">'+
-      '<div><div class="cap">Where he is</div><h3 style="font-size:21px;margin-top:2px">'+head+'</h3>'+
+      '<div><div class="cap">Where '+esc(RUNNER)+' is</div><h3 style="font-size:21px;margin-top:2px">'+head+'</h3>'+
       '<div class="cap" style="margin-top:2px">'+sub+'</div></div>'+chip+'</div>'+
       '<div class="stats"><div><div class="k">Next</div><div class="v">'+L.next.name.replace(' \u2014 Ski Basin','')+'</div></div>'+
       '<div><div class="k">To go</div><div class="v num">'+L.toGo.toFixed(1)+' mi</div></div>'+
@@ -611,7 +618,7 @@
       /* hm() for an edited plan too -- dur() prints "29h 35m" next to a
          neighbour printing "30:11", which reads as two different measures */
       return '<button'+(p.k===S.plan?' class="on"':'')+' data-plan="'+p.k+'">'+p.name+
-        '<small>'+(paceEdited(p.k)?hm(mins):p.sub)+(pp?'<i>'+pp+'</i>':'')+'</small></button>';
+        '<small>'+hm(mins)+(pp?'<i>'+pp+'</i>':'')+'</small></button>';
     }).join('');
     /* Same rule as the crew list: the background refresh must not re-create
        these buttons every twenty seconds just to write the same thing. */
@@ -1446,7 +1453,7 @@
 
   function buildPacers(){
     var A=atoms(), legs=pacerLegs(), pp=peopleFor('pacer');
-    var night=function(m){ var h=(9+m/60)%24; return h>=19.6||h<6.85; };
+    var night=isNight;
     var out='<div class="card gold"><h3>The five legal blocks</h3>'+
       RACE.copy.pacerBlocksIntro;
 
@@ -1514,14 +1521,14 @@
       }).join('')+'</div></div>'+
 
       '<div class="card"><h3>Projecting ahead</h3>'+
-      '<p class="sec">Times already logged are always the real ones. This only changes how the stations <i>ahead</i> are estimated once he is off plan.</p>'+
+      '<p class="sec">Times already logged are always the real ones. This only changes how the stations <i>ahead</i> are estimated once the runner is off plan.</p>'+
       '<div class="seg" style="margin:12px 0 10px">'+
       [['smart','Smart'],['pace','Current pace'],['goal','Goal pace']].map(function(t){
         return '<button'+(S.proj===t[0]?' class="on"':'')+' data-proj="'+t[0]+'">'+t[1]+'</button>';
       }).join('')+'</div>'+
       '<p class="cap">'+(S.proj==='smart' ? 'Learned from how the field actually ran this course: a delay only half carries, and the estimate comes with an honest range. Recommended.' : S.proj==='pace'
-        ? 'If he is six percent down at mile 70, everything ahead is six percent slower. The honest one late in a hundred.'
-        : 'Assumes he holds goal pace from here, so the current gap simply carries to the finish. The optimistic one.')+'</p></div>'+
+        ? 'If the runner is six percent down at mile 70, everything ahead is six percent slower. The honest one late in a hundred.'
+        : 'Assumes the runner holds goal pace from here, so the current gap simply carries to the finish. The optimistic one.')+'</p></div>'+
 
       '<div class="card"><h3>Share my location</h3>'+
       '<p class="sec">Adds a third source alongside the timing mats and the crew. It only works with the app open and a signal, so treat it as filling gaps rather than as the tracker.</p>'+
@@ -1597,7 +1604,7 @@
       document.getElementById('briefPlan').onclick=function(){
         sheet('Which schedule?','<p class="sec">The printed sheet uses whichever schedule you pick here.</p>'+
           PLANS.map(function(p){ return '<button class="btn '+(p.k===S.plan?'':'tint')+'" data-bp="'+p.k+'">'+
-            p.name+' · '+p.sub+'</button>'; }).join(''));
+            p.name+' · '+hm(planFinish(p.k))+'</button>'; }).join(''));
         shEl.querySelectorAll('[data-bp]').forEach(function(b){
           b.onclick=function(){ S.plan=b.dataset.bp; save(); reproject(); closeSheet(); refreshDetail(); }; });
       };
@@ -1717,6 +1724,9 @@
       var n=leaveMins(CREW[j]); return (n!=null?n:crewArrive(CREW[j]))-1; }
     return null;
   }
+  /* "Stop 4 of 7", counted over the stops this team is actually driving to */
+  function stopOf(c){ var v=visibleCrew().filter(function(x){ return !x.rest; }), k=v.indexOf(c);
+    return k<0 ? 'Optional stop' : 'Stop '+(k+1)+' of '+v.length; }
   function crewPick(){
     var p=crewPickRaw();
     /* never point the hero at a stop nobody is driving to */
@@ -1761,7 +1771,7 @@
     document.getElementById('c-next').innerHTML=
       '<div class="phead"><h1>Where to be next</h1><p class="sec">This changes on its own as the race goes on.</p></div>'+
       '<div class="hero"><div style="display:flex;align-items:center;justify-content:space-between;gap:10px">'+
-      '<div class="eyebrow">'+(c.rest?'Right now':'Stop '+c.n+' of 9')+'</div>'+cd+'</div>'+
+      '<div class="eyebrow">'+(c.rest?'Right now':stopOf(c))+'</div>'+cd+'</div>'+
       '<h2>'+c.where+'</h2>'+
       (a!=null?'<div class="display num">'+clk(a)+'</div><div class="under">'+fFull.format(new Date(START+a*MIN))+' — when '+RUNNER+' should arrive</div>':'')+
       (lm!=null?'<div class="stats"><div><div class="k">Leave town</div><div class="v num">'+clk(lm)+'</div></div>'+
@@ -1816,7 +1826,7 @@
   function openCrewStop(c){
     var a=crewArrive(c), lv=leaveBy(c), dr=driveFor(c), who=crewAt(c.n);
     sheet(c.where,
-      '<div class="cap" style="margin:-6px 0 10px">Stop '+c.n+' of 9'+(c.mi!=null?' · mile '+c.mi.toFixed(1):'')+'</div>'+
+      '<div class="cap" style="margin:-6px 0 10px">'+stopOf(c)+(c.mi!=null?' · mile '+c.mi.toFixed(1):'')+'</div>'+
       (a!=null?'<div class="card tint" style="margin-bottom:12px"><div class="cap">'+RUNNER+' should arrive</div>'+
         '<div class="num" style="font-size:32px;font-weight:700;letter-spacing:-.03em;margin-top:2px">'+clk(a)+'</div>'+
         '<div class="cap">'+fFull.format(new Date(START+a*MIN))+'</div>'+
@@ -1869,7 +1879,7 @@
           '<h2>'+c.where+'</h2>'+
         '</div>'+
         (a!=null?'<div class="heroclock">'+
-          '<em data-heropill>He arrives</em>'+
+          '<em data-heropill>Arrives</em>'+
           '<span><b class="num">'+clk(a)+'</b><s>'+dyOf(a)+'</s></span></div>':'')+
       '</div>'+
       '<div class="herometa">'+meta.join(' \u00b7 ')+'</div>'+
@@ -1911,7 +1921,7 @@
     for(var k=0;k<strip.children.length;k++){
       var slot=strip.children[k].querySelector('[data-heropill]');
       if(!slot) continue;
-      var aa=crewArrive(vis[k]), txt='He arrives', soon=false;
+      var aa=crewArrive(vis[k]), txt='Arrives', soon=false;
       if(aa!=null){
         var left=aa-now();
         if(left>0 && left<=720){ txt='Arrives in '+dur(left); soon=left<=60; }
@@ -2251,17 +2261,17 @@
   var HOWTO = [
     ['Pick your name once',
      'Everything you see is filtered to you. Tapped the wrong name? Switch, top right.'],
-    ['The Crew tab is your list',
+    ['The Plan tab is your list',
      'Every stop you drive to, in order, with the time '+RUNNER+' should get there and what to have ready.'],
     ['The times are a prediction, not a promise',
-     'A Goal, B Goal and C Goal are how fast you assume he runs. Tap one and every time in the app moves with it. If he is running slow, tap a slower goal.'],
+     'A Goal, B Goal and C Goal are the paces the plan can assume. Tap one and every time in the app moves with it. If the runner falls behind, tap a slower goal.'],
     ['Tap a stop for the rest',
      'Directions, where to park, what happens at that station, and the pacer swap if there is one.'],
     ['Notes are the same two everywhere',
      RUNNER+'\u2019s note and a Crew note. Anyone on the crew can write the Crew note, from the button underneath. Everyone sees both, on every screen that shows that stop.'],
     ['It works with no signal',
      RACE.copy.helpSignal],
-    ['Three rules that end his race',
+    ['Three rules that end the race',
      RACE.copy.helpRules]
   ];
   /* The runner wrote this app; nobody else on the team has ever opened it. The
@@ -2457,9 +2467,9 @@
     allEvents().forEach(function(e){
       var d=e.iso.slice(0,10);
       if(S.hidePast&&d<todayISO) return;
-      if(d!==day){ day=d; if(open) out+='</div>'; out+='<div class="day">'+fFull.format(new Date(e.iso+':00-06:00'))+'</div><div class="card">'; open=true; }
+      if(d!==day){ day=d; if(open) out+='</div>'; out+='<div class="day">'+fFull.format(new Date(tzMs(e.iso)))+'</div><div class="card">'; open=true; }
       out+='<div class="ev'+(e.key?' key':'')+(e.iso<nowISO?' past':'')+'">'+
-        '<div class="tm num">'+tOf(new Date(e.iso+':00-06:00'))+'</div>'+
+        '<div class="tm num">'+tOf(new Date(tzMs(e.iso)))+'</div>'+
         '<div class="bd"><div class="t">'+esc(e.t)+'</div>'+(e.d?'<div class="d">'+esc(e.d)+'</div>':'')+'</div>'+
         (e.id?'<button class="edit" data-ev="'+e.id+'">Edit</button>':'')+'</div>';
     });
@@ -3201,7 +3211,7 @@
       return Math.abs(p.from-L.from.mi)<0.01 && Math.abs(p.to-L.to.mi)<0.01;
     })[0];
     if(known) return known;
-    var night=function(m){ var h=(9+m/60)%24; return h>=19.6||h<6.85; };
+    var night=isNight;
     var dark=night(T(L.from))||night(T(L.to));
     var toName=L.to.mi>=COURSE_MI?'the finish':L.to.name;
     return {
@@ -3268,7 +3278,7 @@
         dots+
         '<span class="thumb" id="tlThumb" style="left:'+pct.toFixed(2)+'%"></span>'+
       '</div>'+
-      '<div class="tlx">'+labs+'<b class="s" style="left:0">0</b><b class="e" style="left:100%">102</b></div>'+
+      '<div class="tlx">'+labs+'<b class="s" style="left:0">0</b><b class="e" style="left:100%">'+Math.round(COURSE_MI)+'</b></div>'+
     '</div>';
   }
   function bindTimeline(root, onMile, onStation){
@@ -3415,7 +3425,7 @@
       eyebrow='Previewing \u00b7 '+clkDay(minsAtMile(PV.mi))+' \u00b7 '+dur(minsAtMile(PV.mi))+' in';
       title = (PV.hold>0 && PV.at>0) ? STATIONS[PV.at].name : secFor(PV.mi).title;
     } else if(s){
-      eyebrow='Check-in '+MAPV.step+' of 16 \u00b7 mile '+s.mi.toFixed(1)+' \u00b7 '+dur(T(s))+' in';
+      eyebrow='Check-in '+MAPV.step+' of '+(STATIONS.length-1)+' \u00b7 mile '+s.mi.toFixed(1)+' \u00b7 '+dur(T(s))+' in';
       title=s.name;
     } else {
       eyebrow=COURSE_MI_TXT+' miles \u00b7 '+COURSE_CLIMB_TXT+' ft';
@@ -3515,8 +3525,8 @@
       }).join('')+'</div>'+
       '<div class="cap" style="margin:18px 0 10px">What to highlight</div>'+
       '<div class="baselist">'+[['aid','Aid stations','Every check-in, coloured by access'],
-        ['crew','Crew access','Only the seven places they can reach him'],
-        ['pacer','Pacer coverage','Where he is alone and who is with him']].map(function(l){
+        ['crew','Crew access','Only the places a crew can reach'],
+        ['pacer','Pacer coverage','Where the runner is alone, and who is alongside']].map(function(l){
         return '<button class="baseopt'+(MAPV.lens===l[0]?' on':'')+'" data-llens="'+l[0]+'">'+
           '<span class="bl">'+l[1]+'<em>'+l[2]+'</em></span></button>';
       }).join('')+'</div>');
@@ -3573,7 +3583,7 @@
           '<div><b>'+clk(T(s))+'</b><span>finish '+dyOf(T(s))+'</span></div></div></div>';
     }
     return '<div class="fm-grab"></div>'+
-      '<div class="fm-head"><div style="min-width:0"><div class="fm-eye">Check-in '+i+' of 16 \u00b7 mile '+s.mi.toFixed(1)+'</div>'+
+      '<div class="fm-head"><div style="min-width:0"><div class="fm-eye">Check-in '+i+' of '+(STATIONS.length-1)+' \u00b7 mile '+s.mi.toFixed(1)+'</div>'+
       '<div class="fm-nm">'+esc(s.name)+
         (ahead?'<i class="fm-arrow">\u2192</i><em>'+esc(ahead.to.name)+'</em>':'')+'</div>'+
       '<div class="fm-sub">'+clkDay(T(s))+' \u00b7 <b>'+dur(T(s))+'</b> into the race'+
@@ -3840,7 +3850,7 @@
       var names=crewAt((function(){ for(var c=0;c<CREW.length;c++) if(CREW[c].mi===s.mi) return CREW[c].n; return -1; })());
       panel='<div class="card">'+
         '<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:12px">'+
-        '<div><div class="cap">Check-in '+i+' of 16</div>'+
+        '<div><div class="cap">Check-in '+i+' of '+(STATIONS.length-1)+'</div>'+
         '<h3 style="font-size:21px;margin-top:2px">'+s.name+'</h3>'+
         '<div class="cap">mile '+s.mi.toFixed(1)+' \u00b7 '+ft(s.elev)+' ft \u00b7 '+ft(cumGain(s.mi))+' ft climbed</div></div>'+
         '<span class="pill '+(paced?'':'red')+'">'+(paced?'Paced':'Solo')+'</span></div>'+
@@ -4051,7 +4061,8 @@
     STATIONS.forEach(function(s){ if(s.mi>sec.from && s.mi<=sec.to) g+=s.gain||0; });
     return terrain(sec.from, sec.to, g);
   }
-  function isNight(mins){ var h=(9+mins/60)%24; return h>=19.6||h<6.85; }
+  /* dark = after this race's 'dark by' time and before its sunrise, read off the race clock */
+  function isNight(mins){ var d=dayMin(mins), dk=parseClock(RACE.sun&&RACE.sun.dark)||SUNS+25; return d>=dk||d<SUNR; }
   function terrainBlock(t,label){
     if(!t) return '';
     var upness = t.net>250 ? 'up' : t.net<-250 ? 'down' : 'flat';
@@ -4158,7 +4169,7 @@
     var sec=L.sec;
     return '<div class="legcard">'+
       '<div class="legtop"><b>'+A.name+' \u2192 '+B.name+'</b>'+
-        '<span>'+A.mi.toFixed(1)+' to '+B.mi.toFixed(1)+' \u00b7 leg '+i+' of 16</span></div>'+
+        '<span>'+A.mi.toFixed(1)+' to '+B.mi.toFixed(1)+' \u00b7 leg '+i+' of '+(STATIONS.length-1)+'</span></div>'+
       '<div class="legpanes">'+
         '<figure><div class="legmap" id="legMap"></div><figcaption>The ground</figcaption></figure>'+
         '<figure>'+legProfileSVG(i)+'<figcaption>'+ft(A.elev)+' \u2192 '+ft(B.elev)+' ft</figcaption></figure>'+
@@ -4199,7 +4210,7 @@
      as something you already wrote and cannot be cleared. */
   var AID_FIELDS = [
     { k:'runner', who:'runner', label:RUNNER+'\u2019s note',
-      hint:RUNNER+' writes this. What he wants here, and his plan for the stop.' },
+      hint:RUNNER+' writes this: what they want here, and the plan for the stop.' },
     { k:'crew',   who:'crew',   label:'Crew note',
       hint:'Anyone on the crew can write this. Food, kit, who is doing what.' }
   ];
@@ -4403,7 +4414,7 @@
         '<svg id="profileC" style="display:block;width:100%;touch-action:none"></svg>'+
         '<div id="profLegendC"></div>'+
         '<div style="padding:10px 16px 12px;border-top:1px solid var(--hair);background:var(--sunken)" class="cap">'+
-        'Drag along the profile to read the course. Tap to open that section. The grey band is the hours he will be running in the dark.</div>'+
+        'Drag along the profile to read the course. Tap to open that section. The grey band is the hours run in the dark.</div>'+
       '</div>'+
       '<div class="shead"><h2>Aid stations</h2><span class="note">17 check-ins</span></div>'+
       '<div class="list">'+STATIONS.map(function(s,i){
@@ -4570,12 +4581,12 @@
     h+='<h3 class="bsec">Weekend schedule</h3><table class="btable tight"><tbody>';
     EVENTS.filter(function(e){return e.iso>'2026-09-16';}).forEach(function(e){
       h+='<tr'+(e.key?' class="key"':'')+'><td style="white-space:nowrap">'+
-        fD.format(new Date(e.iso+':00-06:00'))+' '+tOf(new Date(e.iso+':00-06:00'))+'</td>'+
+        fD.format(new Date(tzMs(e.iso)))+' '+tOf(new Date(tzMs(e.iso)))+'</td>'+
         '<td><b>'+esc(e.t)+'</b>'+(e.d?'<br><span class="bdim">'+esc(e.d)+'</span>':'')+'</td></tr>';
     });
     S.custom.forEach(function(e){
-      h+='<tr><td style="white-space:nowrap">'+fD.format(new Date(e.iso+':00-06:00'))+' '+
-        tOf(new Date(e.iso+':00-06:00'))+'</td><td><b>'+esc(e.t)+'</b>'+
+      h+='<tr><td style="white-space:nowrap">'+fD.format(new Date(tzMs(e.iso)))+' '+
+        tOf(new Date(tzMs(e.iso)))+'</td><td><b>'+esc(e.t)+'</b>'+
         (e.d?'<br><span class="bdim">'+esc(e.d)+'</span>':'')+'</td></tr>';
     });
     h+='</tbody></table>';
@@ -4590,7 +4601,7 @@
 
     h+='<div class="bfoot">Times shown on the <b>'+pn+'</b> schedule ('+dur(fin)+'). '+
        'If '+RUNNER+' is running behind, every time here shifts later by roughly the same amount. '+
-       'Cutoffs are fixed and are the times he must <i>leave</i> by. '+
+       'Cutoffs are fixed and are the times the runner must <i>leave</i> by. '+
        'Generated from the race plan app \u00b7 official times from the 2026 Runner\u2019s Manual v1.1.</div>';
     h+='</div>';
     return h;
@@ -4912,7 +4923,7 @@
     if(bmoved) ls(KEY+'aidov',JSON.stringify(S.aidOv));
   }
   /* Last build put the old "Bring" sentence into the crew note. Half of them
-     are comma lists -- "Warm layer, hot drink, real food, his night kit" --
+     are comma lists -- "Warm layer, hot drink, real food, the night kit" --
      which is a packing list written sideways. Split those into the gear list
      and leave the prose ones where they are. Only touches a crew note that
      is still word-for-word the shipped text, so an edited one is never lost. */

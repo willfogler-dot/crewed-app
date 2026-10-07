@@ -43,7 +43,7 @@
       '</div></div>' : '')+
       '<div class="grp"><div class="grp-t">'+(runner?'Rules and crew logistics':'Before you drive anywhere')+'</div><div class="list">'+
         d('rules','ban','Rules that end '+(runner?'your':esc(RUNNER)+'’s')+' race','Read once. They are enforced.',String(RULES.length),'r')+
-        d('rota','van','Every stop and the drive to it',numw(CREW.length)+' stops, with directions',String(CREW.length))+
+        d('rota','van','Every stop and the drive to it','Where to park, and the way in',String(visibleCrew().filter(function(c){ return !c.rest; }).length))+
         (HAS_PACERS?d('legs','run','Pacer plan','Who runs which block, and the swap points'):'')+
       '</div></div>'+
       '<div class="grp"><div class="grp-t">The race</div><div class="list">'+
