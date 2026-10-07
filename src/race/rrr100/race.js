@@ -34,7 +34,7 @@ var RACE = {
   manualFile: '2026-RRR-Manual.pdf',
   manualPages: 20,
   /* the default runner on this build; each team can set its own */
-  runner: { name: 'Alex', division: 'Tortoise', bibRange: '400\u2013800' },
+  runner: { name: 'Runner', division: 'Tortoise', bibRange: '400\u2013800' },
   startSpot: 'Gondola Square', finishBy: '9:00 pm Sat',
   startShort: '9:00 am Friday', startLabel: '9:00 am Friday 18 September 2026', limitLabel: '36-hour limit',
   /* timing */
@@ -60,7 +60,7 @@ RACE.driveKeys = ['Olympian Hall','Dry Lake','Summit Lake','Fish Creek Falls Tra
 
 /* Copy that belongs to this race. {runner} is not substituted here; use it only where noted. */
 RACE.copy = {
-  footer: 'Cutoffs and rules from the 2026 Runner’s Manual v1.1. Goal splits from your tracker.<br>2025 field data: 68 Tortoises finishing between 28 and 32 hours.',
+  footer: 'Cutoffs and rules from the 2026 Runner’s Manual v1.1. <br>2025 field data: 68 Tortoises finishing between 28 and 32 hours.',
   rulesLine: 'Never drive to Fish Creek Falls · never drive Buffalo Pass Road above Dry Lake · never park at Dry Lake. ',
   cutoffsNote: 'Cutoffs are the times the runner must <i>leave</i> by. Official times from the 2026 Runner’s Manual v1.1.',
   helpSignal: 'Once it has opened on your phone it keeps working on Buffalo Pass. Anything you write syncs by itself when you get signal back.',
@@ -74,7 +74,7 @@ RACE.copy = {
   gearIntro: '<p class="sec">New for 2026. Checked on the way <i>out</i> of Olympian Hall, at mile 51.2 and again at 63.9, so you carry all five for the last 50.6 miles.</p>',
   bagsIntro: '<div class="card alert"><p><b>Collected Thursday 3\u20136 pm, before the briefing.</b> Both bags are sealed about fifteen hours before you start, so you cannot adjust them to Friday\u2019s forecast. Pack for the bad version.</p>'+
       '<p style="margin-top:8px">No hard-sided bags, nothing bigger than a shoebox. Bring a bright colour \u2014 you will be hunting for it in a field of identical bags.</p></div>',
-  summitSkipped: '<div class="card"><h3>Why Summit at mile 30 is skipped</h3><p class="sec">The drop bag covers it, and a four-hour round trip at mile 30 wrecks the crew before the stops that matter. Dry Lake has crew but <i>no</i> drop bag, so those two visits are the crew\u2019s highest-value work.</p></div>',
+  summitSkipped: '',
   weatherNotes: '<p class="sec">2011 brought hail, rain, 40 mph winds and snow. 2022 brought snow, wind, fog and mud. 2025 was a blizzard with lightning.</p>'+
       '<div class="callout w"><b>Carry a light from the start.</b> On the 36-hour schedule you reach Summit Lake \u2014 your first drop bag \u2014 at 8:30 pm, more than an hour after dark, and Long Lake at mile 24.3 has neither crew nor a bag. It weighs four ounces.</div>'+
       '<p class="cap">Per the race director: more hundred-mile runners drop from unexpected overnight cold than from any other cause.</p></div>',
@@ -86,7 +86,7 @@ RACE.copy = {
       '<p class="cap">Source: RRR100 CalTopo export, track "Run Rabbit Run 100-2024". Confidence: high. Re-check if the 2026 course changes.</p></div>',
   questionsIntro: '<div class="card"><p class="sec" style="margin-bottom:10px">Open questions the manual does not settle. Ask at the Thursday briefing.</p>',
   pacerBlocksIntro: '<p class="sec">A pacer may only join or leave at Dry Lake 44.5, Olympian 51.2, Olympian 63.9, Dry Lake 70.8 or Summit 80.8. Every possible pacer leg is one or more of these in a row \u2014 there is nothing else to work with.</p>'+
-      '<div class="callout w" style="margin-bottom:0"><b>The last block is 21 miles with no swap inside it.</b> Four blocks fall in your 7\u201313 mile range; that one does not, and no arrangement changes it. Family may join for the final four miles from the top of the gondola, so the shortest anyone can cover from Summit is about seventeen miles alone with you.</div></div>',
+      '<div class="callout w" style="margin-bottom:0"><b>The last block is 21 miles with no swap inside it.</b> No arrangement changes that. Family may join for the final four miles from the top of the gondola, so the shortest anyone can cover from Summit is about seventeen miles alone with you.</div></div>',
   lens: {
     crewLegend: '<span><i class="k crew"></i>Crew can reach the runner — 7 places</span><span><i class="k nocrew"></i>No crew</span>',
     crewNote: 'The longest stretch with no crew is Summit Lake to Dry Lake, 14.4 miles. Fish Creek is foot or bike only.',
@@ -1147,31 +1147,34 @@ var ANALYSIS = [
 
 var CREW = [
   { n:1, where:'Start line, ski basin', mi:0, drive:15,
-    what:'Nothing. Say goodbye and take a photo.',
+    what:'',
     body:'Both races start at the base of the ski basin. Head for Mount Werner Road and follow signs to Gondola Square, then walk toward Slopeside. Park in the Gondola Square garage opposite the Sheraton, or free at Upper Knolls a quarter of a mile away. After this you have nine hours off — use them.' },
   { n:2, where:'Fish Creek Falls Trailhead', mi:17.7, opt:1,
-    what:'A bottle and something salty. This stop is optional.',
+    what:'',
     body:'You cannot drive here and a car in that lot risks the race. Park at Olympian Hall and walk or bike the four miles up Fish Creek Falls Road. There is no shuttle. If nobody fancies the ride, skip it — the runner is carrying enough.' },
+  { n:10, where:'Summit Lake, first time', mi:30.1, drive:120, opt:1, off:1,
+    what:'',
+    body:'The highest aid station and the first drop bag. It is a two-hour drive each way and you must go the long way round — Rabbit Ears Pass, then Highway 14 toward Walden. There is no phone signal up there. Many crews skip this one because the drop bag covers it; switch it on if yours is going.' },
   { n:3, where:'Rest, eat, sleep', mi:null, rest:1,
-    what:'A proper meal and a nap.',
+    what:'',
     body:'From about 2 pm until 8 pm you have nothing to do. Do not spend it sitting in a car park. The next eighteen hours are the actual job, and you will be driving mountain roads in the dark on the far side of them.' },
-  { n:4, where:'Dry Lake', mi:44.5, drive:45, pacer:'Pacer 1 joins here',
-    what:'Warm layer, hot drink, real food, the night kit.',
+  { n:4, where:'Dry Lake', mi:44.5, drive:45, pacer:'A pacer can join here',
+    what:'',
     body:'There is no drop bag here, so anything the runner wants, you carry. Pull in, hand things over, put the pacer out, turn round and leave — there is no parking and the sheriff tickets and tows. Do not drive one foot further up Buffalo Pass Road.' },
   { n:5, where:'Olympian Hall', mi:51.2, drive:15, key:1,
-    what:'All five mandatory gear items, spares of everything, dry socks, hot food, the big camping chair.',
+    what:'',
     body:'The biggest stop of the race and the only indoor one. Halfway. Gear is checked on the way OUT — headlamp plus a backup, warm jacket, space blanket, raincoat, gloves — so have spares in hand. Your runner will want to sit down. Allow ten minutes, then get them moving. Plenty of parking out front and by the ball fields.' },
   { n:6, where:'Olympian Hall, second time', mi:63.9, drive:15,
-    what:'Dry socks, coffee, breakfast, a layer for sunrise.',
+    what:'',
     body:'Your runner has just done the Emerald Mountain loop in the dark, which the 2025 data says is the slowest four hours of the whole race. Sunrise is 6:51 am. Gear is checked again on the way out. Same rule: ten minutes, then out the door.' },
   { n:7, where:'Dry Lake, second time', mi:70.8, drive:45, pacer:'Last pacer swap',
-    what:'Full bottles, food for four hours, sunscreen.',
+    what:'',
     body:'Drop and go again. What comes next is the hardest section of the race — ten miles that took the 2025 field an average of four hours. Send more food than seems reasonable. Whoever paces from here finishes at 10,300 feet and needs collecting.' },
   { n:8, where:'Summit Lake', mi:80.8, drive:120, key:1,
-    what:'Last hot food, a fresh light for the finish, poles for the descent.',
+    what:'',
     body:'Two hours of driving, and you must go the long way round — up Rabbit Ears Pass, left on Highway 14 toward Walden, then Buffalo Pass Road from the far side. You may not use Buffalo Pass Road above Dry Lake. There is no phone signal up there. Leave town two and a half hours before you need to arrive.' },
   { n:9, where:'Finish line, ski basin', mi:101.8, drive:120,
-    what:'Warm clothes, a chair, and a beer.',
+    what:'',
     body:'Two hours to get back down from Summit. The finish party runs from 10 am Saturday — free to runners, twenty dollars for everyone else, beer from noon. The clock does not stop until the runner hugs the Designated Hugger.' }
 ];
 
@@ -1185,6 +1188,9 @@ var DRIVES = {
   'Summit Lake': { t:'about 2 hours, 70 miles', d:'Mount Werner Road to Highway 40, turn LEFT toward Rabbit Ears Pass, away from town. About 22 miles to the Highway 14 junction, then left toward Walden. Another 18.5 miles to a sign on the left for Buffalo Pass (CO 24). About 11 miles, then onto CO 24-FR 60, and 18.2 miles up to the aid station.', warn:'No phone signal. Leave two and a half hours early.' },
   'Finish line, ski basin': { t:'2 hours back from Summit Lake', d:'Retrace the Summit Lake route down to Highway 40, back over Rabbit Ears Pass into town, then Mount Werner Road to Gondola Square.' }
 };
+
+DRIVES['Summit Lake, first time'] = DRIVES['Summit Lake'];
+RACE.noMap['Summit Lake, first time'] = RACE.noMap['Summit Lake'];
 
 var PACERS = [
   { n:1, from:44.5, to:63.9, dist:'19.4 miles', secs:[6,7], title:'Dry Lake to Olympian, second pass',
@@ -1203,40 +1209,30 @@ var PACERS = [
 
 var MANDATORY = ['Headlamp, waist lamp or torch — plus a backup in case one fails','Warm jacket','Space blanket or equivalent','Raincoat or equivalent','Gloves'];
 
-/* Gear, matching the Gear Checklist tab of RRR Printables.xlsx. Notes are
-   free text and editable in the app; the lists themselves come from there. */
+/* Gear: a neutral starter list. Each runner renames, removes and adds their own in the app. */
 var GEAR = [
-  { name:'Running gear', items:[
-    ['Altra Lone Peaks',''],['Altra Timps',''],['Mount to Coast H1',''],
-    ['4 pairs of socks',''],['Gloves','mandatory'],['Headlamp x2','mandatory'],
-    ['Flashlight — backup',''],['Space blanket / bivy','mandatory'],
-    ['Salomon rain jacket','mandatory'],['Norrona jacket','warm layer — mandatory'],
-    ['Leggings / tights',''],['Long sleeve T-shirt',''],['Sunglasses',''],
-    ['Poles','for the finish descent'],['Quiver',''],['Running vest',''],
-    ['0.5L bladder (x3)',''],['1L bladder (x1)',''],['Water filter attachment',''],
-    ['Reusable cup',''],['Beanie',''],['Neck gaiter','']
+  { name:'Running kit', items:[
+    ['Trail shoes',''],['Spare shoes',''],['Socks, several pairs',''],['Gloves','mandatory'],
+    ['Headlamp and a backup light','mandatory'],['Spare batteries',''],['Space blanket','mandatory'],
+    ['Rain jacket','mandatory'],['Warm jacket','mandatory'],['Tights or leggings',''],['Long-sleeve layer',''],
+    ['Sunglasses',''],['Poles',''],['Pack or vest',''],['Bottles or bladders',''],['Water filter',''],
+    ['Cup',''],['Hat or beanie',''],['Neck gaiter','']
   ]},
-  { name:'Aid stations / with crew', items:[
-    ['Sunscreen',''],['Chapstick',''],['Tums',''],['Eye drops',''],['Lube',''],
-    ['Large camping chair','for Olympian'],['Massage gun',''],['Portable charger x2',''],
-    ['Watch charger',''],['Salt sticks',''],['Dude wipes',''],['First aid kit',''],
-    ['Blister cushions','']
+  { name:'With the crew', items:[
+    ['Sunscreen',''],['Lip balm',''],['Antacids',''],['Anti-chafe',''],['Camp chair',''],
+    ['Phone and watch chargers',''],['Electrolytes or salt',''],['Wipes',''],['First aid kit',''],['Blister kit','']
   ]},
-  { name:'Night ops', items:[
-    ['Headlamp',''],['Norrona jacket',''],['Leggings / tights',''],['Gloves',''],
-    ['Stance night socks',''],['Altra Timps',''],['Space blanket / bivy',''],
-    ['Beanie',''],['Neck gaiter',''],['Night ops (back up)','into the Summit Lake bag'],
-    ['Flashlight',''],['Oakley jacket',''],['Backup midlayer',''],['Backup gloves','']
+  { name:'Night kit', items:[
+    ['Headlamp',''],['Warm jacket',''],['Tights or leggings',''],['Gloves',''],['Dry socks',''],
+    ['Hat or beanie',''],['Neck gaiter',''],['Spare light',''],['Spare midlayer','']
   ]},
   { name:'Food', items:[
-    ['Beef sticks',''],['Salami',''],['Smuckers',''],['Coca Cola',''],
-    ['Ramen noodles','needs hot water'],['Ritz crackers',''],['Goldfish',''],
-    ['Swedish Fish',''],['Bacon',''],['Homemade sandwich',''],
-    ['Precision Fuel 90g carb gels',''],['Mashed potatoes',''],['Ginger chews','']
+    ['Gels or chews',''],['Drink mix',''],['Something salty',''],['Something sweet',''],
+    ['Real food for crew stops',''],['Cola',''],['Ginger chews','']
   ]}
 ];
 
-/* The race-day plan, leg by leg, from RRR Printables.xlsx.
+/* The race-day fuel plan, leg by leg. Ships empty: the runner fills it in.
    Index n is the leg ARRIVING at STATIONS[n+1].
      aid   what he eats on arriving at that aid station
      seg   what he eats during the leg itself
@@ -1249,28 +1245,28 @@ var GEAR = [
    Everything here is a starting point; all of it is editable in the app and
    the edits ride along in the shared plan so the crew see the same thing. */
 var FUELPLAN = [
-  { aid:'Fruit', seg:'90g Carbs', ac:30, sc:90, caps:4, water:1, caf:150, note:'' },
-  { aid:'Schmucker + Goldfish + Fruit', seg:'90g Carbs', ac:75, sc:90, caps:1, water:1, caf:0, note:'' },
-  { aid:'Fruit', seg:'90g Carbs', ac:30, sc:90, caps:4, water:1, caf:0, note:'' },
-  { aid:'Fruit', seg:'90g Carbs', ac:30, sc:90, caps:3, water:1, caf:0, note:'Back up night ops in the drop bag' },
-  { aid:'Fruit', seg:'Swedish Fish (30g Carbs)', ac:30, sc:30, caps:3, water:0.5, caf:0, note:'' },
-  { aid:'Schmucker + Goldfish + Cookies', seg:'Swedish Fish (60g Carbs)', ac:70, sc:60, caps:1, water:1, caf:0, note:'' },
-  { aid:'Sandwich + Salami + Mashed Potatoes + Cookies', seg:'—', ac:100, sc:0, caps:0, water:1, caf:25, note:'Pacer 1' },
-  { aid:'Fruit', seg:'—', ac:30, sc:0, caps:2, water:0.5, caf:0, note:'Chris pacing' },
-  { aid:'Fruit', seg:'—', ac:30, sc:0, caps:2, water:0.5, caf:0, note:'Chris pacing' },
-  { aid:'Ramen + Mashed Potatoes + Cheese', seg:'Swedish Fish (60g Carbs)', ac:125, sc:60, caps:0, water:1, caf:150, note:'Chris pacing' },
-  { aid:'Fruit + Cookies', seg:'90g Carbs + Swedish Fish (30g Carbs)', ac:60, sc:120, caps:5, water:1.5, caf:150, note:'Chris pacing' },
-  { aid:'Fruit', seg:'90g Carbs + Swedish Fish (30g Carbs)', ac:30, sc:120, caps:6, water:1.5, caf:50, note:'Drop Chris at Dry Lake' },
-  { aid:'Fruit + Cookies', seg:'90g Carbs', ac:60, sc:90, caps:2, water:1, caf:50, note:'' },
-  { aid:'Fruit', seg:'90g Carbs', ac:30, sc:90, caps:5, water:1.5, caf:50, note:'' },
-  { aid:'As much as possible', seg:'Swedish Fish (90g Carbs)', ac:60, sc:90, caps:4, water:1, caf:0, note:'' },
-  { aid:'—', seg:'—', ac:0, sc:0, caps:2, water:0.5, caf:0, note:'' }
+  { aid:'', seg:'', ac:0, sc:0, caps:0, water:0, caf:0, note:'' },
+  { aid:'', seg:'', ac:0, sc:0, caps:0, water:0, caf:0, note:'' },
+  { aid:'', seg:'', ac:0, sc:0, caps:0, water:0, caf:0, note:'' },
+  { aid:'', seg:'', ac:0, sc:0, caps:0, water:0, caf:0, note:'' },
+  { aid:'', seg:'', ac:0, sc:0, caps:0, water:0, caf:0, note:'' },
+  { aid:'', seg:'', ac:0, sc:0, caps:0, water:0, caf:0, note:'' },
+  { aid:'', seg:'', ac:0, sc:0, caps:0, water:0, caf:0, note:'' },
+  { aid:'', seg:'', ac:0, sc:0, caps:0, water:0, caf:0, note:'' },
+  { aid:'', seg:'', ac:0, sc:0, caps:0, water:0, caf:0, note:'' },
+  { aid:'', seg:'', ac:0, sc:0, caps:0, water:0, caf:0, note:'' },
+  { aid:'', seg:'', ac:0, sc:0, caps:0, water:0, caf:0, note:'' },
+  { aid:'', seg:'', ac:0, sc:0, caps:0, water:0, caf:0, note:'' },
+  { aid:'', seg:'', ac:0, sc:0, caps:0, water:0, caf:0, note:'' },
+  { aid:'', seg:'', ac:0, sc:0, caps:0, water:0, caf:0, note:'' },
+  { aid:'', seg:'', ac:0, sc:0, caps:0, water:0, caf:0, note:'' },
+  { aid:'', seg:'', ac:0, sc:0, caps:0, water:0, caf:0, note:'' }
 ];
 
 /* Sodium per salt capsule, from the label. Drives every mg/hr figure. */
 var NA_PER_CAP = 215;
 
-var TOBUY = ['Space blanket','Big camping chair','Rain jacket','Gloves','Socks','Fresh Lone Peaks'];
+var TOBUY = [];
 
 var DROPBAGS = [
   { name:'Summit Lake bag', tag:'Mile 30.1 and 80.8',
@@ -1323,15 +1319,7 @@ var MANUAL_TOC = [
   ['§17 Tracking','Live stream and bib tracking, and a request not to phone asking where your runner is.']
 ];
 
-var QUESTIONS = [
-  'Where can a pacer first join — Dry Lake at 44.5, or Spring Creek Trailhead? The manual contradicts itself.',
-  'Are Long Lake 24.3, Summit 30.1 and Dry Lake 44.5 genuinely uncutoff? The column is blank for all three.',
-  'Is mandatory gear checked at both Olympian passes? Is "warm jacket" specified — insulated, or any long sleeve?',
-  'Will the gondola run Friday morning for crew, and Saturday evening for family to reach the last four miles?',
-  'Will the Summit Lake drop bags be on site by 6 pm Friday?',
-  'What are the buckle thresholds by finish time?',
-  'Can we run power from a car at Olympian to boil water for ramen, or is there a kettle on site?'
-];
+var QUESTIONS = [];      /* the runner's own open questions; none ship with the race */
 
 var EVENTS = [
   { iso:'2026-09-07T23:59', t:'Entries and Tortoise/Hare changes close', d:'Bibs assigned after this. Tortoises get three-digit numbers, 400 to 800.' },
@@ -1340,7 +1328,7 @@ var EVENTS = [
   { iso:'2026-09-17T18:00', t:'Pre-race briefing — Olympian Hall', d:'Held outdoors. Bring a chair or a blanket.' },
   { iso:'2026-09-17T19:00', t:'CHECK-IN CLOSES', d:'There is no race-day check-in. Miss this and you do not start.', key:1 },
   { iso:'2026-09-18T07:00', t:'Early Bird start', d:'Men over 60 and women over 50 only.' },
-  { iso:'2026-09-18T09:00', t:'TORTOISE START', d:RACE.runner.name+' starts here. Thirty-six hours on the clock.', key:1 },
+  { iso:'2026-09-18T09:00', t:'TORTOISE START', d:'Your start. Thirty-six hours on the clock.', key:1 },
   { iso:'2026-09-18T13:00', t:'Hare start', d:'They will begin catching the Tortoises around mile 25 to 35, late afternoon.' },
   { iso:'2026-09-19T10:00', t:'Finish party opens', d:'Free to runners, twenty dollars for everyone else. Beer from noon.' },
   { iso:'2026-09-19T19:00', t:'Hare cutoff', d:'Thirty hours.' },

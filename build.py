@@ -46,7 +46,7 @@ def partial(m):
 page = fill(rd('shell.html'))
 page = re.sub(r'<!--@([\w-]+)-->', partial, page)
 # Modules that live inside the app's closure are spliced in at /*@modules*/; pure ones are prepended.
-MODULES = ['eta.js', 'sky.js', 'now.js', 'know.js', 'demo.js', 'fly.js']
+MODULES = ['eta.js', 'sky.js', 'now.js', 'know.js', 'demo.js', 'fly.js', 'export.js']
 app = rd('app.js')
 assert app.count('/*@modules*/') == 1, 'app.js needs exactly one /*@modules*/ marker'
 app = app.replace('/*@modules*/', '\n'.join(rd(m) for m in MODULES))
@@ -57,7 +57,7 @@ if pm.exists():
     data += '\nRACE.projModel = ' + pm.read_text().strip() + ';\n'
 css = rd('style.css') + '\n' + rd('fonts.css') + '\n' + rd('survey.css')
 assert css.count('{') == css.count('}'), 'unbalanced braces in the stylesheet'
-for marker, text in (('<!--CSS-->', css), ('<!--DATA-->', data), ('<!--APP-->', rd('pacing.js') + '\n' + rd('projection.js') + '\n' + app)):
+for marker, text in (('<!--CSS-->', css), ('<!--DATA-->', data), ('<!--APP-->', rd('pacing.js') + '\n' + rd('projection.js') + '\n' + rd('xlsx.js') + '\n' + app)):
     assert page.count(marker) == 1, marker
     page = page.replace(marker, text)
 assert '{{' not in page.replace('{{runner}}', ''), 'unresolved token left in page'

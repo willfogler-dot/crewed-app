@@ -39,7 +39,7 @@
         d('gear','gear','Gear checklist','Mandatory items plus your own lists',gearDone().join('/'),'g')+
         d('bags','bag','Drop bags','What goes in each',bagDone().join('/'))+
         d('carries','water','Long carries','Where there is no water')+
-        d('qs','ask','Questions for the race directors','Open items the manual does not settle',String(QUESTIONS.length))+
+        (QUESTIONS.length?d('qs','ask','Questions for the race directors','Open items the manual does not settle',String(QUESTIONS.length)):'')+
       '</div></div>' : '')+
       '<div class="grp"><div class="grp-t">'+(runner?'Rules and crew logistics':'Before you drive anywhere')+'</div><div class="list">'+
         d('rules','ban','Rules that end '+(runner?'your':esc(RUNNER)+'’s')+' race','Read once. They are enforced.',String(RULES.length),'r')+
@@ -55,6 +55,7 @@
       '<div class="grp"><div class="grp-t">The team</div><div class="list">'+
         d('team','team',HAS_PACERS?'Crew and pacers':'Crew','Who is who, and their numbers',String(S.people.length||''))+
         d('brief','book','Pre-race crew plan','One printable sheet for everyone')+
+        r('data-kexport="1"','bag','Export the whole plan to Excel','Pacing, stops, fuel, gear and team, ready to print')+
       '</div></div>'+
       '<div class="grp"><div class="grp-t">This app</div><div class="list">'+
         d('how','ask','How this works','Two minutes, for anyone new')+
@@ -64,6 +65,7 @@
     if(el.__h===html) return; el.__h=html; el.innerHTML=html;
     el.querySelectorAll('[data-kdetail]').forEach(function(b){
       b.onclick=function(){ DET_RET='k-know'; openDetail(b.dataset.kdetail); }; });
+    el.querySelectorAll('[data-kexport]').forEach(function(b){ b.onclick=exportXlsx; });
     el.querySelectorAll('[data-kview]').forEach(function(b){
       b.onclick=function(){ pushView(b.dataset.kview); }; });
   }

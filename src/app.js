@@ -1013,9 +1013,9 @@
         '<div style="margin-top:4px">'+MANDATORY.map(function(t,i){
           return '<label class="chk"><input type="checkbox" data-k="mg'+i+'"'+(S.checks['mg'+i]?' checked':'')+'><span>'+t+'</span></label>';
         }).join('')+'</div>')+
-      foldHTML('buy','alert','Still to buy',
+      (TOBUY.length?foldHTML('buy','alert','Still to buy',
         '<span class="pill red num">'+TOBUY.length+'</span>',
-        '<div class="pills">'+TOBUY.map(function(t){return '<span class="pill red">'+esc(t)+'</span>';}).join('')+'</div>')+
+        '<div class="pills">'+TOBUY.map(function(t){return '<span class="pill red">'+esc(t)+'</span>';}).join('')+'</div>'):'')+
       '<div class="grid2">';
     GEAR.forEach(function(g,gi){
       var items=gearItemsFor(gi);
@@ -1203,9 +1203,9 @@
           (RACE.limit-finMins<0?'var(--red)':'var(--text)')+'">'+dur(RACE.limit-finMins)+'</div></div>'+
       '</div>'+
       '<div class="metrics" style="margin-top:8px">'+
-        '<div><div class="k">Carbs</div><div class="v num">'+Math.round(T.carbsHr)+' g/hr</div></div>'+
-        '<div><div class="k">Sodium</div><div class="v num">'+Math.round(T.naHr)+' mg/hr</div></div>'+
-        '<div><div class="k">Water</div><div class="v num">'+num1(T.water)+' L</div></div>'+
+        '<div><div class="k">Carbs</div><div class="v num">'+(T.carbs?Math.round(T.carbsHr)+' g/hr':'\u2014')+'</div></div>'+
+        '<div><div class="k">Sodium</div><div class="v num">'+(T.caps?Math.round(T.naHr)+' mg/hr':'\u2014')+'</div></div>'+
+        '<div><div class="k">Water</div><div class="v num">'+(T.water?num1(T.water)+' L':'\u2014')+'</div></div>'+
       '</div>'+
       (busts?'<div class="callout w" style="margin-top:12px"><b>'+busts+
         (busts===1?' stop is':' stops are')+' past the cutoff.</b> Marked in red below.</div>':'')+
@@ -1271,12 +1271,12 @@
           '<div><span>At the stop</span><b>'+esc(f.aid||'—')+'</b></div>'+
           '<div><span>On the way</span><b>'+esc(f.seg||'—')+'</b></div>'+
         '</div>'+
-        '<div class="planChips fuel">'+
+        (carbs||f.caps||f.water||f.caf ? '<div class="planChips fuel">'+
           '<span>'+carbs+' g carbs'+(hrs>0?' · '+Math.round(carbs/hrs)+'/hr':'')+'</span>'+
           '<span>'+f.caps+' salt cap'+(f.caps===1?'':'s')+'</span>'+
           '<span>'+num1(f.water)+' L</span>'+
           (f.caf?'<span>'+f.caf+' mg caffeine</span>':'')+
-        '</div>';
+        '</div>' : '');
       }
       out+='</div>';
     }
@@ -1499,7 +1499,10 @@
 
   function buildApp(){
     var nc=noteCount();
-    return '<div class="card"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px">'+
+    return '<div class="card"><h3>Export</h3>'+
+      '<p class="sec">The whole plan as one Excel workbook: pacing, crew stops, aid stations and fuel, pacer legs, gear, drop bags and the schedule. Each sheet prints landscape with its header repeated.</p>'+
+      '<button class="btn sm" id="exportX" style="margin-top:12px">Export to Excel</button></div>'+
+      '<div class="card"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px">'+
       '<h3>Shared plan</h3><span class="pill grey" data-sync>\u2014</span></div>'+
       '<p class="sec">The team list, aid station notes and race-day splits are shared with everyone on the plan. Gear ticks and which person this phone is stay on this device.</p>'+
       '<button class="btn tint sm" id="syncNow" style="margin-top:12px">Sync now</button>'+
@@ -1631,6 +1634,7 @@
           if(S.mode==='runner') drawProfile('profile'); }; });
       shEl0().querySelectorAll('[data-proj]').forEach(function(b){
         b.onclick=function(){ S.proj=b.dataset.proj; save(); markDirty(); reproject(); refreshDetail(); }; });
+      var ex=document.getElementById('exportX'); if(ex) ex.onclick=exportXlsx;
       document.getElementById('syncNow').onclick=function(){
         syncNow(true).then(function(){
           var e=document.getElementById('syncErr');
@@ -1848,7 +1852,7 @@
      card at the top of the race screen, and it is driven by the person
      you said you were -- which lives in the shared plan, so the runner can
      change someone's job from his own phone and their screen follows. */
-  var ME_RUNNER='will';
+  var ME_RUNNER='runner';
   function meIsRunner(){ return S.me===ME_RUNNER; }
   function mePerson(){
     if(!S.me||meIsRunner()) return null;
@@ -1972,7 +1976,7 @@
 
   /* Rest and Summit Lake are off by default -- no aid is run at either -- but
      they are hidden, not deleted, so a change of plan is a checkbox. */
-  var STOPS_OFF_DEFAULT = { 3:1, 8:1 };
+  var STOPS_OFF_DEFAULT = {}; CREW.forEach(function(c){ if(c.rest||c.off) STOPS_OFF_DEFAULT[c.n]=1; });   /* from the race file */
   function stopHidden(n){
     return S.stopsOff ? !!S.stopsOff[n] : !!STOPS_OFF_DEFAULT[n];
   }
@@ -4950,7 +4954,7 @@
   if(!BASES[MAPV.base]) MAPV.base='satellite'; S.theme=ls(KEY+'theme')||'light'; S.proj=ls(KEY+'proj')||'smart'; S.gps=ls(KEY+'gps')==='1'; S.atomWho=jget(KEY+'atomwho',{});
   try{ GPS.last=JSON.parse(ls(KEY+'gpslast')||'null'); }catch(e){}
   STATIONS.forEach(function(s,i){ s.__i=i; });
-  S.plan=ls(KEY+'plan')||'goal'; S.me=ls(KEY+'me')||null;
+  S.plan=ls(KEY+'plan')||'goal'; S.me=ls(KEY+'me')||null; if(S.me==='will') S.me='runner';   /* id from before this was a template */
   /* ?crew and ?pacer are still accepted so links already sent keep working.
      They no longer pick an interface -- there is only one. */
   S.mode='runner';

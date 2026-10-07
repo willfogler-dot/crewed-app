@@ -76,3 +76,16 @@ profile that tracks the same mile.
 - Needs a connection and WebGL. Without either, the flat preview carries on unchanged.
 - Camera height is pinned to the course file's elevation (`flyGround`) so a late terrain tile cannot drop
   the camera inside the mountain. This touches two private fields of the pinned engine version.
+
+## Template state
+
+The RRR100 race file ships as a clean template: the runner is "Runner", the fuel plan and crew notes are empty,
+gear is a neutral starter list, and there are no personal questions or shopping lists. Race facts (course,
+stations, rules, drives, drop-bag advice, schedule) stay. Every crew-accessible station is available as a stop;
+ones most crews skip are marked `off:1` in `CREW` and can be switched on in the app.
+
+## Excel export
+
+`src/xlsx.js` is a small dependency-free .xlsx writer (styles, widths, merges, frozen headers, print setup).
+`src/export.js` builds the workbook from the plan on the phone: Overview, Pacing, Crew stops, Aid stations,
+Pacers, Gear, Drop bags, Schedule. Reached from Know and from App and data. Works offline.

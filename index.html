@@ -2034,13 +2034,13 @@ body[data-sky=day] .sky-pin em{color:#fff}
 <!-- CREW -->
 <section id="c-next" class="view"></section>
 <section id="c-stops" class="view">
-  <div class="phead"><h1>Every stop</h1><p class="sec">Nine places, in order. Tap one for directions and what to bring.</p></div>
+  <div class="phead"><h1>Every stop</h1><p class="sec">Ten places, in order. Tap one for directions and what to bring.</p></div>
   <div id="crewStops"></div>
 </section>
 <section id="c-info" class="view">
   <div class="phead"><h1>Good to know</h1><p class="sec">The rules that matter, and who's who.</p></div>
   <div class="card alert">
-    <h3>Three ways to get Alex disqualified</h3>
+    <h3>Three ways to get Runner disqualified</h3>
     <p style="margin-top:8px"><b>1. Never drive to Fish Creek Falls Trailhead.</b> You may walk or bike there — four miles from Olympian Hall — but a car in that lot can end the race.</p>
     <p><b>2. Never drive up Buffalo Pass Road past Dry Lake.</b> Not once, not for a second. Summit Lake is the long way round, about two hours.</p>
     <p><b>3. Never park at Dry Lake.</b> Pull in, let people out, turn round and leave. The sheriff tickets and tows.</p>
@@ -2070,7 +2070,7 @@ body[data-sky=day] .sky-pin em{color:#fff}
   <div id="pacerSections"></div>
 </section>
 <section id="p-info" class="view">
-  <div class="phead"><h1>Pacer rules</h1><p class="sec">Get these wrong and it is Alex's race that ends, not yours.</p></div>
+  <div class="phead"><h1>Pacer rules</h1><p class="sec">Get these wrong and it is Runner's race that ends, not yours.</p></div>
   <div class="card alert"><h3>The hard rules</h3>
     <ul style="margin:10px 0 0;padding-left:19px;line-height:1.5">
       <li style="margin-bottom:7px"><b>One pacer at a time.</b> The only exception is the last four miles from the top of the gondola.</li>
@@ -2210,7 +2210,7 @@ var RACE = {
   manualFile: '2026-RRR-Manual.pdf',
   manualPages: 20,
   /* the default runner on this build; each team can set its own */
-  runner: { name: 'Alex', division: 'Tortoise', bibRange: '400\u2013800' },
+  runner: { name: 'Runner', division: 'Tortoise', bibRange: '400\u2013800' },
   startSpot: 'Gondola Square', finishBy: '9:00 pm Sat',
   startShort: '9:00 am Friday', startLabel: '9:00 am Friday 18 September 2026', limitLabel: '36-hour limit',
   /* timing */
@@ -2236,7 +2236,7 @@ RACE.driveKeys = ['Olympian Hall','Dry Lake','Summit Lake','Fish Creek Falls Tra
 
 /* Copy that belongs to this race. {runner} is not substituted here; use it only where noted. */
 RACE.copy = {
-  footer: 'Cutoffs and rules from the 2026 Runner’s Manual v1.1. Goal splits from your tracker.<br>2025 field data: 68 Tortoises finishing between 28 and 32 hours.',
+  footer: 'Cutoffs and rules from the 2026 Runner’s Manual v1.1. <br>2025 field data: 68 Tortoises finishing between 28 and 32 hours.',
   rulesLine: 'Never drive to Fish Creek Falls · never drive Buffalo Pass Road above Dry Lake · never park at Dry Lake. ',
   cutoffsNote: 'Cutoffs are the times the runner must <i>leave</i> by. Official times from the 2026 Runner’s Manual v1.1.',
   helpSignal: 'Once it has opened on your phone it keeps working on Buffalo Pass. Anything you write syncs by itself when you get signal back.',
@@ -2250,7 +2250,7 @@ RACE.copy = {
   gearIntro: '<p class="sec">New for 2026. Checked on the way <i>out</i> of Olympian Hall, at mile 51.2 and again at 63.9, so you carry all five for the last 50.6 miles.</p>',
   bagsIntro: '<div class="card alert"><p><b>Collected Thursday 3\u20136 pm, before the briefing.</b> Both bags are sealed about fifteen hours before you start, so you cannot adjust them to Friday\u2019s forecast. Pack for the bad version.</p>'+
       '<p style="margin-top:8px">No hard-sided bags, nothing bigger than a shoebox. Bring a bright colour \u2014 you will be hunting for it in a field of identical bags.</p></div>',
-  summitSkipped: '<div class="card"><h3>Why Summit at mile 30 is skipped</h3><p class="sec">The drop bag covers it, and a four-hour round trip at mile 30 wrecks the crew before the stops that matter. Dry Lake has crew but <i>no</i> drop bag, so those two visits are the crew\u2019s highest-value work.</p></div>',
+  summitSkipped: '',
   weatherNotes: '<p class="sec">2011 brought hail, rain, 40 mph winds and snow. 2022 brought snow, wind, fog and mud. 2025 was a blizzard with lightning.</p>'+
       '<div class="callout w"><b>Carry a light from the start.</b> On the 36-hour schedule you reach Summit Lake \u2014 your first drop bag \u2014 at 8:30 pm, more than an hour after dark, and Long Lake at mile 24.3 has neither crew nor a bag. It weighs four ounces.</div>'+
       '<p class="cap">Per the race director: more hundred-mile runners drop from unexpected overnight cold than from any other cause.</p></div>',
@@ -2262,7 +2262,7 @@ RACE.copy = {
       '<p class="cap">Source: RRR100 CalTopo export, track "Run Rabbit Run 100-2024". Confidence: high. Re-check if the 2026 course changes.</p></div>',
   questionsIntro: '<div class="card"><p class="sec" style="margin-bottom:10px">Open questions the manual does not settle. Ask at the Thursday briefing.</p>',
   pacerBlocksIntro: '<p class="sec">A pacer may only join or leave at Dry Lake 44.5, Olympian 51.2, Olympian 63.9, Dry Lake 70.8 or Summit 80.8. Every possible pacer leg is one or more of these in a row \u2014 there is nothing else to work with.</p>'+
-      '<div class="callout w" style="margin-bottom:0"><b>The last block is 21 miles with no swap inside it.</b> Four blocks fall in your 7\u201313 mile range; that one does not, and no arrangement changes it. Family may join for the final four miles from the top of the gondola, so the shortest anyone can cover from Summit is about seventeen miles alone with you.</div></div>',
+      '<div class="callout w" style="margin-bottom:0"><b>The last block is 21 miles with no swap inside it.</b> No arrangement changes that. Family may join for the final four miles from the top of the gondola, so the shortest anyone can cover from Summit is about seventeen miles alone with you.</div></div>',
   lens: {
     crewLegend: '<span><i class="k crew"></i>Crew can reach the runner — 7 places</span><span><i class="k nocrew"></i>No crew</span>',
     crewNote: 'The longest stretch with no crew is Summit Lake to Dry Lake, 14.4 miles. Fish Creek is foot or bike only.',
@@ -3323,31 +3323,34 @@ var ANALYSIS = [
 
 var CREW = [
   { n:1, where:'Start line, ski basin', mi:0, drive:15,
-    what:'Nothing. Say goodbye and take a photo.',
+    what:'',
     body:'Both races start at the base of the ski basin. Head for Mount Werner Road and follow signs to Gondola Square, then walk toward Slopeside. Park in the Gondola Square garage opposite the Sheraton, or free at Upper Knolls a quarter of a mile away. After this you have nine hours off — use them.' },
   { n:2, where:'Fish Creek Falls Trailhead', mi:17.7, opt:1,
-    what:'A bottle and something salty. This stop is optional.',
+    what:'',
     body:'You cannot drive here and a car in that lot risks the race. Park at Olympian Hall and walk or bike the four miles up Fish Creek Falls Road. There is no shuttle. If nobody fancies the ride, skip it — the runner is carrying enough.' },
+  { n:10, where:'Summit Lake, first time', mi:30.1, drive:120, opt:1, off:1,
+    what:'',
+    body:'The highest aid station and the first drop bag. It is a two-hour drive each way and you must go the long way round — Rabbit Ears Pass, then Highway 14 toward Walden. There is no phone signal up there. Many crews skip this one because the drop bag covers it; switch it on if yours is going.' },
   { n:3, where:'Rest, eat, sleep', mi:null, rest:1,
-    what:'A proper meal and a nap.',
+    what:'',
     body:'From about 2 pm until 8 pm you have nothing to do. Do not spend it sitting in a car park. The next eighteen hours are the actual job, and you will be driving mountain roads in the dark on the far side of them.' },
-  { n:4, where:'Dry Lake', mi:44.5, drive:45, pacer:'Pacer 1 joins here',
-    what:'Warm layer, hot drink, real food, the night kit.',
+  { n:4, where:'Dry Lake', mi:44.5, drive:45, pacer:'A pacer can join here',
+    what:'',
     body:'There is no drop bag here, so anything the runner wants, you carry. Pull in, hand things over, put the pacer out, turn round and leave — there is no parking and the sheriff tickets and tows. Do not drive one foot further up Buffalo Pass Road.' },
   { n:5, where:'Olympian Hall', mi:51.2, drive:15, key:1,
-    what:'All five mandatory gear items, spares of everything, dry socks, hot food, the big camping chair.',
+    what:'',
     body:'The biggest stop of the race and the only indoor one. Halfway. Gear is checked on the way OUT — headlamp plus a backup, warm jacket, space blanket, raincoat, gloves — so have spares in hand. Your runner will want to sit down. Allow ten minutes, then get them moving. Plenty of parking out front and by the ball fields.' },
   { n:6, where:'Olympian Hall, second time', mi:63.9, drive:15,
-    what:'Dry socks, coffee, breakfast, a layer for sunrise.',
+    what:'',
     body:'Your runner has just done the Emerald Mountain loop in the dark, which the 2025 data says is the slowest four hours of the whole race. Sunrise is 6:51 am. Gear is checked again on the way out. Same rule: ten minutes, then out the door.' },
   { n:7, where:'Dry Lake, second time', mi:70.8, drive:45, pacer:'Last pacer swap',
-    what:'Full bottles, food for four hours, sunscreen.',
+    what:'',
     body:'Drop and go again. What comes next is the hardest section of the race — ten miles that took the 2025 field an average of four hours. Send more food than seems reasonable. Whoever paces from here finishes at 10,300 feet and needs collecting.' },
   { n:8, where:'Summit Lake', mi:80.8, drive:120, key:1,
-    what:'Last hot food, a fresh light for the finish, poles for the descent.',
+    what:'',
     body:'Two hours of driving, and you must go the long way round — up Rabbit Ears Pass, left on Highway 14 toward Walden, then Buffalo Pass Road from the far side. You may not use Buffalo Pass Road above Dry Lake. There is no phone signal up there. Leave town two and a half hours before you need to arrive.' },
   { n:9, where:'Finish line, ski basin', mi:101.8, drive:120,
-    what:'Warm clothes, a chair, and a beer.',
+    what:'',
     body:'Two hours to get back down from Summit. The finish party runs from 10 am Saturday — free to runners, twenty dollars for everyone else, beer from noon. The clock does not stop until the runner hugs the Designated Hugger.' }
 ];
 
@@ -3361,6 +3364,9 @@ var DRIVES = {
   'Summit Lake': { t:'about 2 hours, 70 miles', d:'Mount Werner Road to Highway 40, turn LEFT toward Rabbit Ears Pass, away from town. About 22 miles to the Highway 14 junction, then left toward Walden. Another 18.5 miles to a sign on the left for Buffalo Pass (CO 24). About 11 miles, then onto CO 24-FR 60, and 18.2 miles up to the aid station.', warn:'No phone signal. Leave two and a half hours early.' },
   'Finish line, ski basin': { t:'2 hours back from Summit Lake', d:'Retrace the Summit Lake route down to Highway 40, back over Rabbit Ears Pass into town, then Mount Werner Road to Gondola Square.' }
 };
+
+DRIVES['Summit Lake, first time'] = DRIVES['Summit Lake'];
+RACE.noMap['Summit Lake, first time'] = RACE.noMap['Summit Lake'];
 
 var PACERS = [
   { n:1, from:44.5, to:63.9, dist:'19.4 miles', secs:[6,7], title:'Dry Lake to Olympian, second pass',
@@ -3379,40 +3385,30 @@ var PACERS = [
 
 var MANDATORY = ['Headlamp, waist lamp or torch — plus a backup in case one fails','Warm jacket','Space blanket or equivalent','Raincoat or equivalent','Gloves'];
 
-/* Gear, matching the Gear Checklist tab of RRR Printables.xlsx. Notes are
-   free text and editable in the app; the lists themselves come from there. */
+/* Gear: a neutral starter list. Each runner renames, removes and adds their own in the app. */
 var GEAR = [
-  { name:'Running gear', items:[
-    ['Altra Lone Peaks',''],['Altra Timps',''],['Mount to Coast H1',''],
-    ['4 pairs of socks',''],['Gloves','mandatory'],['Headlamp x2','mandatory'],
-    ['Flashlight — backup',''],['Space blanket / bivy','mandatory'],
-    ['Salomon rain jacket','mandatory'],['Norrona jacket','warm layer — mandatory'],
-    ['Leggings / tights',''],['Long sleeve T-shirt',''],['Sunglasses',''],
-    ['Poles','for the finish descent'],['Quiver',''],['Running vest',''],
-    ['0.5L bladder (x3)',''],['1L bladder (x1)',''],['Water filter attachment',''],
-    ['Reusable cup',''],['Beanie',''],['Neck gaiter','']
+  { name:'Running kit', items:[
+    ['Trail shoes',''],['Spare shoes',''],['Socks, several pairs',''],['Gloves','mandatory'],
+    ['Headlamp and a backup light','mandatory'],['Spare batteries',''],['Space blanket','mandatory'],
+    ['Rain jacket','mandatory'],['Warm jacket','mandatory'],['Tights or leggings',''],['Long-sleeve layer',''],
+    ['Sunglasses',''],['Poles',''],['Pack or vest',''],['Bottles or bladders',''],['Water filter',''],
+    ['Cup',''],['Hat or beanie',''],['Neck gaiter','']
   ]},
-  { name:'Aid stations / with crew', items:[
-    ['Sunscreen',''],['Chapstick',''],['Tums',''],['Eye drops',''],['Lube',''],
-    ['Large camping chair','for Olympian'],['Massage gun',''],['Portable charger x2',''],
-    ['Watch charger',''],['Salt sticks',''],['Dude wipes',''],['First aid kit',''],
-    ['Blister cushions','']
+  { name:'With the crew', items:[
+    ['Sunscreen',''],['Lip balm',''],['Antacids',''],['Anti-chafe',''],['Camp chair',''],
+    ['Phone and watch chargers',''],['Electrolytes or salt',''],['Wipes',''],['First aid kit',''],['Blister kit','']
   ]},
-  { name:'Night ops', items:[
-    ['Headlamp',''],['Norrona jacket',''],['Leggings / tights',''],['Gloves',''],
-    ['Stance night socks',''],['Altra Timps',''],['Space blanket / bivy',''],
-    ['Beanie',''],['Neck gaiter',''],['Night ops (back up)','into the Summit Lake bag'],
-    ['Flashlight',''],['Oakley jacket',''],['Backup midlayer',''],['Backup gloves','']
+  { name:'Night kit', items:[
+    ['Headlamp',''],['Warm jacket',''],['Tights or leggings',''],['Gloves',''],['Dry socks',''],
+    ['Hat or beanie',''],['Neck gaiter',''],['Spare light',''],['Spare midlayer','']
   ]},
   { name:'Food', items:[
-    ['Beef sticks',''],['Salami',''],['Smuckers',''],['Coca Cola',''],
-    ['Ramen noodles','needs hot water'],['Ritz crackers',''],['Goldfish',''],
-    ['Swedish Fish',''],['Bacon',''],['Homemade sandwich',''],
-    ['Precision Fuel 90g carb gels',''],['Mashed potatoes',''],['Ginger chews','']
+    ['Gels or chews',''],['Drink mix',''],['Something salty',''],['Something sweet',''],
+    ['Real food for crew stops',''],['Cola',''],['Ginger chews','']
   ]}
 ];
 
-/* The race-day plan, leg by leg, from RRR Printables.xlsx.
+/* The race-day fuel plan, leg by leg. Ships empty: the runner fills it in.
    Index n is the leg ARRIVING at STATIONS[n+1].
      aid   what he eats on arriving at that aid station
      seg   what he eats during the leg itself
@@ -3425,28 +3421,28 @@ var GEAR = [
    Everything here is a starting point; all of it is editable in the app and
    the edits ride along in the shared plan so the crew see the same thing. */
 var FUELPLAN = [
-  { aid:'Fruit', seg:'90g Carbs', ac:30, sc:90, caps:4, water:1, caf:150, note:'' },
-  { aid:'Schmucker + Goldfish + Fruit', seg:'90g Carbs', ac:75, sc:90, caps:1, water:1, caf:0, note:'' },
-  { aid:'Fruit', seg:'90g Carbs', ac:30, sc:90, caps:4, water:1, caf:0, note:'' },
-  { aid:'Fruit', seg:'90g Carbs', ac:30, sc:90, caps:3, water:1, caf:0, note:'Back up night ops in the drop bag' },
-  { aid:'Fruit', seg:'Swedish Fish (30g Carbs)', ac:30, sc:30, caps:3, water:0.5, caf:0, note:'' },
-  { aid:'Schmucker + Goldfish + Cookies', seg:'Swedish Fish (60g Carbs)', ac:70, sc:60, caps:1, water:1, caf:0, note:'' },
-  { aid:'Sandwich + Salami + Mashed Potatoes + Cookies', seg:'—', ac:100, sc:0, caps:0, water:1, caf:25, note:'Pacer 1' },
-  { aid:'Fruit', seg:'—', ac:30, sc:0, caps:2, water:0.5, caf:0, note:'Chris pacing' },
-  { aid:'Fruit', seg:'—', ac:30, sc:0, caps:2, water:0.5, caf:0, note:'Chris pacing' },
-  { aid:'Ramen + Mashed Potatoes + Cheese', seg:'Swedish Fish (60g Carbs)', ac:125, sc:60, caps:0, water:1, caf:150, note:'Chris pacing' },
-  { aid:'Fruit + Cookies', seg:'90g Carbs + Swedish Fish (30g Carbs)', ac:60, sc:120, caps:5, water:1.5, caf:150, note:'Chris pacing' },
-  { aid:'Fruit', seg:'90g Carbs + Swedish Fish (30g Carbs)', ac:30, sc:120, caps:6, water:1.5, caf:50, note:'Drop Chris at Dry Lake' },
-  { aid:'Fruit + Cookies', seg:'90g Carbs', ac:60, sc:90, caps:2, water:1, caf:50, note:'' },
-  { aid:'Fruit', seg:'90g Carbs', ac:30, sc:90, caps:5, water:1.5, caf:50, note:'' },
-  { aid:'As much as possible', seg:'Swedish Fish (90g Carbs)', ac:60, sc:90, caps:4, water:1, caf:0, note:'' },
-  { aid:'—', seg:'—', ac:0, sc:0, caps:2, water:0.5, caf:0, note:'' }
+  { aid:'', seg:'', ac:0, sc:0, caps:0, water:0, caf:0, note:'' },
+  { aid:'', seg:'', ac:0, sc:0, caps:0, water:0, caf:0, note:'' },
+  { aid:'', seg:'', ac:0, sc:0, caps:0, water:0, caf:0, note:'' },
+  { aid:'', seg:'', ac:0, sc:0, caps:0, water:0, caf:0, note:'' },
+  { aid:'', seg:'', ac:0, sc:0, caps:0, water:0, caf:0, note:'' },
+  { aid:'', seg:'', ac:0, sc:0, caps:0, water:0, caf:0, note:'' },
+  { aid:'', seg:'', ac:0, sc:0, caps:0, water:0, caf:0, note:'' },
+  { aid:'', seg:'', ac:0, sc:0, caps:0, water:0, caf:0, note:'' },
+  { aid:'', seg:'', ac:0, sc:0, caps:0, water:0, caf:0, note:'' },
+  { aid:'', seg:'', ac:0, sc:0, caps:0, water:0, caf:0, note:'' },
+  { aid:'', seg:'', ac:0, sc:0, caps:0, water:0, caf:0, note:'' },
+  { aid:'', seg:'', ac:0, sc:0, caps:0, water:0, caf:0, note:'' },
+  { aid:'', seg:'', ac:0, sc:0, caps:0, water:0, caf:0, note:'' },
+  { aid:'', seg:'', ac:0, sc:0, caps:0, water:0, caf:0, note:'' },
+  { aid:'', seg:'', ac:0, sc:0, caps:0, water:0, caf:0, note:'' },
+  { aid:'', seg:'', ac:0, sc:0, caps:0, water:0, caf:0, note:'' }
 ];
 
 /* Sodium per salt capsule, from the label. Drives every mg/hr figure. */
 var NA_PER_CAP = 215;
 
-var TOBUY = ['Space blanket','Big camping chair','Rain jacket','Gloves','Socks','Fresh Lone Peaks'];
+var TOBUY = [];
 
 var DROPBAGS = [
   { name:'Summit Lake bag', tag:'Mile 30.1 and 80.8',
@@ -3499,15 +3495,7 @@ var MANUAL_TOC = [
   ['§17 Tracking','Live stream and bib tracking, and a request not to phone asking where your runner is.']
 ];
 
-var QUESTIONS = [
-  'Where can a pacer first join — Dry Lake at 44.5, or Spring Creek Trailhead? The manual contradicts itself.',
-  'Are Long Lake 24.3, Summit 30.1 and Dry Lake 44.5 genuinely uncutoff? The column is blank for all three.',
-  'Is mandatory gear checked at both Olympian passes? Is "warm jacket" specified — insulated, or any long sleeve?',
-  'Will the gondola run Friday morning for crew, and Saturday evening for family to reach the last four miles?',
-  'Will the Summit Lake drop bags be on site by 6 pm Friday?',
-  'What are the buckle thresholds by finish time?',
-  'Can we run power from a car at Olympian to boil water for ramen, or is there a kettle on site?'
-];
+var QUESTIONS = [];      /* the runner's own open questions; none ship with the race */
 
 var EVENTS = [
   { iso:'2026-09-07T23:59', t:'Entries and Tortoise/Hare changes close', d:'Bibs assigned after this. Tortoises get three-digit numbers, 400 to 800.' },
@@ -3516,7 +3504,7 @@ var EVENTS = [
   { iso:'2026-09-17T18:00', t:'Pre-race briefing — Olympian Hall', d:'Held outdoors. Bring a chair or a blanket.' },
   { iso:'2026-09-17T19:00', t:'CHECK-IN CLOSES', d:'There is no race-day check-in. Miss this and you do not start.', key:1 },
   { iso:'2026-09-18T07:00', t:'Early Bird start', d:'Men over 60 and women over 50 only.' },
-  { iso:'2026-09-18T09:00', t:'TORTOISE START', d:RACE.runner.name+' starts here. Thirty-six hours on the clock.', key:1 },
+  { iso:'2026-09-18T09:00', t:'TORTOISE START', d:'Your start. Thirty-six hours on the clock.', key:1 },
   { iso:'2026-09-18T13:00', t:'Hare start', d:'They will begin catching the Tortoises around mile 25 to 35, late afternoon.' },
   { iso:'2026-09-19T10:00', t:'Finish party opens', d:'Free to runners, twenty dollars for everyone else. Beer from noon.' },
   { iso:'2026-09-19T19:00', t:'Hare cutoff', d:'Thirty hours.' },
@@ -3638,6 +3626,105 @@ function project(model, e, target){
   return {lo:base+span*Math.exp(z+mod.q[0]), mid:base+span*Math.exp(z+mod.q[1]), hi:base+span*Math.exp(z+mod.q[2]), from:a};
 }
 if(typeof module!=='undefined') module.exports={project:project,projFeats:projFeats};
+
+// A small .xlsx writer: styled cells, column widths, merged cells, frozen headers and print setup.
+// Pure, no dependencies, works offline. xlsxBuild(sheets, title) -> Uint8Array.
+//   sheet: { name, cols:[width,...], rows:[[cell,...],...], freeze:rowCount, merges:['A1:F1'], heads:rowCount }
+//   cell:  string | number | null | { v, s }   where s is a style name from XLSX_STYLES
+var XLSX_STYLES = ['plain','title','sub','head','cell','bold','num','warn','muted','group','check','big'];
+function xlsxBuild(sheets, title){
+  var enc=new TextEncoder();
+  function x(s){ return String(s==null?'':s).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g,'')
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+  function col(n){ var s=''; n++; while(n>0){ var r=(n-1)%26; s=String.fromCharCode(65+r)+s; n=Math.floor((n-1)/26); } return s; }
+  var INK='FF161D3A', MIST='FFE3E7F3', HAIR='FFD5DAE8', AMBER='FFFFF1CC', GREY='FF666E8C', RED='FFC8322F';
+  function font(sz,b,color){ return '<font>'+(b?'<b/>':'')+'<sz val="'+sz+'"/><color rgb="'+color+'"/><name val="Calibri"/><family val="2"/></font>'; }
+  function fill(c){ return '<fill><patternFill patternType="solid"><fgColor rgb="'+c+'"/><bgColor indexed="64"/></patternFill></fill>'; }
+  var styles='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'+
+    '<fonts count="8">'+font(10,0,INK)+font(18,1,'FFFFFFFF')+font(10,0,'FFDDE2F2')+font(9,1,INK)+font(10,1,INK)+font(10,1,RED)+font(9,0,GREY)+font(13,1,INK)+'</fonts>'+
+    '<fills count="5"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill>'+fill(INK)+fill(MIST)+fill(AMBER)+'</fills>'+
+    '<borders count="3"><border><left/><right/><top/><bottom/><diagonal/></border>'+
+      '<border><left/><right/><top/><bottom style="thin"><color rgb="'+HAIR+'"/></bottom><diagonal/></border>'+
+      '<border><left/><right/><top/><bottom style="medium"><color rgb="'+INK+'"/></bottom><diagonal/></border></borders>'+
+    '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>'+
+    '<cellXfs count="12">'+
+      '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>'+
+      '<xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment vertical="center" indent="1"/></xf>'+
+      '<xf numFmtId="0" fontId="2" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment vertical="center" indent="1"/></xf>'+
+      '<xf numFmtId="0" fontId="3" fillId="3" borderId="2" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment vertical="center" wrapText="1"/></xf>'+
+      '<xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf>'+
+      '<xf numFmtId="0" fontId="4" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf>'+
+      '<xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1" applyAlignment="1"><alignment horizontal="right" vertical="top"/></xf>'+
+      '<xf numFmtId="0" fontId="5" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf>'+
+      '<xf numFmtId="0" fontId="6" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf>'+
+      '<xf numFmtId="0" fontId="4" fillId="4" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment vertical="center"/></xf>'+
+      '<xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyBorder="1" applyAlignment="1"><alignment horizontal="center" vertical="top"/></xf>'+
+      '<xf numFmtId="0" fontId="7" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf>'+
+    '</cellXfs></styleSheet>';
+  function sheetXml(sh){
+    var rows=sh.rows, nc=0, i; rows.forEach(function(r){ nc=Math.max(nc,r.length); });
+    var out='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'+
+      '<sheetPr><pageSetUpPr fitToPage="1"/></sheetPr><dimension ref="A1:'+col(Math.max(0,nc-1))+Math.max(1,rows.length)+'"/>'+
+      '<sheetViews><sheetView workbookViewId="0" showGridLines="0">'+
+      (sh.freeze?'<pane ySplit="'+sh.freeze+'" topLeftCell="A'+(sh.freeze+1)+'" activePane="bottomLeft" state="frozen"/>':'')+'</sheetView></sheetViews>'+
+      '<sheetFormatPr defaultRowHeight="15"/><cols>';
+    for(i=0;i<nc;i++) out+='<col min="'+(i+1)+'" max="'+(i+1)+'" width="'+((sh.cols&&sh.cols[i])||14)+'" customWidth="1"/>';
+    out+='</cols><sheetData>';
+    rows.forEach(function(r,ri){
+      var st0=r[0]&&typeof r[0]==='object'?r[0].s:null, ht=st0==='title'?34:st0==='sub'?20:st0==='head'?24:st0==='group'?20:0;
+      out+='<row r="'+(ri+1)+'"'+(ht?' ht="'+ht+'" customHeight="1"':'')+'>';
+      r.forEach(function(c,ci){
+        if(c==null||c==='') { if(st0==='title'||st0==='sub'||st0==='group'||st0==='head'){ out+='<c r="'+col(ci)+(ri+1)+'" s="'+XLSX_STYLES.indexOf(st0)+'"/>'; } return; }
+        var v=(typeof c==='object')?c.v:c, s=(typeof c==='object'&&c.s)?XLSX_STYLES.indexOf(c.s):4; if(s<0) s=4;
+        var ref=col(ci)+(ri+1);
+        if(typeof v==='number' && isFinite(v)) out+='<c r="'+ref+'" s="'+s+'"><v>'+v+'</v></c>';
+        else out+='<c r="'+ref+'" s="'+s+'" t="inlineStr"><is><t xml:space="preserve">'+x(v)+'</t></is></c>';
+      });
+      out+='</row>';
+    });
+    out+='</sheetData>';
+    if(sh.merges&&sh.merges.length) out+='<mergeCells count="'+sh.merges.length+'">'+sh.merges.map(function(m){ return '<mergeCell ref="'+m+'"/>'; }).join('')+'</mergeCells>';
+    out+='<printOptions horizontalCentered="1"/><pageMargins left="0.4" right="0.4" top="0.5" bottom="0.6" header="0.3" footer="0.3"/>'+
+      '<pageSetup orientation="'+(sh.portrait?'portrait':'landscape')+'" fitToWidth="1" fitToHeight="0"/>'+
+      '<headerFooter><oddFooter>&amp;L&amp;8'+x(title)+' · '+x(sh.name)+'&amp;R&amp;8Page &amp;P of &amp;N</oddFooter></headerFooter></worksheet>';
+    return out;
+  }
+  var files=[];
+  function add(name,str){ files.push({ name:name, data:enc.encode(str) }); }
+  add('[Content_Types].xml','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'+
+    '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/>'+
+    '<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>'+
+    '<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>'+
+    sheets.map(function(_,i){ return '<Override PartName="/xl/worksheets/sheet'+(i+1)+'.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>'; }).join('')+'</Types>');
+  add('_rels/.rels','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+
+    '<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>');
+  add('xl/workbook.xml','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">'+
+    '<sheets>'+sheets.map(function(s,i){ return '<sheet name="'+x(s.name.slice(0,31))+'" sheetId="'+(i+1)+'" r:id="rId'+(i+1)+'"/>'; }).join('')+'</sheets>'+
+    '<definedNames>'+sheets.map(function(s,i){ return s.heads?'<definedName name="_xlnm.Print_Titles" localSheetId="'+i+'">\''+x(s.name.slice(0,31)).replace(/'/g,"''")+'\'!$1:$'+s.heads+'</definedName>':''; }).join('')+'</definedNames></workbook>');
+  add('xl/_rels/workbook.xml.rels','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+
+    sheets.map(function(_,i){ return '<Relationship Id="rId'+(i+1)+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet'+(i+1)+'.xml"/>'; }).join('')+
+    '<Relationship Id="rId'+(sheets.length+1)+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>');
+  add('xl/styles.xml',styles);
+  sheets.forEach(function(s,i){ add('xl/worksheets/sheet'+(i+1)+'.xml', sheetXml(s)); });
+  // zip, stored (no compression): small files, and nothing to go wrong
+  var T=[], n, k; for(n=0;n<256;n++){ var c=n; for(k=0;k<8;k++) c=c&1?0xEDB88320^(c>>>1):c>>>1; T[n]=c>>>0; }
+  function crc(d){ var c=0xFFFFFFFF; for(var i=0;i<d.length;i++) c=T[(c^d[i])&255]^(c>>>8); return (c^0xFFFFFFFF)>>>0; }
+  var parts=[], central=[], off=0;
+  function u16(v){ return [v&255,(v>>>8)&255]; } function u32(v){ return [v&255,(v>>>8)&255,(v>>>16)&255,(v>>>24)&255]; }
+  files.forEach(function(f){
+    var nm=enc.encode(f.name), cr=crc(f.data), sz=f.data.length;
+    var lh=[].concat(u32(0x04034b50),u16(20),u16(0x0800),u16(0),u16(0),u16(0x21),u32(cr),u32(sz),u32(sz),u16(nm.length),u16(0));
+    parts.push(new Uint8Array(lh),nm,f.data);
+    central.push({ h:[].concat(u32(0x02014b50),u16(20),u16(20),u16(0x0800),u16(0),u16(0),u16(0x21),u32(cr),u32(sz),u32(sz),u16(nm.length),u16(0),u16(0),u16(0),u16(0),u32(0),u32(off)), nm:nm });
+    off+=lh.length+nm.length+sz;
+  });
+  var cs=0; central.forEach(function(c){ parts.push(new Uint8Array(c.h),c.nm); cs+=c.h.length+c.nm.length; });
+  parts.push(new Uint8Array([].concat(u32(0x06054b50),u16(0),u16(0),u16(files.length),u16(files.length),u32(cs),u32(off),u16(0))));
+  var total=0; parts.forEach(function(p){ total+=p.length; });
+  var out=new Uint8Array(total), at=0; parts.forEach(function(p){ out.set(p,at); at+=p.length; });
+  return out;
+}
+if(typeof module!=='undefined') module.exports={ xlsxBuild:xlsxBuild };
 
 
 /* ════════════ APP ════════════ */
@@ -4654,9 +4741,9 @@ if(typeof module!=='undefined') module.exports={project:project,projFeats:projFe
         '<div style="margin-top:4px">'+MANDATORY.map(function(t,i){
           return '<label class="chk"><input type="checkbox" data-k="mg'+i+'"'+(S.checks['mg'+i]?' checked':'')+'><span>'+t+'</span></label>';
         }).join('')+'</div>')+
-      foldHTML('buy','alert','Still to buy',
+      (TOBUY.length?foldHTML('buy','alert','Still to buy',
         '<span class="pill red num">'+TOBUY.length+'</span>',
-        '<div class="pills">'+TOBUY.map(function(t){return '<span class="pill red">'+esc(t)+'</span>';}).join('')+'</div>')+
+        '<div class="pills">'+TOBUY.map(function(t){return '<span class="pill red">'+esc(t)+'</span>';}).join('')+'</div>'):'')+
       '<div class="grid2">';
     GEAR.forEach(function(g,gi){
       var items=gearItemsFor(gi);
@@ -4844,9 +4931,9 @@ if(typeof module!=='undefined') module.exports={project:project,projFeats:projFe
           (RACE.limit-finMins<0?'var(--red)':'var(--text)')+'">'+dur(RACE.limit-finMins)+'</div></div>'+
       '</div>'+
       '<div class="metrics" style="margin-top:8px">'+
-        '<div><div class="k">Carbs</div><div class="v num">'+Math.round(T.carbsHr)+' g/hr</div></div>'+
-        '<div><div class="k">Sodium</div><div class="v num">'+Math.round(T.naHr)+' mg/hr</div></div>'+
-        '<div><div class="k">Water</div><div class="v num">'+num1(T.water)+' L</div></div>'+
+        '<div><div class="k">Carbs</div><div class="v num">'+(T.carbs?Math.round(T.carbsHr)+' g/hr':'\u2014')+'</div></div>'+
+        '<div><div class="k">Sodium</div><div class="v num">'+(T.caps?Math.round(T.naHr)+' mg/hr':'\u2014')+'</div></div>'+
+        '<div><div class="k">Water</div><div class="v num">'+(T.water?num1(T.water)+' L':'\u2014')+'</div></div>'+
       '</div>'+
       (busts?'<div class="callout w" style="margin-top:12px"><b>'+busts+
         (busts===1?' stop is':' stops are')+' past the cutoff.</b> Marked in red below.</div>':'')+
@@ -4912,12 +4999,12 @@ if(typeof module!=='undefined') module.exports={project:project,projFeats:projFe
           '<div><span>At the stop</span><b>'+esc(f.aid||'—')+'</b></div>'+
           '<div><span>On the way</span><b>'+esc(f.seg||'—')+'</b></div>'+
         '</div>'+
-        '<div class="planChips fuel">'+
+        (carbs||f.caps||f.water||f.caf ? '<div class="planChips fuel">'+
           '<span>'+carbs+' g carbs'+(hrs>0?' · '+Math.round(carbs/hrs)+'/hr':'')+'</span>'+
           '<span>'+f.caps+' salt cap'+(f.caps===1?'':'s')+'</span>'+
           '<span>'+num1(f.water)+' L</span>'+
           (f.caf?'<span>'+f.caf+' mg caffeine</span>':'')+
-        '</div>';
+        '</div>' : '');
       }
       out+='</div>';
     }
@@ -5140,7 +5227,10 @@ if(typeof module!=='undefined') module.exports={project:project,projFeats:projFe
 
   function buildApp(){
     var nc=noteCount();
-    return '<div class="card"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px">'+
+    return '<div class="card"><h3>Export</h3>'+
+      '<p class="sec">The whole plan as one Excel workbook: pacing, crew stops, aid stations and fuel, pacer legs, gear, drop bags and the schedule. Each sheet prints landscape with its header repeated.</p>'+
+      '<button class="btn sm" id="exportX" style="margin-top:12px">Export to Excel</button></div>'+
+      '<div class="card"><div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:6px">'+
       '<h3>Shared plan</h3><span class="pill grey" data-sync>\u2014</span></div>'+
       '<p class="sec">The team list, aid station notes and race-day splits are shared with everyone on the plan. Gear ticks and which person this phone is stay on this device.</p>'+
       '<button class="btn tint sm" id="syncNow" style="margin-top:12px">Sync now</button>'+
@@ -5272,6 +5362,7 @@ if(typeof module!=='undefined') module.exports={project:project,projFeats:projFe
           if(S.mode==='runner') drawProfile('profile'); }; });
       shEl0().querySelectorAll('[data-proj]').forEach(function(b){
         b.onclick=function(){ S.proj=b.dataset.proj; save(); markDirty(); reproject(); refreshDetail(); }; });
+      var ex=document.getElementById('exportX'); if(ex) ex.onclick=exportXlsx;
       document.getElementById('syncNow').onclick=function(){
         syncNow(true).then(function(){
           var e=document.getElementById('syncErr');
@@ -5489,7 +5580,7 @@ if(typeof module!=='undefined') module.exports={project:project,projFeats:projFe
      card at the top of the race screen, and it is driven by the person
      you said you were -- which lives in the shared plan, so the runner can
      change someone's job from his own phone and their screen follows. */
-  var ME_RUNNER='will';
+  var ME_RUNNER='runner';
   function meIsRunner(){ return S.me===ME_RUNNER; }
   function mePerson(){
     if(!S.me||meIsRunner()) return null;
@@ -5613,7 +5704,7 @@ if(typeof module!=='undefined') module.exports={project:project,projFeats:projFe
 
   /* Rest and Summit Lake are off by default -- no aid is run at either -- but
      they are hidden, not deleted, so a change of plan is a checkbox. */
-  var STOPS_OFF_DEFAULT = { 3:1, 8:1 };
+  var STOPS_OFF_DEFAULT = {}; CREW.forEach(function(c){ if(c.rest||c.off) STOPS_OFF_DEFAULT[c.n]=1; });   /* from the race file */
   function stopHidden(n){
     return S.stopsOff ? !!S.stopsOff[n] : !!STOPS_OFF_DEFAULT[n];
   }
@@ -9091,7 +9182,7 @@ if(typeof module!=='undefined') module.exports={project:project,projFeats:projFe
         d('gear','gear','Gear checklist','Mandatory items plus your own lists',gearDone().join('/'),'g')+
         d('bags','bag','Drop bags','What goes in each',bagDone().join('/'))+
         d('carries','water','Long carries','Where there is no water')+
-        d('qs','ask','Questions for the race directors','Open items the manual does not settle',String(QUESTIONS.length))+
+        (QUESTIONS.length?d('qs','ask','Questions for the race directors','Open items the manual does not settle',String(QUESTIONS.length)):'')+
       '</div></div>' : '')+
       '<div class="grp"><div class="grp-t">'+(runner?'Rules and crew logistics':'Before you drive anywhere')+'</div><div class="list">'+
         d('rules','ban','Rules that end '+(runner?'your':esc(RUNNER)+'’s')+' race','Read once. They are enforced.',String(RULES.length),'r')+
@@ -9107,6 +9198,7 @@ if(typeof module!=='undefined') module.exports={project:project,projFeats:projFe
       '<div class="grp"><div class="grp-t">The team</div><div class="list">'+
         d('team','team',HAS_PACERS?'Crew and pacers':'Crew','Who is who, and their numbers',String(S.people.length||''))+
         d('brief','book','Pre-race crew plan','One printable sheet for everyone')+
+        r('data-kexport="1"','bag','Export the whole plan to Excel','Pacing, stops, fuel, gear and team, ready to print')+
       '</div></div>'+
       '<div class="grp"><div class="grp-t">This app</div><div class="list">'+
         d('how','ask','How this works','Two minutes, for anyone new')+
@@ -9116,6 +9208,7 @@ if(typeof module!=='undefined') module.exports={project:project,projFeats:projFe
     if(el.__h===html) return; el.__h=html; el.innerHTML=html;
     el.querySelectorAll('[data-kdetail]').forEach(function(b){
       b.onclick=function(){ DET_RET='k-know'; openDetail(b.dataset.kdetail); }; });
+    el.querySelectorAll('[data-kexport]').forEach(function(b){ b.onclick=exportXlsx; });
     el.querySelectorAll('[data-kview]').forEach(function(b){
       b.onclick=function(){ pushView(b.dataset.kview); }; });
   }
@@ -9400,6 +9493,119 @@ if(typeof module!=='undefined') module.exports={project:project,projFeats:projFe
     var b3=document.getElementById('fm3d'); if(b3) b3.classList.remove('on');
   }
 
+  /* ════════════ EXPORT ════════════
+     The whole plan as one Excel workbook: a sheet per job, each laid out to
+     print landscape on one page width with its header repeated. Built on the
+     phone from what is on the phone, so it works with no signal and always
+     matches what the app shows. */
+  function exportSheets(){
+    var L=STATIONS.length-1, goals=PLANS.filter(function(p){ return !p.cutoff; }), sel=PLANS.filter(function(p){ return p.k===S.plan; })[0]||PLANS[0];
+    function h(a){ return a.map(function(v){ return { v:v, s:'head' }; }); }
+    function head(title, sub, n){ var t=[{ v:title, s:'title' }], s2=[{ v:sub, s:'sub' }]; for(var i=1;i<n;i++){ t.push(null); s2.push(null); } return [t,s2]; }
+    function yes(v){ return v?'Yes':''; }
+    var who=RUNNER+(S.bib?', bib '+S.bib:''), stamp=RACE.name+' · '+RACE.dates;
+    var sheets=[];
+
+    /* 1. overview */
+    var o=head(RACE.name+' — race plan', who+' · '+RACE.startLabel+' · '+RACE.place, 4);
+    o.push([{ v:'The race', s:'group' },null,null,null]);
+    [['Start',RACE.startLabel],['Time limit',RACE.limitLabel+', finish by '+RACE.finishBy],['Distance',COURSE_MI_TXT+' miles'],['Climb',COURSE_CLIMB_TXT+' ft'],
+     ['Sunrise / sunset',(RACE.sun?RACE.sun.rise+' / '+RACE.sun.set:'')],['Plan in use',sel.name+', finish '+clkDay(planFinish(sel.k))+' ('+dur(planFinish(sel.k))+')']]
+      .forEach(function(r){ o.push([{ v:r[0], s:'bold' }, r[1], null, null]); });
+    o.push([{ v:'Goals', s:'group' },null,null,null]); o.push(h(['Goal','Finish time','Finishes at','Average pace']));
+    PLANS.forEach(function(p){ var m=planFinish(p.k); o.push([{ v:p.name, s:'bold' }, dur(m), clkDay(m), pace(COURSE_MI,m)+' /mi']); });
+    o.push([{ v:'The team', s:'group' },null,null,null]); o.push(h(['Name','Role','Phone','Where']));
+    if(!S.people.length) o.push([{ v:'Nobody added yet', s:'muted' },null,null,null]);
+    sortedPeople().forEach(function(p){ var rl=roleLabel(p).split(' · '); o.push([{ v:p.name, s:'bold' }, rl[0], p.phone||'', rl.slice(1).join(', ')]); });
+    o.push([{ v:'Rules that end the race', s:'group' },null,null,null]);
+    RULES.forEach(function(r){ o.push([{ v:r[0], s:'warn' }, r[1], null, null]); });
+    var om=['A1:D1','A2:D2']; o.forEach(function(r,i){ if(r[0]&&r[0].s==='group') om.push('A'+(i+1)+':D'+(i+1)); if(r[0]&&r[0].s==='warn') om.push('B'+(i+1)+':D'+(i+1)); if(i>2&&i<9) om.push('B'+(i+1)+':D'+(i+1)); });
+    sheets.push({ name:'Overview', cols:[30,26,24,44], rows:o, merges:om, portrait:true });
+
+    /* 2. pacing */
+    var pc=['#','Aid station','Mile','Leg mi','Climb ft'].concat(goals.map(function(g){ return g.name; })).concat(['Elapsed','Leg time','Leg pace','Cutoff','Spare','Crew','Pacer swap','Drop bag']);
+    var p=head('Pacing plan', who+' · clock times for each goal; elapsed, leg and spare are on the '+sel.name, pc.length); p.push(h(pc));
+    STATIONS.forEach(function(s,i){
+      var m=planMins(i), pm=i?planMins(i-1):0, leg=i?s.mi-STATIONS[i-1].mi:0;
+      p.push([{ v:i, s:'muted' }, { v:shortName(s), s:'bold' }, { v:+s.mi.toFixed(1), s:'num' }, i?{ v:+leg.toFixed(1), s:'num' }:'', i?{ v:s.gain||0, s:'num' }:'']
+        .concat(goals.map(function(g){ return i?clk(planMins(i,g.k)):clk(0); }))
+        .concat([i?dur(m):'', i?dur(m-pm):'', (i&&leg>0)?pace(leg,m-pm):'', s.cut!=null?{ v:clkDay(s.cut), s:'warn' }:'', s.cut!=null?dur(s.cut-m):'', yes(s.crew), yes(s.pacer&&HAS_PACERS), yes(s.bag)]));
+    });
+    sheets.push({ name:'Pacing', cols:[4,24,7,7,9].concat(goals.map(function(){ return 11; })).concat([10,9,9,14,9,7,10,9]), rows:p, merges:['A1:'+String.fromCharCode(64+pc.length)+'1','A2:'+String.fromCharCode(64+pc.length)+'2'], freeze:3, heads:3 });
+
+    /* 3. crew stops */
+    var cc=['Stop','Where','Mile','Runner arrives','Drive','Leave by','Who','Bring','Crew note','Runner note','How to get there'];
+    var c=head('Crew stops', who+' · arrival times on the '+sel.name+' · '+(RACE.copy.rulesLine||''), cc.length); c.push(h(cc));
+    visibleCrew().filter(function(x){ return !x.rest; }).forEach(function(x,k){
+      var i=idxOf(x.mi), d=driveFor(x), w=responsibleAt(x).map(function(q){ return q.name; }).join(', ');
+      c.push([{ v:k+1, s:'big' }, { v:x.where+(x.opt?' (optional)':''), s:'bold' }, { v:+x.mi.toFixed(1), s:'num' }, { v:clkDay(crewArrive(x)), s:'bold' }, driveMins(x)?driveShort(x):'', leaveBy(x)||'',
+        w, i>=0?gearList(i).join('\n'):'', i>=0?aidField(i,'crew'):'', i>=0?aidField(i,'runner'):'',
+        NOMAP[x.where]?{ v:'DO NOT USE A MAP APP. '+NOMAP[x.where]+(d.d?'\n'+d.d:''), s:'warn' }:((d.t?d.t+'. ':'')+(d.d||''))]);
+    });
+    sheets.push({ name:'Crew stops', cols:[6,24,7,14,9,14,16,22,26,26,48], rows:c, merges:['A1:K1','A2:K2'], freeze:3, heads:3 });
+
+    /* 4. aid stations */
+    var ac=['Mile','Aid station','Arrive','Cutoff','Crew','Bag','With','At the stop','On the way','Carbs g','Salt caps','Water L','Caffeine mg','Runner note','Crew note'];
+    var a=head('Aid stations', who+' · every check-in, with the fuel plan and both notes', ac.length); a.push(h(ac));
+    STATIONS.forEach(function(s,i){
+      var f=i?fuelFor(i):{ aid:'', seg:'', ac:0, sc:0, caps:0, water:0, caf:0 }, wp=HAS_PACERS?whoIsWith(s.mi):null;
+      a.push([{ v:+s.mi.toFixed(1), s:'num' }, { v:shortName(s), s:'bold' }, clkDay(planMins(i)), s.cut!=null?{ v:clk(s.cut), s:'warn' }:'', yes(s.crew), yes(s.bag), wp?wp.name:'',
+        f.aid, f.seg, (f.ac+f.sc)||'', f.caps||'', f.water||'', f.caf||'', aidField(i,'runner'), aidField(i,'crew')]);
+    });
+    sheets.push({ name:'Aid stations', cols:[7,22,14,10,6,6,12,22,22,8,8,8,10,30,30], rows:a, merges:['A1:O1','A2:O2'], freeze:3, heads:3 });
+
+    /* 5. pacers */
+    if(HAS_PACERS){
+      var lc=['Pacer','From','To','Miles','Climb ft','Starts about','Ends about','Allow','Notes'];
+      var l=head('Pacer legs', who+' · pacers may only join or leave at the swap points', lc.length); l.push(h(lc));
+      pacerLegs().forEach(function(g){ var per=g.who?personById(g.who):null, nv=legNarrative(g);
+        l.push([{ v:per?per.name:'Nobody yet', s:per?'bold':'muted' }, shortName(g.from), shortName(g.to), { v:+g.mi.toFixed(1), s:'num' }, { v:g.gain, s:'num' }, clkDay(T(g.from)), clkDay(T(g.to)), dur(g.mins), nv.get||'']); });
+      sheets.push({ name:'Pacers', cols:[18,20,20,8,9,14,14,10,60], rows:l, merges:['A1:I1','A2:I2'], freeze:3, heads:3 });
+    }
+
+    /* 6. gear */
+    var g2=head('Gear checklist', who+' · tick the box when it is packed', 3); g2.push(h(['Packed','Item','Note']));
+    g2.push([{ v:'Mandatory gear', s:'group' },null,null]);
+    MANDATORY.forEach(function(t,i){ g2.push([{ v:S.checks['mg'+i]?'☑':'☐', s:'check' }, { v:t, s:'bold' }, 'Checked by the race']); });
+    GEAR.forEach(function(gr,gi){ var its=gearItemsFor(gi); if(!its.length) return;
+      g2.push([{ v:gr.name, s:'group' },null,null]);
+      its.forEach(function(it){ g2.push([{ v:S.checks[it.key]?'☑':'☐', s:'check' }, it.name, it.note||'']); }); });
+    var gm=['A1:C1','A2:C2']; g2.forEach(function(r,i){ if(r[0]&&r[0].s==='group') gm.push('A'+(i+1)+':C'+(i+1)); });
+    sheets.push({ name:'Gear', cols:[9,44,40], rows:g2, merges:gm, freeze:3, heads:3, portrait:true });
+
+    /* 7. drop bags */
+    if(DROPBAGS.length){
+      var b=head('Drop bags', who, 3); b.push(h(['Packed','Item','When']));
+      DROPBAGS.forEach(function(bag,bi){
+        b.push([{ v:bag.name+' · '+bag.tag, s:'group' },null,null]);
+        if(bag.warn) b.push([null, { v:bag.warn, s:'muted' }, null]);
+        (bag.lists||[]).forEach(function(li,lk){ li.items.forEach(function(t,ii){ b.push([{ v:S.checks['db'+bi+'_'+lk+'_'+ii]?'☑':'☐', s:'check' }, t, li.h]); }); }); });
+      var bm=['A1:C1','A2:C2']; b.forEach(function(r,i){ if(r[0]&&r[0].s==='group') bm.push('A'+(i+1)+':C'+(i+1)); if(r[0]==null) bm.push('B'+(i+1)+':C'+(i+1)); });
+      sheets.push({ name:'Drop bags', cols:[9,52,32], rows:b, merges:bm, freeze:3, heads:3, portrait:true });
+    }
+
+    /* 8. schedule */
+    var sc=head('Schedule', stamp, 4); sc.push(h(['Day','Time','What','Detail']));
+    allEvents().forEach(function(e){ var ms=tzMs(e.iso); sc.push([fFull.format(new Date(ms)), { v:tOf(ms), s:'bold' }, { v:e.t, s:e.key?'warn':'bold' }, e.d||'']); });
+    sheets.push({ name:'Schedule', cols:[26,11,40,60], rows:sc, merges:['A1:D1','A2:D2'], freeze:3, heads:3 });
+    return sheets;
+  }
+  function exportXlsx(){
+    var bytes, name=(RACE.short||'race')+'-race-plan.xlsx';
+    try{ bytes=xlsxBuild(exportSheets(), RACE.name+' race plan'); }
+    catch(e){ toast('The export could not be built. Nothing was changed.'); return; }
+    var type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', blob=new Blob([bytes],{ type:type });
+    /* a phone hands the file to Files, Mail or AirDrop; a computer just downloads it */
+    try{
+      var file=new File([blob], name, { type:type });
+      if(navigator.canShare && navigator.canShare({ files:[file] }) && /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent)){
+        navigator.share({ files:[file], title:RACE.name+' race plan' }).catch(function(){}); return; }
+    }catch(e){}
+    var url=URL.createObjectURL(blob), a=document.createElement('a'); a.href=url; a.download=name; document.body.appendChild(a); a.click();
+    setTimeout(function(){ URL.revokeObjectURL(url); a.remove(); }, 4000);
+    toast('Saved '+name);
+  }
+
   function render(){
     reproject();
     document.body.classList.toggle('raceday', isRaceDay());
@@ -9497,7 +9703,7 @@ if(typeof module!=='undefined') module.exports={project:project,projFeats:projFe
   if(!BASES[MAPV.base]) MAPV.base='satellite'; S.theme=ls(KEY+'theme')||'light'; S.proj=ls(KEY+'proj')||'smart'; S.gps=ls(KEY+'gps')==='1'; S.atomWho=jget(KEY+'atomwho',{});
   try{ GPS.last=JSON.parse(ls(KEY+'gpslast')||'null'); }catch(e){}
   STATIONS.forEach(function(s,i){ s.__i=i; });
-  S.plan=ls(KEY+'plan')||'goal'; S.me=ls(KEY+'me')||null;
+  S.plan=ls(KEY+'plan')||'goal'; S.me=ls(KEY+'me')||null; if(S.me==='will') S.me='runner';   /* id from before this was a template */
   /* ?crew and ?pacer are still accepted so links already sent keep working.
      They no longer pick an interface -- there is only one. */
   S.mode='runner';
