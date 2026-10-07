@@ -6,6 +6,8 @@
   /* Course facts derived from the race data, never typed in. */
   var RUNNER = RACE.runner.name;       /* default runner for this build */
   var KEY = RACE.key + '.';           /* storage prefix, per race */
+  fillPlans(STATIONS, PLANS, RACE.pacing);
+  var PACELINE = RACE.paceLine || PLANS.map(function(p){ return [p.name, p.k]; });
   var COURSE_MI = STATIONS[STATIONS.length-1].mi;
   var COURSE_CLIMB = STATIONS.reduce(function(t,s){ return t+(s.gain||0); },0);
   var COURSE_MI_TXT = COURSE_MI.toFixed(1);
@@ -104,7 +106,7 @@
   }
   /* The three goals are edited together on one screen, so they reset together
      too. Cutoff is published data and is never touched either way. */
-  var GOALKS=['goal','field','steady'];
+  var GOALKS=PLANS.filter(function(p){return !p.cutoff;}).map(function(p){return p.k;});
   function resetGoals(){
     if(S.paceOv) GOALKS.forEach(function(k){ delete S.paceOv[k]; });
     save(); markDirty(); render();
@@ -4433,7 +4435,7 @@
         : '')+'</div>'+
       legCard(i)+
       '<div class="paceline"><span>If you run…</span>'+
-      '<b>24h</b> '+clk(s.p24)+'<b>32h</b> '+clk(s.steady)+'<b>36h</b> '+clk(s.slow)+'</div>'+
+      PACELINE.map(function(l){ return '<b>'+l[0]+'</b> '+clk(s[l[1]]); }).join('')+'</div>'+
       '<div class="pills" style="margin-bottom:13px">'+who.join('')+'</div>'+
       logButtons(i,'tint')+
       (x.desc?'<p class="sec">'+x.desc+'</p>':'')+

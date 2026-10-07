@@ -21,6 +21,7 @@ var RACE = {
   name: 'Run Rabbit Run 100', short: 'RRR100', place: 'Steamboat Springs',
   dates: '18\u201319 September 2026', monthYear: 'September 2026',
   year: 2026,
+  paceLine: [['24h','p24'],['32h','steady'],['36h','slow']],   /* the "If you run…" row on a stop */
   /* shown on a fresh, unsynced phone so the demo has a team. Real buyers start empty. */
   demoPeople: [
     { id:'d1', name:'Crew 1',  role:'crew',  stops:[1,2,4,5,6,8,9] },
@@ -109,7 +110,7 @@ var PLANS = [
   { k:'goal',   name:'A Goal',  sub:'29:35' },
   { k:'field',  name:'B Goal',  sub:'30:11' },
   { k:'steady', name:'C Goal',  sub:'32:00' },
-  { k:'slow',   name:'Cutoff',  sub:'36:00' }
+  { k:'slow',   name:'Cutoff',  sub:'36:00', cutoff:true }
 ];
 
 /* gain = estimated gross climb for the segment INTO this station (runner's tracker) */

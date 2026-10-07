@@ -45,7 +45,7 @@ def partial(m):
 
 page = fill(rd('shell.html'))
 page = re.sub(r'<!--@([\w-]+)-->', partial, page)
-for marker, text in (('<!--CSS-->', rd('style.css')), ('<!--DATA-->', (RACE_DIR/'race.js').read_text(encoding='utf8')), ('<!--APP-->', rd('app.js'))):
+for marker, text in (('<!--CSS-->', rd('style.css')), ('<!--DATA-->', (RACE_DIR/'race.js').read_text(encoding='utf8')), ('<!--APP-->', rd('pacing.js') + '\n' + rd('app.js'))):
     assert page.count(marker) == 1, marker
     page = page.replace(marker, text)
 assert '{{' not in page.replace('{{runner}}', ''), 'unresolved token left in page'
