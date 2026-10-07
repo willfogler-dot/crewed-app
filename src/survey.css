@@ -52,6 +52,7 @@
   --e0:none; --e1:none; --e2:none; --glow:none; --e3:0 22px 60px -20px rgba(0,0,0,.8);
   --topo-ink:none;
 }
+body[data-sky=day]{--sky-ink:#14204A}
 
 /* ── ground and type ─────────────────────────────────────────────── */
 html{overflow-x:clip}
@@ -85,10 +86,10 @@ body.raceday .nav .dot{background:var(--signal)}
   background:var(--ink);color:var(--on-ink);font-size:10.5px;font-weight:800}
 .nav .back{color:var(--text)}
 /* on the Now tab the header sits in the sky until the page scrolls */
-body.on-now .nav:not(.stuck),body.insky .nav:not(.stuck){background:transparent;-webkit-backdrop-filter:none;backdrop-filter:none;color:var(--sky-ink)}
-body.on-now .nav:not(.stuck) .dot,body.insky .nav:not(.stuck) .dot{background:var(--signal)}
-body.on-now .nav:not(.stuck) .sw,body.insky .nav:not(.stuck) .sw{background:color-mix(in srgb,var(--sky-ink) 16%,transparent);color:var(--sky-ink);box-shadow:none}
-body.on-now .nav:not(.stuck) .sw i,body.insky .nav:not(.stuck) .sw i{background:color-mix(in srgb,var(--sky-ink) 22%,transparent);color:var(--sky-ink)}
+body.on-now .nav:not(.stuck){background:transparent;-webkit-backdrop-filter:none;backdrop-filter:none;color:var(--sky-ink)}
+body.on-now .nav:not(.stuck) .dot{background:var(--signal)}
+body.on-now .nav:not(.stuck) .sw{background:color-mix(in srgb,var(--sky-ink) 16%,transparent);color:var(--sky-ink);box-shadow:none}
+body.on-now .nav:not(.stuck) .sw i{background:color-mix(in srgb,var(--sky-ink) 22%,transparent);color:var(--sky-ink)}
 
 .tabs{background:color-mix(in srgb,var(--card) 92%,transparent);border-top:1px solid var(--hair);border-radius:0;box-shadow:none}
 .tab{color:var(--text-3);padding-top:9px}
@@ -171,70 +172,51 @@ body.on-now .nav:not(.stuck) .sw i,body.insky .nav:not(.stuck) .sw i{background:
 /* ═══════════════════════════════════════════════════════════════════
    THE SKY
    ═══════════════════════════════════════════════════════════════════ */
-.sky{position:relative;overflow:hidden;color:var(--sky-ink);isolation:isolate;
-  --k1:#070B26;--k2:#111848;--k3:#262A68;--k4:#3D3878;--rk:#060919;--r2:#151840;--r3:#2C2A60;--night:1}
-.sky[hidden]{display:none}
-/* colour gathers low, near the ridge, so the words above always sit on a calm part of the sky */
-.sky-bg{position:absolute;inset:0;z-index:0;
-  background:linear-gradient(180deg,var(--k1) 0,var(--k2) calc(100% - 300px),var(--k3) calc(100% - 170px),var(--k4) calc(100% - 70px))}
-.sky.mini .sky-bg{background:linear-gradient(180deg,var(--k1) 0,var(--k2) 38%,var(--k3) 72%,var(--k4) 100%)}
-.sky-stars{position:absolute;inset:0;z-index:0;opacity:var(--night);background:
-  radial-gradient(1.6px 1.6px at 12% 14%,#fff 50%,transparent 51%),radial-gradient(1.2px 1.2px at 27% 38%,#fff 50%,transparent 51%),
-  radial-gradient(1.4px 1.4px at 41% 9%,#fff 50%,transparent 51%),radial-gradient(1px 1px at 58% 26%,#fff 50%,transparent 51%),
-  radial-gradient(1.6px 1.6px at 69% 7%,#fff 50%,transparent 51%),radial-gradient(1.1px 1.1px at 76% 33%,#fff 50%,transparent 51%),
-  radial-gradient(1.3px 1.3px at 93% 18%,#fff 50%,transparent 51%),radial-gradient(1px 1px at 35% 55%,#fff 50%,transparent 51%),
-  radial-gradient(1.2px 1.2px at 71% 50%,#fff 50%,transparent 51%),radial-gradient(1px 1px at 6% 48%,#fff 50%,transparent 51%),
-  radial-gradient(1px 1px at 19% 61%,#fff 50%,transparent 51%),radial-gradient(1.4px 1.4px at 52% 44%,#fff 50%,transparent 51%),
-  radial-gradient(1px 1px at 88% 58%,#fff 50%,transparent 51%),radial-gradient(1.2px 1.2px at 47% 66%,#fff 50%,transparent 51%)}
-.sky-disc{position:absolute;z-index:1;left:var(--x,86%);top:calc((100% - 170px) - var(--s,1) * (100% - 320px) + var(--py,0) * .12px);
-  width:46px;height:46px;margin:-23px 0 0 -23px;border-radius:50%}
-.sky.mini .sky-disc{top:calc((100% - 62px) - var(--s,1) * 62px)}
-.sky.sun .sky-disc{background:#FFF4C7;box-shadow:0 0 0 14px rgba(255,244,199,.20),0 0 0 34px rgba(255,244,199,.09),0 0 70px 26px rgba(255,226,150,.5)}
-.sky.moon .sky-disc{width:30px;height:30px;margin:-15px 0 0 -15px;background:#EEF0FF;opacity:var(--night);
-  box-shadow:inset -7px -3px 0 #C3C9EE,0 0 0 10px rgba(210,216,255,.07),0 0 40px 10px rgba(200,208,255,.30)}
+.sky{position:relative;overflow:hidden;color:var(--sky-ink);isolation:isolate}
+.sky-l{position:absolute;inset:0;opacity:0;transition:opacity 1.4s ease;z-index:0}
+.sky-night .sky-l.night,.sky-dawn .sky-l.dawn,.sky-day .sky-l.day,.sky-dusk .sky-l.dusk{opacity:1}
+/* colour arrives low, near the ridge, so the words above it always sit on a calm part of the sky */
+.sky-l.night{background:
+  radial-gradient(1.6px 1.6px at 12% 18%,#fff 50%,transparent 51%),radial-gradient(1.2px 1.2px at 27% 44%,#fff 50%,transparent 51%),
+  radial-gradient(1.4px 1.4px at 41% 12%,#fff 50%,transparent 51%),radial-gradient(1px 1px at 58% 30%,#fff 50%,transparent 51%),
+  radial-gradient(1.6px 1.6px at 69% 9%,#fff 50%,transparent 51%),radial-gradient(1.1px 1.1px at 83% 38%,#fff 50%,transparent 51%),
+  radial-gradient(1.3px 1.3px at 93% 21%,#fff 50%,transparent 51%),radial-gradient(1px 1px at 35% 63%,#fff 50%,transparent 51%),
+  radial-gradient(1.2px 1.2px at 76% 58%,#fff 50%,transparent 51%),radial-gradient(1px 1px at 6% 55%,#fff 50%,transparent 51%),
+  linear-gradient(180deg,#080C2A 0,#131A4C calc(100% - 210px),#2A2B6A calc(100% - 90px),#40387A 100%)}
+.sky-l.dawn{background:linear-gradient(180deg,#232C6C 0,#46408A calc(100% - 230px),#C2648F calc(100% - 120px),#FFB58A calc(100% - 40px),#FFD9A8 100%)}
+.sky-l.day{background:linear-gradient(180deg,#8FC6F1 0,#B4DAF6 calc(100% - 200px),#DCEEF8 calc(100% - 60px),#EAF4F8 100%)}
+.sky-l.dusk{background:linear-gradient(180deg,#262A6A 0,#553F8C calc(100% - 230px),#D25B7E calc(100% - 115px),#FF9E66 calc(100% - 40px),#FFC98A 100%)}
+.sky-disc{position:absolute;z-index:1;left:var(--x,80%);top:calc((100% - 150px) - var(--s,1) * (100% - 300px));width:46px;height:46px;margin:-23px 0 0 -23px;
+  border-radius:50%;transition:top 1s linear,left 1s linear,background .8s}
+.sky.sun .sky-disc{background:#FFF4C7;box-shadow:0 0 0 14px rgba(255,244,199,.22),0 0 60px 20px rgba(255,236,170,.45)}
+.sky.moon .sky-disc{width:30px;height:30px;margin:-15px 0 0 -15px;background:#E9ECFF;box-shadow:inset -7px -3px 0 #C3C9EE,0 0 34px 6px rgba(200,208,255,.28)}
 .sky-in{position:relative;z-index:3;padding:calc(var(--navh) + 14px) max(18px,calc(50vw - 334px)) 0;min-height:calc(var(--navh) + 190px)}
-.sky.mini .sky-in{display:none}
-.sky-k{margin:0;font-size:14.5px;font-weight:600;opacity:.86}
+.sky-k{margin:0;font-size:14.5px;font-weight:600;opacity:.84}
 .sky-place{font-size:26px;font-weight:700;letter-spacing:-.03em;line-height:1.08;margin:6px 0 0;color:inherit}
 .sky-eta{display:flex;align-items:baseline;gap:6px;margin:4px 0 0 -3px;font-family:var(--font-display)}
 .sky-eta b{font-size:96px;font-weight:800;letter-spacing:-.06em;line-height:.94;font-variant-numeric:tabular-nums}
 .sky-eta i{font-style:normal;font-size:27px;font-weight:700;letter-spacing:-.03em}
 .sky-eta.count b{font-size:80px} .sky-eta.count i{margin-right:10px}
-.sky-sub{font-size:16px;margin:8px 0 0;font-weight:550}
-.sky:not(.light) .sky-in,body:not([data-sky=day]).insky .view.on .phead{text-shadow:0 1px 16px rgba(14,12,52,.45)}
-.sky-sub b{font-weight:750}
-/* the land: two ranges in the haze, then the course itself, dark at the crest and dissolving into the page like valley mist */
-.sky-ridge{position:relative;z-index:2;height:214px;margin-top:-30px}
-.sky.mini .sky-ridge{position:absolute;left:0;right:0;bottom:0;height:132px;margin:0}
+.sky-sub{font-size:16px;margin:8px 0 0;opacity:.9}
+.sky-sub b{font-weight:750;opacity:1}
+/* the ridge: the course profile is the horizon, and the page below is the ground it stands on */
+.sky-ridge{position:relative;z-index:2;height:168px;margin-top:-6px}
 .sky-ridge svg{position:absolute;inset:0;width:100%;height:100%;display:block}
 .sky-ridge svg *{vector-effect:non-scaling-stroke}
-.sky-ridge .r3{fill:var(--r3);transform:translateY(calc(var(--py,0) * .16px))}
-.sky-ridge .r2{fill:var(--r2);transform:translateY(calc(var(--py,0) * .08px))}
+.sky-ridge .far{fill:var(--sky-ink);opacity:.10}
 .sky-ridge .gnd{fill:var(--bg)}
-.sky-ridge .rim{fill:none;stroke:var(--k4);stroke-width:1.5;opacity:.55}
-.sky-ridge .done{fill:none;stroke:#FFC53D;stroke-width:3.5;stroke-linejoin:round;stroke-linecap:round;filter:drop-shadow(0 0 5px rgba(255,197,61,.75))}
-.sky-ridge .band{fill:none;stroke:#FFC53D;stroke-width:13;stroke-linecap:round;opacity:.34}
-.sky-lights i{position:absolute;z-index:2;width:4px;height:4px;margin:-2px 0 0 -2px;border-radius:50%;background:#fff;opacity:.5}
-.sky-lights i.c{width:7px;height:7px;margin:-3.5px 0 0 -3.5px;background:#FFE7A8;opacity:1;
-  box-shadow:0 0 0 2px rgba(255,231,168,.20),0 0 calc(4px + 10px * var(--night)) calc(1px + 3px * var(--night)) rgba(255,215,120,.85)}
-.sky-lights i.p{opacity:.28;box-shadow:none}
-.sky-lights i.c.p{background:#FFC53D;opacity:.9}
-.sky-beam{position:absolute;z-index:2;width:74px;height:40px;margin:-20px 0 0 0;transform-origin:0 50%;opacity:calc(.15 + .75 * var(--night));
-  background:linear-gradient(90deg,rgba(255,233,160,.85),rgba(255,233,160,0));clip-path:polygon(0 46%,100% 0,100% 100%,0 54%);pointer-events:none}
-.sky-lamp{position:absolute;z-index:4;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;background:#FFE08A;border:3px solid #fff;
-  animation:lamp 2.6s ease-in-out infinite}
+.sky-ridge .todo{fill:none;stroke:var(--text);stroke-width:1.5;opacity:.22}
+.sky-ridge .done{fill:none;stroke:var(--signal);stroke-width:3.5;stroke-linejoin:round;stroke-linecap:round}
+.sky-ridge .band{fill:none;stroke:var(--signal);stroke-width:12;stroke-linecap:round;opacity:.38}
+.sky-lamp{position:absolute;z-index:3;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;background:#FFE08A;border:3px solid #fff;
+  box-shadow:0 0 0 0 rgba(255,214,102,.7),0 0 22px 8px rgba(255,204,77,.75);animation:lamp 2.6s ease-in-out infinite;transition:left .5s linear,top .5s linear}
 @keyframes lamp{0%,100%{box-shadow:0 0 0 0 rgba(255,214,102,.55),0 0 22px 8px rgba(255,204,77,.7)}50%{box-shadow:0 0 0 9px rgba(255,214,102,0),0 0 30px 12px rgba(255,204,77,.9)}}
-.sky-pin{position:absolute;z-index:3;width:0;height:0}
-.sky-pin::before{content:"";position:absolute;left:-1px;bottom:0;width:2px;height:30px;background:#fff;border-radius:2px}
-.sky-pin em{position:absolute;bottom:28px;left:-1px;font-style:normal;white-space:nowrap;font-size:12px;font-weight:700;line-height:1;
-  padding:6px 10px;border-radius:999px 999px 999px 2px;background:#fff;color:#161D3A;box-shadow:0 4px 14px -4px rgba(8,12,40,.5)}
+.sky-pin{position:absolute;z-index:2;width:0;height:0}
+.sky-pin::before{content:"";position:absolute;left:-1px;bottom:0;width:2px;height:26px;background:var(--sky-ink);opacity:.9;border-radius:2px}
+.sky-pin em{position:absolute;bottom:24px;left:-1px;font-style:normal;white-space:nowrap;font-size:12px;font-weight:700;line-height:1;
+  padding:5px 9px;border-radius:999px 999px 999px 2px;background:var(--sky-ink);color:#161D3A}
+body[data-sky=day] .sky-pin em{color:#fff}
 .sky-pin.r em{left:auto;right:-1px;border-radius:999px 999px 2px 999px}
-/* the short sky behind every other screen's title */
-#topSky{position:absolute;left:0;right:0;top:0;z-index:0}
-.wrap{position:relative;z-index:1}
-body.insky .view.on .phead{color:var(--sky-ink);padding-bottom:150px}
-body.insky .view.on .phead h1{color:inherit}
-body.insky .view.on .phead .sec{color:inherit;opacity:.88}
 
 /* ═══════════════════════════════════════════════════════════════════
    NOW, below the ridge
@@ -244,7 +226,7 @@ body.insky .view.on .phead .sec{color:inherit;opacity:.88}
 #nowSky{margin:calc(-74px - var(--navh)) calc(50% - 50vw) 0}
 #nowSky .sky-in{padding-top:calc(var(--navh) + 74px)}
 #nowBody>section{margin-bottom:14px}
-.nw-where{font-size:14.5px;line-height:1.45;color:var(--text-2);margin:0 2px 14px}
+.nw-where{font-size:14.5px;line-height:1.45;color:var(--text-2);margin:2px 2px 14px}
 .nw-h{font-size:17px;font-weight:700;letter-spacing:-.02em;margin:22px 4px 9px}
 
 .nw-win,.nw-seen,.nw-list{background:var(--card);border-radius:var(--r-lg);box-shadow:var(--e1)}
@@ -338,8 +320,7 @@ body.insky .view.on .phead .sec{color:inherit;opacity:.88}
 .gate.on{display:block}
 #gateSky{position:absolute;left:0;right:0;top:0;height:372px}
 #gateSky .sky-in{display:none}
-#gateSky .sky-ridge{position:absolute;left:0;right:0;bottom:0;margin:0;height:190px}
-#gateSky .sky-disc{top:calc((100% - 150px) - var(--s,1) * (100% - 250px))}
+#gateSky .sky-ridge{position:absolute;left:0;right:0;bottom:0;margin:0;height:150px}
 .gate-in{position:relative;z-index:2;max-width:520px;margin:0 auto;padding:calc(34px + var(--st)) 20px 40px}
 .gate .mark{display:none}
 .gate h1{text-align:left;font-size:42px;line-height:.98;color:var(--sky-ink)}
@@ -355,8 +336,7 @@ body.insky .view.on .phead .sec{color:inherit;opacity:.88}
 
 @media (min-width:640px){
   .sky-eta b{font-size:120px}
-  .sky-ridge{height:270px}
-  .sky.mini .sky-ridge{height:170px}
+  .sky-ridge{height:210px}
 }
-@media (prefers-reduced-motion:reduce){ .sky-lamp,.nw-dot{animation:none} }
+@media (prefers-reduced-motion:reduce){ .sky-lamp,.nw-dot{animation:none} .sky-l,.sky-disc{transition:none} }
 @media print{ #demoBar,.toast,.sky{display:none!important} }
