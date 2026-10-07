@@ -21,9 +21,9 @@ WORDS = ['Zero','One','Two','Three','Four','Five','Six','Seven','Eight','Nine','
 def race_meta(race_file):
     """Evaluate the race file with node; return RACE plus a few counts derived from the data."""
     js = ("const vm=require('vm'),fs=require('fs');const c={};vm.createContext(c);"
-          "vm.runInContext(fs.readFileSync(process.argv[1],'utf8')+';this.__r={race:RACE,stations:STATIONS.length,stops:CREW.length};',c);"
+          "vm.runInContext(fs.readFileSync(process.argv[1],'utf8')+';'+fs.readFileSync(process.argv[2],'utf8')+';this.__r={race:RACE,stations:STATIONS.length,stops:CREW.length};',c);"
           "console.log(JSON.stringify(c.__r))")
-    m = json.loads(subprocess.check_output(['node', '-e', js, str(race_file)]))
+    m = json.loads(subprocess.check_output(['node', '-e', js, str(race_file), str(R/'src'/'race-defaults.js')]))
     meta = dict(m['race'])
     meta['counts'] = {'stops': WORDS[m['stops']], 'checkins': WORDS[m['stations']]}
     return meta
@@ -40,8 +40,7 @@ def fill(text, extra=None):
     return re.sub(r'\{\{([\w.]+)\}\}', sub, text)
 def partial(m):
     f = RACE_DIR/'partials'/('%s.html' % m.group(1))
-    assert f.exists(), 'race "%s" is missing partial %s' % (RACE, f.name)
-    return fill(f.read_text(encoding='utf8'))
+    return fill(f.read_text(encoding='utf8')) if f.exists() else ''      # partials are optional race prose
 
 page = fill(rd('shell.html'))
 page = re.sub(r'<!--@([\w-]+)-->', partial, page)
@@ -50,7 +49,7 @@ MODULES = ['eta.js', 'sky.js', 'now.js', 'know.js', 'demo.js', 'fly.js', 'export
 app = rd('app.js')
 assert app.count('/*@modules*/') == 1, 'app.js needs exactly one /*@modules*/ marker'
 app = app.replace('/*@modules*/', '\n'.join(rd(m) for m in MODULES))
-data = (RACE_DIR/'race.js').read_text(encoding='utf8')
+data = (RACE_DIR/'race.js').read_text(encoding='utf8') + '\n' + rd('race-defaults.js')
 pm = RACE_DIR/'projection-model.json'            # optional: fitted by tools/projection/fit_model.py
 if pm.exists():
     json.loads(pm.read_text())
@@ -69,7 +68,7 @@ h = hashlib.sha1(page.encode('utf8')).hexdigest()[:8]
 manifest = fill(rd('manifest.template.json'))
 json.loads(manifest)                                  # must stay valid JSON
 (OUT/'manifest.webmanifest').write_text(manifest, encoding='utf8', newline='')
-for f in (RACE_DIR/'icons').glob('*.png'):
+for f in list((R/'src'/'icons').glob('*.png')) + list((RACE_DIR/'icons').glob('*.png')):     # shared icons, then the race's own
     shutil.copy(f, OUT/f.name)
 shutil.copy(R/'vendor'/'maplibre-gl.js', OUT/'maplibre-gl.js')      # 3D preview engine, fetched only when 3D is opened
 print('built %s -> %s  (%d chars, cache %s-shell-%s)' % (RACE, OUT/'index.html', len(page), META['key'], h))

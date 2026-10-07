@@ -651,7 +651,7 @@
       hero.innerHTML='<div class="hero"><div class="eyebrow">Until the gun</div>'+
         '<div class="display num'+(d>0?' sm':'')+'">'+(d>0?d+' days '+h+'h '+mm+'m':
           String(h).padStart(2,'0')+':'+String(mm).padStart(2,'0')+':'+String(s%60).padStart(2,'0'))+'</div>'+
-        '<div class="under">9:00 am Friday 18 September · 36 hours on the clock</div>'+
+        '<div class="under">'+esc(RACE.startLabel)+' · '+esc(RACE.limitLabel)+'</div>'+
         '<div class="stats"><div><div class="k">Distance</div><div class="v num">'+COURSE_MI_TXT+' mi</div></div>'+
         '<div><div class="k">Climb</div><div class="v num">'+COURSE_CLIMB_TXT+' ft</div></div>'+
         '<div><div class="k">'+planName+'</div><div class="v num">'+dur(fin)+'</div></div></div></div>';
@@ -745,8 +745,10 @@
       h+='<tr'+(a.hi?' style="background:var(--gold-tint)"':'')+'><td>'+a.seg+'</td><td>'+a.mi.toFixed(1)+'</td>'+
         '<td><b>'+hm(a.avg)+'</b></td><td>'+(a.fast?hm(a.fast):'—')+'</td><td>'+(a.slow?hm(a.slow):'—')+'</td><td>'+a.pace+'</td></tr>';
     });
-    document.getElementById('anTable').innerHTML=h+'</tbody>';
-    document.getElementById('anNotes').innerHTML=RACE.copy.fieldNotes;
+    /* past-results analysis is optional race content; a race without it has no table to fill */
+    var anT=document.getElementById('anTable'), anN=document.getElementById('anNotes');
+    if(anT) anT.innerHTML=h+'</tbody>';
+    if(anN) anN.innerHTML=RACE.copy.fieldNotes;
   }
   /* ── team helpers ── */
   function peopleFor(r){
@@ -878,8 +880,8 @@
 
       '<div class="grp"><div class="grp-t">Race kit</div><div class="list">'+
       row('pace','clock','g','Race day planner','Splits, fuel and who is with you',dur(planFinish()))+
-      row('gear','gear','g','Gear checklist','Mandatory five plus your own lists',g[0]+'/'+g[1])+
-      row('bags','bag','','Drop bags','Two bags, four visits',bg[0]+'/'+bg[1])+
+      row('gear','gear','g','Gear checklist','Mandatory items plus your own lists',g[0]+'/'+g[1])+
+      row('bags','bag','','Drop bags','What goes in each',bg[0]+'/'+bg[1])+
       row('carries','water','','Long carries','Where there is no water')+
       '</div></div>'+
 
@@ -894,10 +896,10 @@
       '<div class="grp"><div class="grp-t">Reference</div><div class="list">'+
       row('weather','cloud','','Weather and light','Sunrise, sunset, what to expect')+
       row('elev','peak','','Distance and climb','Measured from the course file')+
-      row('rules','ban','r','Rules that end your race','Nine of them',String(RULES.length))+
-      row('qs','ask','','Ask the RDs on Thursday','Seven open questions',String(QUESTIONS.length))+
-      row('manual','book','','The manual','What is in the 20 pages')+
-      row('how','ask','g','How this works','Seven things, for anyone new to the app')+
+      row('rules','ban','r','Rules that end your race','Read once',String(RULES.length))+
+      row('qs','ask','','Questions for the race directors','Your open items',String(QUESTIONS.length))+
+      row('manual','book','','The manual','What is in it')+
+      row('how','ask','g','How this works','For anyone new to the app')+
       '</div></div>'+
 
       '<div class="grp"><div class="grp-t">App</div><div class="list">'+
@@ -1031,7 +1033,7 @@
   function openGearAdd(gi){
     sheet('Add item',
       '<div class="fld"><label>Item</label><input id="giName" placeholder="e.g. Extra buff"></div>'+
-      '<div class="fld"><label>Note <span style="font-weight:400;color:var(--text-3)">optional</span></label><input id="giNote" placeholder="e.g. buy before Thursday"></div>'+
+      '<div class="fld"><label>Note <span style="font-weight:400;color:var(--text-3)">optional</span></label><input id="giNote" placeholder="e.g. still to buy"></div>'+
       '<button class="btn" id="giSave">Add</button>');
     document.getElementById('giName').focus();
     document.getElementById('giSave').onclick=function(){
@@ -1418,19 +1420,20 @@
     RACE.copy.summitSkipped;
   }
   function buildWeather(){
-    return '<div class="card"><p class="sec">The 18 September average in town is a high of 71\u00b0F and a low of 42\u00b0F. It is much colder up high \u2014 expect below freezing at 10,300 feet overnight.</p>'+
+    return '<div class="card">'+(RACE.copy.weatherIntro?'<p class="sec">'+RACE.copy.weatherIntro+'</p>':'')+
       '<div class="metrics"><div><div class="k">Sunrise</div><div class="v num">'+RACE.sun.rise+'</div></div>'+
       '<div><div class="k">Sunset</div><div class="v num">'+RACE.sun.set+'</div></div>'+
       '<div><div class="k">Dark by</div><div class="v num">'+RACE.sun.dark+'</div></div></div>'+
-      RACE.copy.weatherNotes;
+      (RACE.copy.weatherNotes||'</div>');
   }
   function buildElev(){
-    return '<div class="card"><h3>Measured from the course GPX</h3>'+
-      '<p class="sec">Every distance, elevation and climb figure in this app now comes from the official CalTopo course file \u2014 90,692 track points, snapped to the nine aid station waypoints to within ten metres.</p>'+
-      '<div class="metrics"><div><div class="k">Distance</div><div class="v num">101.2 mi</div></div>'+
-      '<div><div class="k">Ascent</div><div class="v num">17,850 ft</div></div>'+
-      '<div><div class="k">Descent</div><div class="v num">17,825 ft</div></div></div>'+
-      RACE.copy.elevNotes;
+    var M=RACE.measured||{};
+    return '<div class="card"><h3>Measured from the course file</h3>'+
+      (RACE.copy.elevIntro?'<p class="sec">'+RACE.copy.elevIntro+'</p>':'')+
+      '<div class="metrics"><div><div class="k">Distance</div><div class="v num">'+(M.mi?M.mi+' mi':COURSE_MI_TXT+' mi')+'</div></div>'+
+      '<div><div class="k">Ascent</div><div class="v num">'+(M.up?M.up.toLocaleString('en-US'):COURSE_CLIMB_TXT)+' ft</div></div>'+
+      '<div><div class="k">Descent</div><div class="v num">'+(M.down?M.down.toLocaleString('en-US')+' ft':'\u2014')+'</div></div></div>'+
+      (RACE.copy.elevNotes||'</div>');
   }
   function buildRules(){
     return '<div class="list">'+RULES.map(function(r){
@@ -1454,7 +1457,7 @@
   function buildPacers(){
     var A=atoms(), legs=pacerLegs(), pp=peopleFor('pacer');
     var night=isNight;
-    var out='<div class="card gold"><h3>The five legal blocks</h3>'+
+    var out='<div class="card gold"><h3>The '+NUMW[Math.max(SWAPS.length-1,0)]+' legal blocks</h3>'+
       RACE.copy.pacerBlocksIntro;
 
     out+='<div class="shead"><h2>Assign the blocks</h2><span class="note">'+A.length+' blocks</span></div>';
@@ -1509,7 +1512,7 @@
       '<p class="cap" id="syncErr" style="margin-top:9px"></p></div>'+
 
       '<div class="card"><h3>Race number</h3>'+
-      '<p class="sec">Bibs are assigned after entries close on 7 September. Once this is set, the app can read your checkpoint times from the official timing feed \u2014 arrivals only, since mats cannot record a departure.</p>'+
+      '<p class="sec">'+(RACE.copy.bibNote?RACE.copy.bibNote+' ':'')+'Once this is set, the app can read your checkpoint times from the official timing feed where the race has one \u2014 arrivals only, since mats cannot record a departure.</p>'+
       '<div class="fld" style="margin-bottom:10px"><label>Bib</label>'+
       '<input id="bibIn" inputmode="numeric" value="'+esc(S.bib||'')+'" placeholder="e.g. 512"></div>'+
       '<div class="btn-row" style="margin-bottom:0"><button class="btn tint sm" id="bibSave">Save bib</button>'+
@@ -1795,7 +1798,7 @@
         (c.mi!=null&&whoIsWith(c.mi+0.01)?' '+esc(whoIsWith(c.mi+0.01).name)+' starts from here.':'')+'</div>':'')+'</div>'+
       (dr.d?'<div class="card"><h3>How to get there</h3>'+(dr.t?'<p class="cap" style="margin:-4px 0 8px">'+dr.t+'</p>':'')+
         '<p class="sec">'+dr.d+'</p>'+(dr.warn?'<div class="callout w" style="margin-bottom:0"><b>'+dr.warn+'</b></div>':'')+'</div>':'')+
-      '<button class="btn tint" id="seeAll">See all nine stops</button>';
+      '<button class="btn tint" id="seeAll">See every stop</button>';
     bindLog();
     var sa=document.getElementById('seeAll');
     if(sa) sa.onclick=function(){ document.querySelector('.tab[data-v="c-stops"]').click(); };
@@ -2356,7 +2359,7 @@
     el.innerHTML =
       pick(ME_RUNNER,RUNNER,'Running it','<svg viewBox="0 0 24 24"><path d="M3 17l5-7 4 4 4-8 5 11"/></svg>') +
       (team || '<p class="cap" style="margin:10px 2px">The team list has not reached this phone yet. '+
-               (SUPA&&SUPA.url?'It arrives with the first sync — give it a moment, or ask '+RUNNER+' to re-share the link.':'Add your crew and pacers in Profile.')+'</p>');
+               (SUPA&&SUPA.url?'It arrives with the first sync — give it a moment, or ask '+RUNNER+' to re-share the link.':'Pick Runner to set up the team, then everyone else opens the same link.')+'</p>');
     el.querySelectorAll('[data-me]').forEach(function(b){
       b.onclick=function(){ setMe(b.dataset.me); };
     });
@@ -2598,7 +2601,7 @@
   function openSection(s){
     var pc = s.ec==='gold'?'gold':s.ec==='brick'?'red':'';
     sheet(s.title,
-      '<div class="cap" style="margin:-8px 0 10px">Section '+s.n+' of 12 · '+s.sub+'</div>'+
+      '<div class="cap" style="margin:-8px 0 10px">Section '+s.n+' of '+SECTIONS.length+' · '+s.sub+'</div>'+
       '<div class="pills" style="margin-bottom:13px"><span class="pill '+pc+'">'+s.effort+'</span>'+
       '<span class="pill grey">'+(s.to-s.from).toFixed(1)+' miles</span>'+
       (s.gain?'<span class="pill grey">'+s.gain.toLocaleString()+' ft up</span>':'')+
@@ -4258,7 +4261,7 @@
   function editSec(n){
     var s=SECTIONS.filter(function(x){ return x.n===n; })[0];
     sheet('Notes \u00b7 '+(s?s.title:'Section '+n),
-      (s?'<div class="cap" style="margin:-8px 0 12px">Section '+n+' of 12 \u00b7 '+
+      (s?'<div class="cap" style="margin:-8px 0 12px">Section '+n+' of '+SECTIONS.length+' \u00b7 '+
         s.from.toFixed(1)+'\u2013'+s.to.toFixed(1)+' mi</div>':'')+
       noteFieldsHTML('sec',n)+
       '<button class="btn" id="aSave">Save</button>'+
@@ -4492,7 +4495,7 @@
         : '')+
       noteUnitHTML('aid', i, 'Edit notes and who is crewing')+
       (s.crew?'<div class="callout g"><b>Crew.</b> '+(s.crew===2?'On foot or by bicycle only — a vehicle here risks disqualification.'
-        :s.crew===3?'Drop off and leave. There is no parking and the sheriff tickets and tows.'
+        :s.crew===3?RACE.copy.dropOnly
         :'Vehicles and parking are fine here.')+'</div>':'')+
       aidMapBtn(i));
     drawLegMap(i);
@@ -4954,7 +4957,7 @@
   if(!BASES[MAPV.base]) MAPV.base='satellite'; S.theme=ls(KEY+'theme')||'light'; S.proj=ls(KEY+'proj')||'smart'; S.gps=ls(KEY+'gps')==='1'; S.atomWho=jget(KEY+'atomwho',{});
   try{ GPS.last=JSON.parse(ls(KEY+'gpslast')||'null'); }catch(e){}
   STATIONS.forEach(function(s,i){ s.__i=i; });
-  S.plan=ls(KEY+'plan')||'goal'; S.me=ls(KEY+'me')||null; if(S.me==='will') S.me='runner';   /* id from before this was a template */
+  S.plan=ls(KEY+'plan')||PLANS[0].k; if(!PLANS.some(function(p){ return p.k===S.plan; })) S.plan=PLANS[0].k; S.me=ls(KEY+'me')||null; if(S.me==='will') S.me='runner';   /* id from before this was a template */
   /* ?crew and ?pacer are still accepted so links already sent keep working.
      They no longer pick an interface -- there is only one. */
   S.mode='runner';

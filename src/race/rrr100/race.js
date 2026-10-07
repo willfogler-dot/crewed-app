@@ -38,6 +38,7 @@ var RACE = {
   startSpot: 'Gondola Square', finishBy: '9:00 pm Sat',
   startShort: '9:00 am Friday', startLabel: '9:00 am Friday 18 September 2026', limitLabel: '36-hour limit',
   /* timing */
+  measured: { mi:101.2, up:17850, down:17825 },     /* from the course file; shown beside the manual's figures */
   startISO:'2026-09-18T09:00:00-06:00', tz:'America/Denver', dark:[[640,1285],[2078,2400]], limit:2160
 };
 
@@ -60,6 +61,10 @@ RACE.driveKeys = ['Olympian Hall','Dry Lake','Summit Lake','Fish Creek Falls Tra
 
 /* Copy that belongs to this race. {runner} is not substituted here; use it only where noted. */
 RACE.copy = {
+  weatherIntro: 'The 18 September average in town is a high of 71\u00b0F and a low of 42\u00b0F. It is much colder up high \u2014 expect below freezing at 10,300 feet overnight.',
+  elevIntro: 'Every distance, elevation and climb figure in this app comes from the official CalTopo course file \u2014 90,692 track points, snapped to the nine aid station waypoints to within ten metres.',
+  bibNote: 'Bibs are assigned after entries close on 7 September.',
+  dropOnly: 'Drop off and leave. There is no parking and the sheriff tickets and tows.',
   footer: 'Cutoffs and rules from the 2026 Runner’s Manual v1.1. <br>2025 field data: 68 Tortoises finishing between 28 and 32 hours.',
   rulesLine: 'Never drive to Fish Creek Falls · never drive Buffalo Pass Road above Dry Lake · never park at Dry Lake. ',
   cutoffsNote: 'Cutoffs are the times the runner must <i>leave</i> by. Official times from the 2026 Runner’s Manual v1.1.',

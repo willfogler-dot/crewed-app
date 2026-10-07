@@ -89,3 +89,14 @@ ones most crews skip are marked `off:1` in `CREW` and can be switched on in the 
 `src/xlsx.js` is a small dependency-free .xlsx writer (styles, widths, merges, frozen headers, print setup).
 `src/export.js` builds the workbook from the plan on the phone: Overview, Pacing, Crew stops, Aid stations,
 Pacers, Gear, Drop bags, Schedule. Reached from Know and from App and data. Works offline.
+
+## Adding a race
+
+1. Copy `src/race/_template/` to `src/race/<name>/`.
+2. Run `tools/gpx_import.py` on the race's GPX for `STATIONS` geometry, `PROFILE` and `ROUTE`.
+3. Fill in the facts from the manual. The contract is `docs/RACE-FILE.md`.
+4. `python3 tools/check_race.py <name>` until it reports 0 errors.
+5. `python3 build.py --race <name> --out-dir <folder>`.
+
+`src/race-defaults.js` fills in everything a race file leaves out. `example/` is the template race, built,
+to prove the app runs on the minimum.

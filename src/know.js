@@ -37,8 +37,8 @@
       (runner ? '<div class="grp"><div class="grp-t">Your race kit</div><div class="list">'+
         d('pace','clock','Race day planner','Splits, fuel and who is with you',dur(planFinish()),'g')+
         d('gear','gear','Gear checklist','Mandatory items plus your own lists',gearDone().join('/'),'g')+
-        d('bags','bag','Drop bags','What goes in each',bagDone().join('/'))+
-        d('carries','water','Long carries','Where there is no water')+
+        (DROPBAGS.length?d('bags','bag','Drop bags','What goes in each',bagDone().join('/')):'')+
+        (CARRIES.length?d('carries','water','Long carries','Where there is no water'):'')+
         (QUESTIONS.length?d('qs','ask','Questions for the race directors','Open items the manual does not settle',String(QUESTIONS.length)):'')+
       '</div></div>' : '')+
       '<div class="grp"><div class="grp-t">'+(runner?'Rules and crew logistics':'Before you drive anywhere')+'</div><div class="list">'+
@@ -59,7 +59,7 @@
       '</div></div>'+
       '<div class="grp"><div class="grp-t">This app</div><div class="list">'+
         d('how','ask','How this works','Two minutes, for anyone new')+
-        d('manual','book','The race manual','Saved on this phone for no signal')+
+        (RACE.manualFile?d('manual','book','The race manual','Saved on this phone for no signal'):'')+
         d('app','cog','App and data','Sync, appearance, offline')+
       '</div></div>';
     if(el.__h===html) return; el.__h=html; el.innerHTML=html;
