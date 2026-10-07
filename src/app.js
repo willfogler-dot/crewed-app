@@ -348,8 +348,7 @@
   function tabsFor(){
     /* Crew and pacers watch, plan and look things up: three tabs. The runner
        builds the plan and keeps the five they had. */
-    if(mePerson()) return [['n-now','Now','now'],['r-crew','Plan','stops'],['k-know','Know','know']];
-    return TABS.runner.slice();
+    return [['n-now','Now','now'],['r-crew','Plan','stops'],['r-course','Course','course'],['r-aid','Aid','aid'],['k-know','Know','know']];
   }
   function buildTabs(){
     document.getElementById('tabs').innerHTML = tabsFor().map(function(t,i){
@@ -362,7 +361,7 @@
       b.onclick = function(){
         if(b.classList.contains('on') && !detailKey && !SUBV){ window.scrollTo({top:0,behavior:'smooth'}); return; }
         if(detailKey||SUBV){ detailKey=null; SUBV=null; setNav(false); }
-        DET_RET=(b.dataset.v==='k-know'||b.dataset.v==='n-now')?b.dataset.v:'r-profile';
+        DET_RET=b.dataset.v;
         var tabs=[].slice.call(document.querySelectorAll('.tab'));
         var from=tabs.findIndex(function(x){return x.classList.contains('on');});
         var to=tabs.indexOf(b);
@@ -389,7 +388,7 @@
      the handful of places that still read it keep working. */
   function startApp(){
     S.mode='runner'; save();
-    NAVT = mePerson() ? RACE.short : RACE.name;   /* crew see their own name beside it, so the short one fits */
+    NAVT = RACE.short;   /* crew see their own name beside it, so the short one fits */
     setNav(false);
     document.getElementById('foot').innerHTML =
       RACE.copy.footer;
@@ -950,14 +949,14 @@
   function setNav(inDetail,title){
     var el=document.querySelector('.nav-in'); if(!el) return;
     if(inDetail){
-      el.innerHTML='<button class="back" id="dBack"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>'+(DET_RET==='r-profile'?'Profile':DET_RET==='k-know'?'Know':'Back')+'</button>'+
+      el.innerHTML='<button class="back" id="dBack"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>'+(DET_RET==='k-know'?'Know':'Back')+'</button>'+
         '<span class="t dt-ttl">'+esc(title)+'</span>';
       document.getElementById('dBack').onclick=function(){ history.back(); };
       if(window.navScroll) window.navScroll();
     } else {
       el.innerHTML='<div class="who"><span class="dot"></span><span class="t" id="navT">'+esc(NAVT)+'</span></div>'+
         '<span class="rclock" id="navClock" style="display:none"></span>'+
-        '<button class="sw" id="switchBtn">'+(mePerson()?'<i>'+esc(initials(mePerson().name))+'</i>'+esc(mePerson().name):'Switch')+'</button>';
+        '<button class="sw" id="switchBtn">'+(S.me?'<i>'+esc(initials(whoAmI()))+'</i>'+esc(whoAmI()):'Switch')+'</button>';
       document.getElementById('switchBtn').onclick=openGate;
       paintClock();
     }
@@ -2168,7 +2167,7 @@
   /* A view preference, not part of the plan -- it lives on this phone only
      and is deliberately not synced, because two people filtering each
      other's screens on race night would be a bug, not a feature. */
-  var MINEONLY = 0;
+  var MINEONLY = ls(KEY+'mineonly'); MINEONLY = (MINEONLY==null||MINEONLY==='') ? 1 : +MINEONLY;   /* your own stops first; All is one tap away */
 
   function stopsListHTML(){
     var pick=crewPick(), mine=mePerson(), vis=visibleCrew();
@@ -2290,10 +2289,11 @@
   function renderMyJob(){
     var el=document.getElementById('myJob'); if(!el) return;
     var p=mePerson();
-    if(!p){ el.innerHTML=''; MYJOB_HTML=null; return; }  /* the runner, or nobody chosen */
-    var head='<div class="phead"><h1>Your plan</h1><p class="sec">'+esc(p.name)+' \u00b7 '+esc(roleLabel(p))+'. Every stop in order, with what to bring and how to get there.</p></div>';
+    if(!S.me){ el.innerHTML=''; MYJOB_HTML=null; return; }  /* nobody chosen yet */
+    /* one plan for everyone; a crew member or pacer can narrow it to their own stops */
+    var head='<div class="phead"><h1>The plan</h1><p class="sec">'+(p?esc(p.name)+', '+esc(roleLabel(p)).replace(/ \u00b7 /g,', ')+'. ':'')+'Every stop in order, with what to bring and how to get there.</p></div>';
     var html = head + howCardHTML() +
-      (p.role==='pacer' ? pacerJobHTML(p) : '') +
+      (p && p.role==='pacer' ? pacerJobHTML(p) : '') +
       '<div class="shead tight"><h2>Goal Times</h2></div>'+
       '<div class="seg planpicker"></div>' +
       stopsListHTML();
@@ -2312,7 +2312,7 @@
       b.onclick=function(){ openCrewStop(CREW[+b.dataset.c]); };
     });
     el.querySelectorAll('[data-sfilter]').forEach(function(b){
-      b.onclick=function(){ MINEONLY=+b.dataset.sfilter; renderMyJob(); };
+      b.onclick=function(){ MINEONLY=+b.dataset.sfilter; ls(KEY+'mineonly',String(MINEONLY)); NOW_HTML=null; renderMyJob(); renderNow(); };
     });
     renderPlanPicker();
     var es=el.querySelector('#editStops');

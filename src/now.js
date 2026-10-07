@@ -36,7 +36,7 @@
   function myStops(){
     var me=mePerson(), vis=visibleCrew().filter(function(c){ return c.mi!=null && idxOf(c.mi)>=0; });
     var mine=vis.filter(function(c){ return isMineStop(c, me); });
-    return mine.length?mine:vis;
+    return (mine.length && MINEONLY) ? mine : vis;
   }
   /* What this person is waiting for: a crew stop, or the end of a pacer's leg. */
   function nowTarget(){
@@ -125,7 +125,7 @@
        four of twelve mats and beat this one at one. */
     var edge=p.lo!=null ? p.lo-0.5*(p.min-p.lo) : p.min-10;
     var go='';
-    if(!here && drive && nm>=-720){
+    if(!here && drive && nm>=-720 && !meIsRunner()){          /* the runner is not driving anywhere */
       var hand=edge-nm-drive;
       var cls=hand>30?'calm':hand>=0?'soon':'late';
       var head=hand>30?dur(hand)+' in hand':hand>=0?'Time to go':'Go now';
@@ -137,7 +137,7 @@
     var facts='';
     if(p.lo!=null) facts+='<div class="wide"><span class="lbl">Arrival window</span><b class="num">'+clkRange(p)+'</b></div>';
     else facts+='<div><span class="lbl">Plan</span><b class="num">'+clk(planT(s))+'</b></div>';
-    if(c && driveMins(c)) facts+='<div><span class="lbl">Drive</span><b class="num">'+driveShort(c)+'</b></div>';
+    if(c && driveMins(c) && !meIsRunner()) facts+='<div><span class="lbl">Drive</span><b class="num">'+driveShort(c)+'</b></div>';
     if(t.leg) facts+='<div><span class="lbl">Your leg</span><b class="num">'+t.leg.mi.toFixed(1)+' mi</b></div>';
     if(s.cut!=null && !t.leg) facts+='<div><span class="lbl">Cutoff</span><b class="num">'+clk(s.cut)+'</b></div>';
 
@@ -196,10 +196,17 @@
     return o;
   }
 
+  /* the same All / Mine switch as the Plan tab; one choice, both screens */
+  function mineToggle(){
+    var me=mePerson(), vis=visibleCrew().filter(function(c){ return c.mi!=null; });
+    var n=vis.filter(function(c){ return isMineStop(c, me); }).length; if(!n) return '';
+    return '<div class="seg mini sfilter"><button data-sfilter="0"'+(MINEONLY?'':' class="on"')+'>All stops</button>'+
+      '<button data-sfilter="1"'+(MINEONLY?' class="on"':'')+'>Mine</button></div>';
+  }
   /* ── what follows ── */
   function afterHTML(t){
     var rows=laterStops(t); if(!rows.length) return '';
-    return '<section class="nw-after"><h2 class="nw-h">After that</h2><div class="nw-list">'+
+    return '<section class="nw-after"><div class="nw-hrow"><h2 class="nw-h">After that</h2>'+mineToggle()+'</div><div class="nw-list">'+
       rows.map(function(r){
         var s=STATIONS[r.si], p=etaOf(r.si), name=r.c?r.c.where:shortName(s);
         return '<button class="nw-row" '+(r.c?'data-nstop="'+r.c.n+'"':'data-naid="'+r.si+'"')+'>'+
@@ -305,7 +312,7 @@
 
   function renderNow(){
     var el=document.getElementById('nowBody'); if(!el) return;
-    if(!mePerson()){ if(NOW_HTML!==''){ el.innerHTML=''; NOW_HTML=''; } return; }
+    if(!S.me){ if(NOW_HTML!==''){ el.innerHTML=''; NOW_HTML=''; } return; }
     var parts=nowParts(), sky=document.getElementById('nowSky'), nv=document.getElementById('nav');
     /* the sky runs up underneath the header, so it needs the header's real height */
     if(nv && nv.offsetHeight) document.documentElement.style.setProperty('--navh', nv.offsetHeight+'px');
@@ -328,6 +335,8 @@
     el.querySelectorAll('[data-fix]').forEach(function(b){ b.onclick=function(){ logSheet(+b.dataset.fix); }; });
     el.querySelectorAll('[data-logany]').forEach(function(b){ b.onclick=logAnySheet; });
     var snd=el.querySelector('#nwSend'); if(snd) snd.onclick=sendSheet;
+    el.querySelectorAll('[data-sfilter]').forEach(function(b){
+      b.onclick=function(){ MINEONLY=+b.dataset.sfilter; ls(KEY+'mineonly',String(MINEONLY)); NOW_HTML=null; MYJOB_HTML=null; renderNow(); renderMyJob(); }; });
     el.querySelectorAll('[data-nprep]').forEach(function(b){
       b.onclick=function(){
         var k=b.dataset.nprep; ls(KEY+'prep_'+k,'1'); NOW_HTML=null;

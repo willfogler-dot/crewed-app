@@ -192,7 +192,7 @@ body.on-now .nav:not(.stuck) .sw i{background:color-mix(in srgb,var(--sky-ink) 2
 .sky.moon .sky-disc{width:30px;height:30px;margin:-15px 0 0 -15px;background:#E9ECFF;box-shadow:inset -7px -3px 0 #C3C9EE,0 0 34px 6px rgba(200,208,255,.28)}
 .sky-in{position:relative;z-index:3;padding:calc(var(--navh) + 14px) max(18px,calc(50vw - 334px)) 0;min-height:calc(var(--navh) + 190px)}
 .sky-k{margin:0;font-size:14.5px;font-weight:600;opacity:.84}
-.sky-place{font-size:26px;font-weight:700;letter-spacing:-.03em;line-height:1.08;margin:6px 0 0;color:inherit}
+.sky-place{font-size:26px;font-weight:700;letter-spacing:-.03em;line-height:1.08;margin:6px 0 0;color:inherit;padding-right:64px}
 .sky-eta{display:flex;align-items:baseline;gap:6px;margin:4px 0 0 -3px;font-family:var(--font-display)}
 .sky-eta b{font-size:96px;font-weight:800;letter-spacing:-.06em;line-height:.94;font-variant-numeric:tabular-nums}
 .sky-eta i{font-style:normal;font-size:27px;font-weight:700;letter-spacing:-.03em}
@@ -228,6 +228,8 @@ body[data-sky=day] .sky-pin em{color:#fff}
 #nowBody>section{margin-bottom:14px}
 .nw-where{font-size:14.5px;line-height:1.45;color:var(--text-2);margin:2px 2px 14px}
 .nw-h{font-size:17px;font-weight:700;letter-spacing:-.02em;margin:22px 4px 9px}
+.nw-hrow{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.nw-hrow .seg{margin:0 0 7px}
 
 .nw-win,.nw-seen,.nw-list{background:var(--card);border-radius:var(--r-lg);box-shadow:var(--e1)}
 .nw-win{padding:16px 16px 4px}
