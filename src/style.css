@@ -1599,3 +1599,5 @@ table.an tr:last-child td{border-bottom:0}
   .plan-print .btable td{padding:3pt 4pt 3pt 0;vertical-align:top}
   @page{ size:A4 landscape; margin:10mm; }
 }
+
+.nopacers .pacer-only{display:none!important}

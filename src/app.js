@@ -15,6 +15,10 @@
   /* Pacers may join or leave only at stations flagged pacer:1; the finish is the last. */
   var SWAPS = STATIONS.filter(function(s){ return s.pacer; }).map(function(s){ return s.mi; });
   var PACER_FROM = SWAPS[0];
+  var HAS_PACERS = SWAPS.length > 0;
+  var NUMW = ['zero','one','two','three','four','five','six','seven','eight','nine','ten','eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen','twenty'];
+  function numw(n){ var w = NUMW[n] || String(n); return w.charAt(0).toUpperCase()+w.slice(1); }
+  document.body.classList.toggle('nopacers', !HAS_PACERS);
   var START = new Date(RACE.startISO).getTime(), MIN = 60000;
   var S = { mode:null, plan:'goal', proj:'pace', theme:'light', gps:false, atomWho:{}, checks:{}, custom:[], people:[], notes:{}, splits:{}, aidOv:{}, secOv:{}, driveOv:{}, bib:'', me:null, hidePast:false, gearAdd:{}, gearRemoved:{}, gearOverride:{}, paceOv:{}, fuelOv:{} };
 
@@ -760,7 +764,7 @@
       '<div class="fld"><label>What are they doing?</label><select id="pRole">'+
       '<option value="crew"'+((p&&p.role==='crew')||!p?' selected':'')+'>Crew</option>'+
       '<option value="chief"'+(p&&p.role==='chief'?' selected':'')+'>Crew chief</option>'+
-      '<option value="pacer"'+(isP?' selected':'')+'>Pacer</option></select></div>'+
+      (HAS_PACERS?'<option value="pacer"'+(isP?' selected':'')+'>Pacer</option>':'')+'</select></div>'+
       '<p class="cap" id="legFld" style="margin:-4px 0 4px;display:'+(isP?'block':'none')+'">Which block(s) they run is set on the Pacer plan screen, not here.</p>'+
       '<div class="fld" id="stopFld" style="display:'+(isP?'none':'block')+'"><label>Which stops? Leave all unticked for every stop.</label>'+
       CREW.map(function(c){ var on=p&&p.stops&&p.stops.indexOf(c.n)>=0;
@@ -863,10 +867,10 @@
 
       '<div class="grp"><div class="grp-t">Team</div><div class="list">'+
       row('brief','book','g','Pre-race crew plan','One printable sheet for everyone')+
-      row('team','team','','Crew and pacers','Add people and share the links',(pc+pp)||'')+
-      row('rota','van','','Crew rotation','Nine stops, when to leave','9')+
-      row('legs','run','','Pacer plan','Five legal blocks, who runs each',
-          String(pacerLegs().filter(function(l){return l.who;}).length)||'')+
+      row('team','team','',HAS_PACERS?'Crew and pacers':'Crew','Add people and share the links',(pc+pp)||'')+
+      row('rota','van','','Crew rotation',numw(CREW.length)+' stops, when to leave',String(CREW.length))+
+      (HAS_PACERS?row('legs','run','','Pacer plan',numw(Math.max(SWAPS.length-1,0))+' legal blocks, who runs each',
+          String(pacerLegs().filter(function(l){return l.who;}).length)||''):'')+
       '</div></div>'+
 
       '<div class="grp"><div class="grp-t">Reference</div><div class="list">'+
@@ -3468,7 +3472,7 @@
 
   function fullMapHud(){
     var el=document.getElementById('fmLens'); if(!el) return;
-    el.innerHTML=[['aid','Aid'],['crew','Crew'],['pacer','Pacers']].map(function(l){
+    el.innerHTML=[['aid','Aid'],['crew','Crew'],['pacer','Pacers']].filter(function(l){return HAS_PACERS||l[0]!=='pacer';}).map(function(l){
       return '<button class="lenspill'+(MAPV.lens===l[0]?' on':'')+'" data-flens="'+l[0]+'">'+l[1]+'</button>';
     }).join('');
     el.querySelectorAll('[data-flens]').forEach(function(b){
@@ -3802,7 +3806,7 @@
       var who=[];
       who.push(s.crew?'<span class="pill">'+(s.crew===2?'Crew on foot only':s.crew===3?'Crew, drop-off only':'Crew')+'</span>'
                      :'<span class="pill grey">No crew</span>');
-      who.push(s.pacer?'<span class="pill gold">Pacer swap</span>':'<span class="pill grey">No pacer swap</span>');
+      if(HAS_PACERS) who.push(s.pacer?'<span class="pill gold">Pacer swap</span>':'<span class="pill grey">No pacer swap</span>');
       who.push(s.bag?'<span class="pill">Drop bag</span>':'<span class="pill grey">No drop bag</span>');
       var paced=s.mi>=PACER_FROM;
       var names=crewAt((function(){ for(var c=0;c<CREW.length;c++) if(CREW[c].mi===s.mi) return CREW[c].n; return -1; })());
@@ -3834,7 +3838,7 @@
 
     el.innerHTML=
       '<div class="seg" style="margin-bottom:8px">'+
-        [['aid','Aid stations'],['crew','Crew access'],['pacer','Pacers']].map(function(l){
+        [['aid','Aid stations'],['crew','Crew access'],['pacer','Pacers']].filter(function(l){return HAS_PACERS||l[0]!=='pacer';}).map(function(l){
           return '<button'+(MAPV.lens===l[0]?' class="on"':'')+' data-lens="'+l[0]+'">'+l[1]+'</button>';
         }).join('')+'</div>'+
       '<div class="seg" style="margin-bottom:12px">'+
@@ -4421,7 +4425,7 @@
     var s=STATIONS[i], x=AIDX[i]||{}, buf=s.cut!=null?s.cut-T(s):null;
     var who=[];
     who.push(s.crew?'<span class="pill">Crew allowed</span>':'<span class="pill grey">No crew</span>');
-    who.push(s.pacer?'<span class="pill gold">Pacer swap</span>':'<span class="pill grey">No pacer swap</span>');
+    if(HAS_PACERS) who.push(s.pacer?'<span class="pill gold">Pacer swap</span>':'<span class="pill grey">No pacer swap</span>');
     who.push(s.bag?'<span class="pill">Drop bag</span>':'<span class="pill grey">No drop bag</span>');
     sheet(s.name,
       '<div class="cap" style="margin:-8px 0 12px">Mile '+s.mi.toFixed(1)+' · '+ft(s.elev)+' ft · '+
@@ -4518,12 +4522,12 @@
     h+='</tbody></table>';
 
     h+='<h3 class="bsec">Every aid station</h3><table class="btable tight"><thead><tr>'+
-       '<th>Mile</th><th>Aid station</th><th>Planned</th><th>Cutoff</th><th>Crew</th><th>Pacer</th><th>Drop bag</th></tr></thead><tbody>';
+       '<th>Mile</th><th>Aid station</th><th>Planned</th><th>Cutoff</th><th>Crew</th>'+(HAS_PACERS?'<th>Pacer</th>':'')+'<th>Drop bag</th></tr></thead><tbody>';
     STATIONS.forEach(function(s){
       h+='<tr'+(s.crew?' class="key"':'')+'><td>'+s.mi.toFixed(1)+'</td><td><b>'+s.name+'</b></td>'+
         '<td>'+clkDay(T(s))+'</td><td>'+(s.cut!=null?clkDay(s.cut):'\u2014')+'</td>'+
         '<td>'+(s.crew===2?'foot/bike':s.crew===3?'drop only':s.crew?'yes':'\u2014')+'</td>'+
-        '<td>'+(s.pacer?'swap':'\u2014')+'</td><td>'+(s.bag?'yes':'\u2014')+'</td></tr>';
+        (HAS_PACERS?'<td>'+(s.pacer?'swap':'\u2014')+'</td>':'')+'<td>'+(s.bag?'yes':'\u2014')+'</td></tr>';
     });
     h+='</tbody></table>';
 
@@ -4819,7 +4823,7 @@
 
   /* ── boot ── */
   S.checks=jget(KEY+'checks',{}); S.custom=jget(KEY+'custom',[]); S.people=jget(KEY+'people',null);
-  if(!Array.isArray(S.people)) S.people=(!(SUPA&&SUPA.url)&&RACE.demoPeople)?JSON.parse(JSON.stringify(RACE.demoPeople)):[];
+  if(!Array.isArray(S.people)) S.people=(!(SUPA&&SUPA.url)&&RACE.demoPeople)?RACE.demoPeople.filter(function(p){ return HAS_PACERS||p.role!=='pacer'; }).map(function(p){ return JSON.parse(JSON.stringify(p)); }):[];
   S.gearAdd=jget(KEY+'gearadd',{}); S.gearRemoved=jget(KEY+'gearrm',{}); S.gearOverride=jget(KEY+'gearov',{});
   S.paceOv=jget(KEY+'paceov',{}); S.fuelOv=jget(KEY+'fuelov',{});
   S.notes=jget(KEY+'notes',{}); S.splits=jget(KEY+'splits',{}); S.aidOv=jget(KEY+'aidov',{});
