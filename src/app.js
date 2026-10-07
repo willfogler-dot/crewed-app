@@ -36,7 +36,7 @@
     ls(KEY+'people',JSON.stringify(S.people)); ls(KEY+'notes',JSON.stringify(S.notes));
     ls(KEY+'secov',JSON.stringify(S.secOv||{}));
     ls(KEY+'driveov',JSON.stringify(S.driveOv||{}));
-    ls(KEY+'splits',JSON.stringify(S.splits)); ls(KEY+'aidov',JSON.stringify(S.aidOv));
+    if(!(DEMO&&DEMO.on)) ls(KEY+'splits',JSON.stringify(S.splits)); ls(KEY+'aidov',JSON.stringify(S.aidOv));
     ls(KEY+'bib',S.bib||''); ls(KEY+'theme',S.theme); ls(KEY+'proj',S.proj);
     ls(KEY+'gps',S.gps?'1':''); ls(KEY+'atomwho',JSON.stringify(S.atomWho||{}));
     ls(KEY+'gearadd',JSON.stringify(S.gearAdd||{})); ls(KEY+'gearrm',JSON.stringify(S.gearRemoved||{}));
@@ -69,7 +69,7 @@
   function legPace(i){ var L=legInto(i); return L&&L.mi>0 ? pace(L.mi,L.mins) : null; }
   function cumPace(i){ var s=STATIONS[i]; return s.mi>0 ? pace(s.mi, T(s)) : null; }
   function pace(mi,mins){ var p=mins/mi; return Math.floor(p)+':'+String(Math.round(p%1*60)).padStart(2,'0'); }
-  function now(){ return (Date.now()-START)/MIN; }
+  function now(){ return (DEMO&&DEMO.on) ? DEMO.t : (Date.now()-START)/MIN; }
   /* Your own splits, layered over the built-in plan. Stored per plan key so
      editing your goal never touches the Cutoff or 2025-field reference
      columns, which are official data and must stay as published.
@@ -151,6 +151,8 @@
         out[j]={min: (S.proj==='goal') ? planT(STATIONS[j])+shift
                                        : aL+(planT(STATIONS[j])-pL)*r, src:'proj'};
     }
+    /* 'smart' is the default: the fitted model, blended with the plan (src/eta.js) */
+    if(S.proj!=='pace' && S.proj!=='goal') out=smartProject(out,last);
     PROJ=out;
   }
   function T(s){ var i=s&&s.__i; return (PROJ&&i!=null)?PROJ[i].min:planT(s); }
@@ -167,7 +169,7 @@
       (S.theme==='auto' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
     document.documentElement.classList.toggle('dark', dark);
     var m=document.querySelector('meta[name=theme-color]');
-    if(m) m.setAttribute('content', dark?'#0F1512':'#F1F1EE');
+    if(m) m.setAttribute('content', dark?'#0B1317':'#E9EDEE');
   }
   function paintClock(){
     var el=document.getElementById('navClock'); if(!el) return;
@@ -182,6 +184,7 @@
     var sp=S.splits[i]||{}; 
     if(mins==null) delete sp[field]; else sp[field]=Math.round(mins);
     if(sp.in==null&&sp.out==null) delete S.splits[i]; else S.splits[i]=sp;
+    if(DEMO&&DEMO.on) demoKeep(i);
     save(); reproject(); pushSplit(i);
   }
   function logSheet(i){
@@ -309,7 +312,9 @@
     team:'<circle cx="9" cy="8" r="3.2"/><circle cx="17.5" cy="9.5" r="2.3"/><path d="M2.5 19.5c0-3.4 2.9-5.3 6.5-5.3s6.5 1.9 6.5 5.3M17.5 14.2c2.3 0 4 1.5 4 3.8"/>',
     kit:'<rect x="3" y="8" width="18" height="12.5" rx="3"/><path d="M8.5 8V5.8A3.5 3.5 0 0115.5 5.8V8M9.5 13.5h5"/>',
     leg:'<circle cx="14" cy="4.6" r="2"/><path d="M9.5 21l2.3-6.6L9 11l1-4 3.6 1 2.4 2.6M13.8 14.4L16.4 21M6 10.4l3-2"/>',
-    aid:'<path d="M12 21.5s7-6 7-11.5a7 7 0 10-14 0c0 5.5 7 11.5 7 11.5z"/><path d="M12 7.4v5.2M9.4 10h5.2"/>'
+    aid:'<path d="M12 21.5s7-6 7-11.5a7 7 0 10-14 0c0 5.5 7 11.5 7 11.5z"/><path d="M12 7.4v5.2M9.4 10h5.2"/>',
+    now:'<circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.2 2"/>',
+    know:'<path d="M4 5.5A2.5 2.5 0 016.5 3H20v15H6.5A2.5 2.5 0 004 20.5zM4 20.5A2.5 2.5 0 006.5 21H20M8.5 7.5h7M8.5 11h5"/>'
   };
   /* Filled counterparts for the five tabs. Knocked-out details are stroked in
      the card colour so they read as holes in a solid shape. */
@@ -341,9 +346,10 @@
   /* Everyone gets the same five. Crew and pacers get a sixth in front of
      them, which is the only structural difference between the two views. */
   function tabsFor(){
-    var t=TABS.runner.slice();
-    if(mePerson()) t.unshift(['r-crew','Crew','stops']);
-    return t;
+    /* Crew and pacers watch, plan and look things up: three tabs. The runner
+       builds the plan and keeps the five they had. */
+    if(mePerson()) return [['n-now','Now','now'],['r-crew','Plan','stops'],['k-know','Know','know']];
+    return TABS.runner.slice();
   }
   function buildTabs(){
     document.getElementById('tabs').innerHTML = tabsFor().map(function(t,i){
@@ -354,8 +360,9 @@
     }).join('');
     document.querySelectorAll('.tab').forEach(function(b){
       b.onclick = function(){
-        if(b.classList.contains('on') && !detailKey){ window.scrollTo({top:0,behavior:'smooth'}); return; }
-        if(detailKey){ detailKey=null; setNav(false); }
+        if(b.classList.contains('on') && !detailKey && !SUBV){ window.scrollTo({top:0,behavior:'smooth'}); return; }
+        if(detailKey||SUBV){ detailKey=null; SUBV=null; setNav(false); }
+        DET_RET=(b.dataset.v==='k-know'||b.dataset.v==='n-now')?b.dataset.v:'r-profile';
         var tabs=[].slice.call(document.querySelectorAll('.tab'));
         var from=tabs.findIndex(function(x){return x.classList.contains('on');});
         var to=tabs.indexOf(b);
@@ -369,6 +376,8 @@
         if (b.dataset.v==='x-course') renderCourse();
         if (b.dataset.v==='r-course') renderMap();
         if (b.dataset.v==='r-profile') renderProfile();
+        if (b.dataset.v==='n-now'){ NOW_HTML=null; renderNow(); }
+        if (b.dataset.v==='k-know') renderKnow();
       };
     });
     document.querySelectorAll('.view').forEach(function(x){x.classList.remove('on');});
@@ -524,7 +533,9 @@
     if(nm>RACE.limit+120) return { state:'over' };
 
     /* Sitting in an aid station: arrived, not yet left. */
-    if(sp && sp.in!=null && sp.out==null){
+    /* A mat can say he arrived and nothing can say he left, so an arrival
+       only means "in the station" for as long as a stop there plausibly lasts. */
+    if(sp && sp.in!=null && sp.out==null && (nm-sp.in) <= (STATIONS[last].crew?45:Math.max(6,dwellGuess(last)*3))){
       var here=STATIONS[last], nxt=STATIONS[last+1];
       return { state:'station', station:here, idx:last, since:nm-sp.in,
                next:nxt, nextIdx:last+1, toGo:nxt.mi-here.mi, eta:T(nxt) };
@@ -921,8 +932,10 @@
   }
   function closeDetail(){
     detailKey=null; PLANEDIT=false;
-    swapView('r-profile','en-pop');
-    setNav(false); renderProfile(); window.scrollTo(0, DETAILY||0);
+    swapView(DET_RET||'r-profile','en-pop');
+    if(SUBV) navBack('Know', SUBT[SUBV]); else setNav(false);
+    renderProfile(); if(DET_RET==='n-now'){ NOW_HTML=null; renderNow(); }
+    window.scrollTo(0, DETAILY||0);
   }
   function refreshDetail(){
     if(!detailKey) return;
@@ -935,14 +948,14 @@
   function setNav(inDetail,title){
     var el=document.querySelector('.nav-in'); if(!el) return;
     if(inDetail){
-      el.innerHTML='<button class="back" id="dBack"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>Profile</button>'+
+      el.innerHTML='<button class="back" id="dBack"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></svg>'+(DET_RET==='r-profile'?'Profile':DET_RET==='k-know'?'Know':'Back')+'</button>'+
         '<span class="t dt-ttl">'+esc(title)+'</span>';
       document.getElementById('dBack').onclick=function(){ history.back(); };
       if(window.navScroll) window.navScroll();
     } else {
       el.innerHTML='<div class="who"><span class="dot"></span><span class="t" id="navT">'+esc(NAVT)+'</span></div>'+
         '<span class="rclock" id="navClock" style="display:none"></span>'+
-        '<button class="sw" id="switchBtn">Switch</button>';
+        '<button class="sw" id="switchBtn">'+(mePerson()?'<i>'+esc(initials(mePerson().name))+'</i>'+esc(mePerson().name):'Switch')+'</button>';
       document.getElementById('switchBtn').onclick=openGate;
       paintClock();
     }
@@ -1502,10 +1515,10 @@
       '<div class="card"><h3>Projecting ahead</h3>'+
       '<p class="sec">Times already logged are always the real ones. This only changes how the stations <i>ahead</i> are estimated once he is off plan.</p>'+
       '<div class="seg" style="margin:12px 0 10px">'+
-      [['pace','At current pace'],['goal','Holding goal pace']].map(function(t){
+      [['smart','Smart'],['pace','Current pace'],['goal','Goal pace']].map(function(t){
         return '<button'+(S.proj===t[0]?' class="on"':'')+' data-proj="'+t[0]+'">'+t[1]+'</button>';
       }).join('')+'</div>'+
-      '<p class="cap">'+(S.proj==='pace'
+      '<p class="cap">'+(S.proj==='smart' ? 'Learned from how the field actually ran this course: a delay only half carries, and the estimate comes with an honest range. Recommended.' : S.proj==='pace'
         ? 'If he is six percent down at mile 70, everything ahead is six percent slower. The honest one late in a hundred.'
         : 'Assumes he holds goal pace from here, so the current gap simply carries to the finish. The optimistic one.')+'</p></div>'+
 
@@ -2258,7 +2271,7 @@
     if(meIsRunner() || ls(KEY+'helpseen')) return '';
     return '<div class="howcard"><div><b>First time here?</b>'+
       '<span>Two minutes on how this works, then you are set for race day. '+
-      'It stays on the Profile tab if you want it later.</span></div>'+
+      'It stays under Know if you want it later.</span></div>'+
       '<div class="howcard-a"><button class="btn sm" id="howRead">Read it</button>'+
       '<button class="btn ghost sm" id="howSkip">Not now</button></div></div>';
   }
@@ -2276,12 +2289,11 @@
     var el=document.getElementById('myJob'); if(!el) return;
     var p=mePerson();
     if(!p){ el.innerHTML=''; MYJOB_HTML=null; return; }  /* the runner, or nobody chosen */
-    var head='<div class="phead"><h1>'+esc(p.name)+'</h1></div>';
+    var head='<div class="phead"><h1>Your plan</h1><p class="sec">'+esc(p.name)+' \u00b7 '+esc(roleLabel(p))+'. Every stop in order, with what to bring and how to get there.</p></div>';
     var html = head + howCardHTML() +
       (p.role==='pacer' ? pacerJobHTML(p) : '') +
       '<div class="shead tight"><h2>Goal Times</h2></div>'+
       '<div class="seg planpicker"></div>' +
-      crewJobHTML() +
       stopsListHTML();
     if(html===MYJOB_HTML){ paintHero(el); paintEtas(el); return; }  /* leave it alone */
     MYJOB_HTML=html;
@@ -4675,6 +4687,7 @@
   /* Splits upsert one row at a time so two people logging different
      stations at the same moment cannot overwrite each other. */
   function pushSplit(i){
+    if((DEMO&&DEMO.on) || !(SUPA&&SUPA.url)) return Promise.resolve(false);
     var sp=S.splits[i];
     var req = sp
       ? fetch(sbUrl('/rest/v1/splits'), {
@@ -4812,13 +4825,14 @@
     };
   }
 
+/*@modules*/
   function render(){
     reproject();
     document.body.classList.toggle('raceday', isRaceDay());
     paintClock();
     renderPlanPicker(); drawProfile(); resetReadout();
     renderMyJob(); renderRace(); renderSections(); renderAid(); renderProfile();
-    renderSched();
+    renderSched(); renderNow(); renderKnow();
   }
 
   /* ── boot ── */
@@ -4906,7 +4920,7 @@
     if(gmoved) ls(KEY+'aidov',JSON.stringify(S.aidOv));
   }
   S.bib=ls(KEY+'bib')||''; MAPV.base=ls(KEY+'base')||'satellite';
-  if(!BASES[MAPV.base]) MAPV.base='satellite'; S.theme=ls(KEY+'theme')||'light'; S.proj=ls(KEY+'proj')||'pace'; S.gps=ls(KEY+'gps')==='1'; S.atomWho=jget(KEY+'atomwho',{});
+  if(!BASES[MAPV.base]) MAPV.base='satellite'; S.theme=ls(KEY+'theme')||'light'; S.proj=ls(KEY+'proj')||'smart'; S.gps=ls(KEY+'gps')==='1'; S.atomWho=jget(KEY+'atomwho',{});
   try{ GPS.last=JSON.parse(ls(KEY+'gpslast')||'null'); }catch(e){}
   STATIONS.forEach(function(s,i){ s.__i=i; });
   S.plan=ls(KEY+'plan')||'goal'; S.me=ls(KEY+'me')||null;
@@ -4961,6 +4975,7 @@
     rt=setTimeout(function(){ drawProfile(); },160); });
 
   applyTheme();
+  demoInit();
   if(S.gps) gpsStart();
   if(S.me) startApp(); else openGate();
   startSync();
@@ -4969,10 +4984,11 @@
     var fm=document.getElementById('mapFull');
     if(fm&&fm.classList.contains('on')){ fullMapClose(); return; }
     if(modal.classList.contains('on')){ closeSheet(); return; }
-    if(detailKey) closeDetail();
+    if(detailKey){ closeDetail(); return; }
+    if(SUBV) popSub();
   });
   checkIncoming();
   setInterval(paintClock,1000);
-  setInterval(function(){ renderMyJob(); renderRace(); }, 20000);
+  setInterval(function(){ renderMyJob(); renderRace(); renderNow(); }, 20000);
   setInterval(function(){ paintEtas(); }, 30000);
 })();

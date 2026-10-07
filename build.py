@@ -45,7 +45,19 @@ def partial(m):
 
 page = fill(rd('shell.html'))
 page = re.sub(r'<!--@([\w-]+)-->', partial, page)
-for marker, text in (('<!--CSS-->', rd('style.css')), ('<!--DATA-->', (RACE_DIR/'race.js').read_text(encoding='utf8')), ('<!--APP-->', rd('pacing.js') + '\n' + rd('app.js'))):
+# Modules that live inside the app's closure are spliced in at /*@modules*/; pure ones are prepended.
+MODULES = ['eta.js', 'now.js', 'know.js', 'demo.js']
+app = rd('app.js')
+assert app.count('/*@modules*/') == 1, 'app.js needs exactly one /*@modules*/ marker'
+app = app.replace('/*@modules*/', '\n'.join(rd(m) for m in MODULES))
+data = (RACE_DIR/'race.js').read_text(encoding='utf8')
+pm = RACE_DIR/'projection-model.json'            # optional: fitted by tools/projection/fit_model.py
+if pm.exists():
+    json.loads(pm.read_text())
+    data += '\nRACE.projModel = ' + pm.read_text().strip() + ';\n'
+css = rd('style.css') + '\n' + rd('fonts.css') + '\n' + rd('survey.css')
+assert css.count('{') == css.count('}'), 'unbalanced braces in the stylesheet'
+for marker, text in (('<!--CSS-->', css), ('<!--DATA-->', data), ('<!--APP-->', rd('pacing.js') + '\n' + rd('projection.js') + '\n' + app)):
     assert page.count(marker) == 1, marker
     page = page.replace(marker, text)
 assert '{{' not in page.replace('{{runner}}', ''), 'unresolved token left in page'

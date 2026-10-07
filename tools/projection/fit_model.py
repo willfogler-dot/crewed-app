@@ -71,7 +71,7 @@ def fit(T, fin, train, lam=8.0):
             X, y, _ = build(T, m, a, b, train)
             if len(y) < 25: continue
             mod = ridge(X, y, lam); res = y - np.array([predict(mod, x) for x in X])
-            mod['q'] = np.quantile(res, Q); mod['n'] = len(y)
+            mod['q'] = np.quantile(res, Q); mod['n'] = len(y); mod['r2'] = float(max(0.0, 1 - res.var() / (y.var() + 1e-12)))
             models[(a, b)] = mod
     return m, models
 
@@ -127,7 +127,7 @@ def main():
     if a.out:
         out = {'miles': miles.tolist(), 'ref': m.tolist(), 'models': {}}
         for (aa, b), mod in models.items():
-            out['models']['%d,%d' % (aa, b)] = {'mu': mod['mu'].round(5).tolist(), 'sd': mod['sd'].round(5).tolist(), 'w': mod['w'].round(5).tolist(), 'b0': round(float(mod['b0']), 5), 'q': [round(float(x), 5) for x in mod['q']], 'n': mod['n']}
+            out['models']['%d,%d' % (aa, b)] = {'mu': mod['mu'].round(5).tolist(), 'sd': mod['sd'].round(5).tolist(), 'w': mod['w'].round(5).tolist(), 'b0': round(float(mod['b0']), 5), 'q': [round(float(x), 5) for x in mod['q']], 'r2': round(mod['r2'], 3), 'n': mod['n']}
         json.dump(out, open(a.out, 'w')); print('wrote', a.out)
 
 if __name__ == '__main__':

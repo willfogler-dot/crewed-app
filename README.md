@@ -30,3 +30,32 @@ waypoints with matching names are used). It writes `out/geo.js` (STATIONS, PROFI
 Read the report's "Needs a human" section before using the output. Ascent is smoothed over 60 m with no extra
 threshold; on Rock Hawk that gave 3,342 ft against the race's advertised 3,325 ft, and station gains landed within
 25 ft of hand measurements. The report also shows the raw and strict figures so the method range is visible.
+
+## Interface: the Survey system
+
+`src/survey.css` is the design system, loaded after `style.css`. Glacier-grey paper, navy ink, one signal
+colour (orange by day, amber in dark mode). Structure comes from ruled lines and type, not boxes.
+Headings and numerals are Bricolage Grotesque (SIL OFL), embedded in `src/fonts.css` so they work offline.
+
+Crew and pacers get three tabs:
+
+- **Now** (`src/now.js`): next stop, ETA with its 80% range, when to be in place, one-tap logging, last sighting, course strip.
+- **Plan**: every stop in order.
+- **Know** (`src/know.js`): rules, course, team, app.
+
+The runner keeps Race / Course / Aid / Schedule / Profile until the setup flow is rebuilt.
+
+## Live ETA
+
+`src/projection.js` is the fitted model (pure), `src/eta.js` blends it with the runner's plan and feeds every
+forecast clock through `smartProject()`. A race ships a model as `src/race/<race>/projection-model.json`,
+produced by `tools/projection/fit_model.py` from a past year's splits. With no model the app falls back to
+the plan with half the delay carried and a flat range.
+
+## Demo
+
+`?demo` (or `?demo=13.2` for hours into the race) replays a run so the Now screen has something to show
+outside race weekend. A build with no backend switches to demo by itself once its race is over; `?live` turns it off.
+Nothing in demo is saved or synced.
+
+Modules listed in `build.py` (`MODULES`) are spliced into `app.js` at `/*@modules*/`, inside its closure.

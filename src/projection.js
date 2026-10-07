@@ -14,7 +14,7 @@ function project(model, e, target){
   if(a<1) return null;
   var mod=model.models[a+','+target], m=model.ref; if(!mod) return null;
   var f=projFeats(m,e,a); if(!f) return null;
-  var z=mod.b0; for(var i=0;i<3;i++) z+=(f[i]-mod.mu[i])/mod.sd[i]*mod.w[i];
+  var z=mod.b0; for(var i=0;i<3;i++) if(mod.sd[i]>1e-6) z+=(f[i]-mod.mu[i])/mod.sd[i]*mod.w[i];   /* a feature with no spread carries no weight */
   var span=m[target]-m[a], base=e[a];
   return {lo:base+span*Math.exp(z+mod.q[0]), mid:base+span*Math.exp(z+mod.q[1]), hi:base+span*Math.exp(z+mod.q[2]), from:a};
 }
