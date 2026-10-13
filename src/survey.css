@@ -173,7 +173,7 @@ body.on-now .nav:not(.stuck) .sw i{background:color-mix(in srgb,var(--sky-ink) 2
    THE SKY
    ═══════════════════════════════════════════════════════════════════ */
 .sky{position:relative;overflow:hidden;color:var(--sky-ink);isolation:isolate}
-.sky-l{position:absolute;inset:0;opacity:0;transition:opacity 1.4s ease;z-index:0}
+.sky-l{position:absolute;inset:0;opacity:0;transition:opacity 1.4s ease;z-index:0;transform:translate3d(0,var(--py,0px),0);will-change:transform}
 .sky-night .sky-l.night,.sky-dawn .sky-l.dawn,.sky-day .sky-l.day,.sky-dusk .sky-l.dusk{opacity:1}
 /* colour arrives low, near the ridge, so the words above it always sit on a calm part of the sky */
 .sky-l.night{background:
@@ -187,7 +187,7 @@ body.on-now .nav:not(.stuck) .sw i{background:color-mix(in srgb,var(--sky-ink) 2
 .sky-l.day{background:linear-gradient(180deg,#8FC6F1 0,#B4DAF6 calc(100% - 200px),#DCEEF8 calc(100% - 60px),#EAF4F8 100%)}
 .sky-l.dusk{background:linear-gradient(180deg,#262A6A 0,#553F8C calc(100% - 230px),#D25B7E calc(100% - 115px),#FF9E66 calc(100% - 40px),#FFC98A 100%)}
 .sky-disc{position:absolute;z-index:1;left:var(--x,80%);top:calc((100% - 150px) - var(--s,1) * (100% - 300px));width:46px;height:46px;margin:-23px 0 0 -23px;
-  border-radius:50%;transition:top 1s linear,left 1s linear,background .8s}
+  border-radius:50%;transition:background .8s;transform:translate3d(0,var(--py,0px),0)}
 .sky.sun .sky-disc{background:#FFF4C7;box-shadow:0 0 0 14px rgba(255,244,199,.22),0 0 60px 20px rgba(255,236,170,.45)}
 .sky.moon .sky-disc{width:30px;height:30px;margin:-15px 0 0 -15px;background:#E9ECFF;box-shadow:inset -7px -3px 0 #C3C9EE,0 0 34px 6px rgba(200,208,255,.28)}
 .sky-in{position:relative;z-index:3;padding:calc(var(--navh) + 14px) max(18px,calc(50vw - 334px)) 0;min-height:calc(var(--navh) + 190px)}
@@ -209,7 +209,7 @@ body.on-now .nav:not(.stuck) .sw i{background:color-mix(in srgb,var(--sky-ink) 2
 .sky-ridge .done{fill:none;stroke:var(--signal);stroke-width:3.5;stroke-linejoin:round;stroke-linecap:round}
 .sky-ridge .band{fill:none;stroke:var(--signal);stroke-width:12;stroke-linecap:round;opacity:.38}
 .sky-lamp{position:absolute;z-index:3;width:16px;height:16px;margin:-8px 0 0 -8px;border-radius:50%;background:#FFE08A;border:3px solid #fff;
-  box-shadow:0 0 0 0 rgba(255,214,102,.7),0 0 22px 8px rgba(255,204,77,.75);animation:lamp 2.6s ease-in-out infinite;transition:left .5s linear,top .5s linear}
+  box-shadow:0 0 0 0 rgba(255,214,102,.7),0 0 22px 8px rgba(255,204,77,.75);animation:lamp 2.6s ease-in-out infinite}
 @keyframes lamp{0%,100%{box-shadow:0 0 0 0 rgba(255,214,102,.55),0 0 22px 8px rgba(255,204,77,.7)}50%{box-shadow:0 0 0 9px rgba(255,214,102,0),0 0 30px 12px rgba(255,204,77,.9)}}
 .sky-pin{position:absolute;z-index:2;width:0;height:0}
 .sky-pin::before{content:"";position:absolute;left:-1px;bottom:0;width:2px;height:26px;background:var(--sky-ink);opacity:.9;border-radius:2px}
@@ -217,6 +217,14 @@ body.on-now .nav:not(.stuck) .sw i{background:color-mix(in srgb,var(--sky-ink) 2
   padding:5px 9px;border-radius:999px 999px 999px 2px;background:var(--sky-ink);color:#161D3A}
 body[data-sky=day] .sky-pin em{color:#fff}
 .sky-pin.r em{left:auto;right:-1px;border-radius:999px 999px 2px 999px}
+/* a new target arrives on its post: the stem rises, then the name settles onto it */
+.sky-pin.pin-in::before{animation:pinStem .32s cubic-bezier(.32,.72,0,1) both;transform-origin:bottom}
+.sky-pin.pin-in em{animation:pinTag .38s cubic-bezier(.32,.72,0,1) .08s both}
+@keyframes pinStem{from{transform:scaleY(0)}}
+@keyframes pinTag{from{opacity:0;transform:translateY(6px)}}
+/* the big clock: only the digits that changed roll in, from below */
+.sky-eta b .dg{display:inline-block;animation:dgIn .34s cubic-bezier(.32,.72,0,1) both}
+@keyframes dgIn{from{opacity:0;transform:translateY(.22em);filter:blur(2px)}}
 
 /* ═══════════════════════════════════════════════════════════════════
    NOW, below the ridge
