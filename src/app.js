@@ -764,6 +764,13 @@
     }
     return 'Crew \u00b7 '+((p.stops&&p.stops.length)?'stops '+p.stops.join(', '):'all stops');
   }
+  /* the line under "The plan": who you are and how much of it is yours */
+  function planWho(p){
+    if(!p) return '';
+    if(p.role==='crew'){ var n=p.stops&&p.stops.length;
+      return esc(p.name)+(n?', at '+n+' stop'+(n>1?'s':''):', at every stop')+'. '; }
+    return esc(p.name)+', '+esc(roleLabel(p)).replace(/ \u00b7 /g,', ')+'. ';
+  }
   function sortedPeople(){
     var rank={chief:0,crew:1,pacer:2};
     return S.people.slice().sort(function(x,y){
@@ -2191,7 +2198,7 @@
     var minen = vis.filter(function(c){ return isMineStop(c, mine); }).length;
     var only = (MINEONLY && minen) ? 1 : 0;
     var rows = only ? vis.filter(function(c){ return isMineStop(c, mine); }) : vis;
-    return '<div class="shead"><h2>Crew Aid Stations</h2>'+
+    return '<div class="shead"><h2>Crew stops</h2>'+
       (minen
         ? '<div class="seg mini sfilter">'+
           '<button data-sfilter="0"'+(only?'':' class="on"')+'>All '+vis.length+'</button>'+
@@ -2207,8 +2214,10 @@
         var state = ix<pick ? ' done' : ix===pick ? ' now' : '';
         var facts=[];
         if(c.mi!=null) facts.push(['Mile', c.mi.toFixed(1), '']);
-        facts.push(['Travel time', driveShort(c),
-          driveMins(c) ? '<span data-eta="'+driveMins(c)+'"></span>' : '']);
+        /* "there 10:27 pm" means set off now. It only means something for the stop
+           the crew is heading to next; on a stop six hours out it reads like a schedule. */
+        facts.push(['Drive', driveShort(c),
+          driveMins(c) && ix===pick ? '<span data-eta="'+driveMins(c)+'"></span>' : '']);
         return '<li class="stopc'+state+(yours?' yours':'')+
           (only||ri===rows.length-1?' nolink':'')+'">'+
           '<span class="rail"><i class="dot">'+
@@ -2308,10 +2317,10 @@
     var p=mePerson();
     if(!S.me){ el.innerHTML=''; MYJOB_HTML=null; return; }  /* nobody chosen yet */
     /* one plan for everyone; a crew member or pacer can narrow it to their own stops */
-    var head='<div class="phead"><h1>The plan</h1><p class="sec">'+(p?esc(p.name)+', '+esc(roleLabel(p)).replace(/ \u00b7 /g,', ')+'. ':'')+'Every stop in order, with what to bring and how to get there.</p></div>';
+    var head='<div class="phead"><h1>The plan</h1><p class="sec">'+planWho(p)+'Every stop in order, with what to bring and how to get there.</p></div>';
     var html = head + howCardHTML() +
       (p && p.role==='pacer' ? pacerJobHTML(p) : '') +
-      '<div class="shead tight"><h2>Goal Times</h2></div>'+
+      '<div class="shead tight"><h2>Goal times</h2></div>'+
       '<div class="seg planpicker"></div>' +
       stopsListHTML();
     if(html===MYJOB_HTML){ paintHero(el); paintEtas(el); return; }  /* leave it alone */
@@ -2545,52 +2554,135 @@
   }
   function closeSheet(){ modal.classList.remove('on'); syncScrollLock(); }
 
+  /* ── Gesture physics ──────────────────────────────────────────────
+     Shared by the sheet and the edge swipe. Velocity comes from the last
+     ~80 ms of the pointer, not the whole drag, so a slow drag that ends in a
+     flick still counts as a flick. PROJECT is the scroll-deceleration curve:
+     where the thing would come to rest if let go with that speed. Decisions
+     are made on that projected point, never on the release point.
+     EASE_SLOPE is the starting slope of --ease; the settle duration is chosen
+     so the animation leaves at exactly the finger's speed, with no seam. */
+  var EASE_SLOPE = 0.72/0.32;
+  function Track(){ this.h=[]; }
+  Track.prototype.add=function(v,t){ this.h.push({v:v,t:t}); if(this.h.length>12) this.h.shift(); };
+  Track.prototype.vel=function(){
+    var h=this.h, n=h.length; if(n<2) return 0;
+    var last=h[n-1], i=n-1; while(i>0 && last.t-h[i-1].t<=80) i--;
+    var dt=last.t-h[i].t; return dt>0 ? (last.v-h[i].v)/dt*1000 : 0;
+  };
+  function PROJECT(v){ var d=0.998; return (v/1000)*d/(1-d); }
+  function settleSecs(dist, v){
+    var t = Math.abs(v)>40 ? EASE_SLOPE*Math.abs(dist)/Math.abs(v) : 0.4;
+    return Math.max(0.18, Math.min(0.42, t));
+  }
+  /* resistance that grows the further past the edge you pull */
+  function RUBBER(o, dim){ var c=0.55; return (o*dim*c)/(dim+c*Math.abs(o)); }
+
   /* Drag the sheet down by its header to dismiss. Only the header, which can
      carry touch-action:none -- starting a drag inside the scrolling body
-     means competing with the scroller for the same gesture. */
+     means competing with the scroller for the same gesture. Pulling up past
+     open rubber-bands instead of hitting a wall; the scrim lightens with the
+     drag so the page behind is visibly coming back. */
   (function sheetDrag(){
-    var sy=0, dy=0, on=false, id=null;
+    var sy=0, dy=0, on=false, id=null, tr=null, H=600;
+    function place(d){
+      var shown = d>=0 ? d : -RUBBER(-d, H);
+      shEl.style.transform='translateY('+shown+'px)';
+      var k=Math.max(0, Math.min(1, d/H));
+      modal.style.backgroundColor='rgba(9,17,13,'+(0.44*(1-k)).toFixed(3)+')';
+    }
     function end(){
       if(!on) return;
-      on=false; shEl.classList.remove('dragging'); shEl.style.transform='';
-      if(dy>90) closeSheet();
+      on=false;
+      var v=tr.vel(), land=dy+PROJECT(v);
+      var close = dy>0 && land > H*0.42;
+      var dist = close ? H-Math.max(0,dy) : Math.abs(dy);
+      var secs = settleSecs(dist, v);
+      shEl.classList.remove('dragging'); modal.classList.remove('dragging');
+      shEl.style.transition='transform '+secs+'s var(--ease)';
+      modal.style.transition='background-color '+secs+'s var(--ease), visibility 0s '+(close?secs:0)+'s';
+      shEl.style.transform=''; modal.style.backgroundColor='';
+      if(close) closeSheet();
+      setTimeout(function(){ shEl.style.transition=''; modal.style.transition=''; }, secs*1000+40);
     }
     shEl.addEventListener('pointerdown', function(e){
       var t=e.target;
       if(!t.closest || !t.closest('.sh-top')) return;
       if(t.closest('button,a,input,textarea,select')) return;
-      on=true; id=e.pointerId; sy=e.clientY; dy=0;
-      shEl.classList.add('dragging');
-      shEl.setPointerCapture && shEl.setPointerCapture(e.pointerId);
+      /* grab it wherever it is, even mid-settle: start from what is on screen */
+      var m=new DOMMatrixReadOnly(getComputedStyle(shEl).transform);
+      on=true; id=e.pointerId; H=shEl.offsetHeight||600;
+      /* caught on its way out: it is open again, under the finger */
+      if(!modal.classList.contains('on')){ modal.classList.add('on'); syncScrollLock(); }
+      sy=e.clientY-m.m42; dy=m.m42; tr=new Track(); tr.add(dy, e.timeStamp);
+      shEl.style.transition=''; modal.style.transition='';
+      shEl.classList.add('dragging'); modal.classList.add('dragging');
+      place(dy);
+      try{ shEl.setPointerCapture(e.pointerId); }catch(err){}
     });
     shEl.addEventListener('pointermove', function(e){
       if(!on || e.pointerId!==id) return;
-      dy=Math.max(0, e.clientY-sy);
-      /* a little resistance past halfway, the way a real sheet feels */
-      var shown = dy<160 ? dy : 160+(dy-160)*0.4;
-      shEl.style.transform='translateY('+shown+'px)';
+      dy=e.clientY-sy; tr.add(dy, e.timeStamp); place(dy);
     });
     shEl.addEventListener('pointerup', end);
     shEl.addEventListener('pointercancel', end);
   })();
 
   /* Left-edge swipe to go back. Safari gives you this in a tab and takes it
-     away in a home-screen app, which is the one place it is missed. */
+     away in a home-screen app, which is the one place it is missed. The page
+     follows the finger the whole way; letting go decides by where the throw
+     would land, so a short quick flick goes back and a long slow drag that
+     changes its mind does not. */
   (function edgeBack(){
-    var sx=0, sy=0, armed=false;
+    var sx=0, sy=0, armed=false, live=false, dx=0, tr=null, el=null, W=390;
+    function place(x){ el.style.transform='translate3d('+Math.max(0,x)+'px,0,0)'; }
+    function reset(){ if(el){ el.style.transition=''; el.style.transform=''; el.style.boxShadow=''; el.style.animation=''; } el=null; live=false; }
     document.addEventListener('touchstart', function(e){
       armed=false;
-      if(!detailKey || e.touches.length!==1) return;
+      if(!(detailKey||SUBV) || e.touches.length!==1) return;
+      if(document.querySelector('.modal.on,#mapFull.on')) return;
+      /* surfaces that drag for themselves keep their own gesture */
+      if(e.target.closest && e.target.closest('.fm-canvas,.tl,canvas,input[type=range]')) return;
       var t=e.touches[0];
       if(t.clientX>26) return;
-      armed=true; sx=t.clientX; sy=t.clientY;
+      armed=true; live=false; sx=t.clientX; sy=t.clientY; dx=0;
+      tr=new Track(); tr.add(0, e.timeStamp);
     }, {passive:true});
     document.addEventListener('touchmove', function(e){
       if(!armed || !e.touches.length) return;
-      var t=e.touches[0];
-      if(t.clientX-sx>60 && Math.abs(t.clientY-sy)<40){ armed=false; history.back(); }
-    }, {passive:true});
-    document.addEventListener('touchend', function(){ armed=false; }, {passive:true});
+      var t=e.touches[0], mx=t.clientX-sx, my=t.clientY-sy;
+      if(!live){
+        if(Math.abs(my)>10 && Math.abs(my)>Math.abs(mx)){ armed=false; return; }  /* it was a scroll */
+        if(mx<10) return;                                                       /* not yet a swipe */
+        el=document.querySelector('.view.on'); if(!el){ armed=false; return; }
+        live=true; W=window.innerWidth||390;
+        /* an entrance animation with fill would override the inline transform */
+        el.classList.remove('en-push','en-pop','en-r','en-l'); el.style.animation='none';
+        el.style.transition='none'; el.style.boxShadow='-12px 0 30px -18px rgba(14,20,48,.45)';
+      }
+      if(e.cancelable) e.preventDefault();
+      dx=mx-10; tr.add(dx, e.timeStamp); place(dx);
+    }, {passive:false});
+    function end(){
+      if(!armed){ return; } armed=false;
+      if(!live){ return; }
+      var v=tr.vel(), land=dx+PROJECT(v), go = land > W*0.5;
+      var target = go ? W : 0, secs = settleSecs(target-dx, v), cur=el;
+      cur.style.transition='transform '+secs+'s var(--ease)';
+      place(target);
+      setTimeout(function(){
+        if(el!==cur) return;
+        if(!go){ reset(); return; }
+        /* hold the page off-screen until the view underneath has taken over */
+        var done=false;
+        function fin(){ if(done) return; done=true; removeEventListener('popstate', pop); requestAnimationFrame(function(){ if(el===cur) reset(); }); }
+        function pop(){ setTimeout(fin, 0); }
+        addEventListener('popstate', pop); setTimeout(fin, 500);
+        history.back();
+      }, secs*1000);
+    }
+    document.addEventListener('touchend', end, {passive:true});
+    document.addEventListener('touchcancel', end, {passive:true});
   })();
   modal.onclick=function(e){ if(e.target===modal) closeSheet(); };
   document.addEventListener('keydown',function(e){

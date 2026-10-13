@@ -212,7 +212,7 @@
         return '<button class="nw-row" '+(r.c?'data-nstop="'+r.c.n+'"':'data-naid="'+r.si+'"')+'>'+
           '<span class="post num">'+s.mi.toFixed(0)+'</span>'+
           '<span class="mid"><b>'+esc(name)+'</b><s>'+(r.c&&driveMins(r.c)?driveShort(r.c)+' drive':'mile '+s.mi.toFixed(1))+
-            (s.cut!=null?', cutoff '+clk(s.cut):'')+'</s></span>'+
+            (s.cut!=null?', <span class="nowrap">cutoff '+clk(s.cut)+'</span>':'')+'</s></span>'+
           '<span class="rt"><b class="num">'+clk(p.min)+'</b><s class="num">'+(p.lo!=null?clkRange(p):dyOf(p.min))+'</s></span></button>';
       }).join('')+'</div></section>';
   }
